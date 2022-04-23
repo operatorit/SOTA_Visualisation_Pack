@@ -104,24 +104,42 @@ spots_df['band_color'] = None
 spots_df = spots_df.reset_index(drop = True)
 
 
+# list to keep summit codes not found in SOTA Database file
+# List of summits is periodically updated, but typos in summits codes in spots are also common
+summits_errors = []
+
 # copying relevant data for visualisation from SOTA database extract to spots dataframe
 # also adding time since spot in hour fraction and description of spot
-# adding previously defined colorcodes for band and mode to each spot
+# adding previously defined colorcodes for band and mode to each spot, together with a band for each one
+# popup column provides a summary of activation to be displayed on map
 for i in range(0, len(spots_df)):
-    spots_df.loc[i, ('longitude')] = SOTA_summits_df['Longitude'][spots_df.loc[i, 'summit']]
-    spots_df.loc[i, ('latitude')] = SOTA_summits_df['Latitude'][spots_df.loc[i, 'summit']]
-    spots_df.loc[i, ('points')] = SOTA_summits_df['Points'][spots_df.loc[i, 'summit']]
-    spots_df.loc[i, ('summitName')] = SOTA_summits_df['SummitName'][spots_df.loc[i, 'summit']]
-    spots_df.loc[i, ('time_since_spot')] = datetime.utcnow()-spots_df.loc[i, ('timeStamp')]
-    spots_df.loc[i, ('time_since_spot')] = spots_df.loc[i, ('time_since_spot')]/timedelta(hours=1)
-    spots_df.loc[i, ('popup')] = f"Summit {spots_df.loc[i, ('summitName')]} - {spots_df.loc[i, ('summit')]}\nactivated by {spots_df.loc[i, ('activatorCallsign')]}\non {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')]}\n{round(spots_df.loc[i, ('time_since_spot')]*60)} minutes ago\n{spots_df.loc[i, ('points')]} points"
-    for band in bands_df.index: # assess band based on frequency spotted
-        if (spots_df.loc[i, ('frequency')] >= bands_df['lower_freq'][band]) and (spots_df.loc[i, ('frequency')] <= bands_df['upper_freq'][band]):
-            spots_df.loc[i, ('band_color')] = bands_df['color'][band]
-    for j in modes_df.index:
-        if spots_df.loc[i, ('mode')].upper() == modes_df.iloc[j]['mode'].upper():
-            spots_df.loc[i,('mode_color')] = modes_df.iloc[j]['color']
+    # if summits data are correct,prepare spot's data for visualisation
+    if spots_df.loc[i, ('summit')].upper() in SOTA_summits_df.index:
+        spots_df.loc[i, ('longitude')] = SOTA_summits_df['Longitude'][spots_df.loc[i, 'summit']]
+        spots_df.loc[i, ('latitude')] = SOTA_summits_df['Latitude'][spots_df.loc[i, 'summit']]
+        spots_df.loc[i, ('points')] = SOTA_summits_df['Points'][spots_df.loc[i, 'summit']]
+        spots_df.loc[i, ('summitName')] = SOTA_summits_df['SummitName'][spots_df.loc[i, 'summit']]
+        spots_df.loc[i, ('time_since_spot')] = datetime.utcnow()-spots_df.loc[i, ('timeStamp')]
+        spots_df.loc[i, ('time_since_spot')] = spots_df.loc[i, ('time_since_spot')]/timedelta(hours=1)
+        spots_df.loc[i, ('popup')] = f"Summit {spots_df.loc[i, ('summitName')].title()} - {spots_df.loc[i, ('summit')]} ({spots_df.loc[i, ('points')]} points)\nactivated by {spots_df.loc[i, ('activatorCallsign')].upper()}\non {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')].upper()}\n{round(spots_df.loc[i, ('time_since_spot')]*60)} minutes ago\n."
+        spots_df.loc[i, ('mode')] = spots_df.loc[i, ('mode')].upper()
+        for band in bands_df.index: # assess band based on frequency spotted
+            if (spots_df.loc[i, ('frequency')] >= bands_df['lower_freq'][band]) and (spots_df.loc[i, ('frequency')] <= bands_df['upper_freq'][band]):
+                spots_df.loc[i, ('band_color')] = bands_df['color'][band]
+                spots_df.loc[i, ('band')] = band
+        for j in modes_df.index:
+            if spots_df.loc[i, ('mode')] == modes_df.iloc[j]['mode'].upper():
+                spots_df.loc[i,('mode_color')] = modes_df.iloc[j]['color']
+    # if summit isn't found in database, print warning, save it on a list and leave their data with None
+    else:
+        print(f"Summit {spots_df.loc[i, ('summit')]} activated by {spots_df.loc[i, ('activatorCallsign')].upper()} on {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')].upper()}  NOT FOUND.")
+        summits_errors.append({spots_df.loc[i, ('summit')]})
 
+# save errors to file
+if len(summits_errors) != 0:
+    with open('summits_errors.txt', 'a') as f:
+        for error in summits_errors:
+            f.write(f'{error}\n')
 # create a map
 activations_map = folium.Map(location=[50, 20],  # map is centered on Kraków - city where I live
                              tiles="Stamen Terrain",
@@ -130,16 +148,17 @@ activations_map = folium.Map(location=[50, 20],  # map is centered on Kraków - 
 
 # add spots to a map
 for i in range(0, len(spots_df)):  # add point for every spot (with duplicates removed)
-    folium.CircleMarker(
-        location=[spots_df.loc[i, ('latitude')], spots_df.loc[i, ('longitude')]],  # spot's location
-        radius=(1 - spots_df.loc[i, ('time_since_spot')]) * 15,  # radius is proportional to time from sending
-        # the spot. The newest spot, the larger circle
-        popup=spots_df.loc[i, ("popup")],
-        fill_color=spots_df.loc[i, ('band_color')],  # circle's fill represents activation's band
-        weight=3,
-        color=spots_df.loc[i, ('mode_color')],  # border color represents activation's mode
-        fill_opacity=1
-    ).add_to(activations_map)
+    if spots_df.loc[i, ('longitude')] != None:  # ignore spots where no reference data in SOTA database was found
+        folium.CircleMarker(
+            location=[spots_df.loc[i, ('latitude')], spots_df.loc[i, ('longitude')]],  # spot's location
+            radius=(1 - spots_df.loc[i, ('time_since_spot')]) * 15,  # radius is proportional to time from sending
+            # the spot. The newest spot, the larger circle
+            popup=spots_df.loc[i, ("popup")],
+            fill_color=spots_df.loc[i, ('band_color')],  # circle's fill represents activation's band
+            weight=3,
+            color=spots_df.loc[i, ('mode_color')],  # border color represents activation's mode
+            fill_opacity=1
+        ).add_to(activations_map)
 
 # save map in a file
 activations_map.save('activations_map.html')
