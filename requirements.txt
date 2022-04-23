@@ -1,0 +1,12 @@
+pandas
+adif-io
+requests
+plotly
+unidecode
+folium
+maidenhead
+dash
+json
+dash
+dash-leaflet
+requests

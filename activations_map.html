@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<head>    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.6.0/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_e8b924021a3e94877ae228e58678a83d {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+            </style>
+        
+</head>
+<body>    
+    
+            <div class="folium-map" id="map_e8b924021a3e94877ae228e58678a83d" ></div>
+        
+</body>
+<script>    
+    
+            var map_e8b924021a3e94877ae228e58678a83d = L.map(
+                "map_e8b924021a3e94877ae228e58678a83d",
+                {
+                    center: [50.0, 20.0],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 2,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_5d4b7700e3a4d570b230d6f5515d65c9 = L.tileLayer(
+                "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg",
+                {"attribution": "Map tiles by \u003ca href=\"http://stamen.com\"\u003eStamen Design\u003c/a\u003e, under \u003ca href=\"http://creativecommons.org/licenses/by/3.0\"\u003eCC BY 3.0\u003c/a\u003e. Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://creativecommons.org/licenses/by-sa/3.0\"\u003eCC BY SA\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+            var circle_marker_7f991ff19acbaa6b28969796d3894142 = L.circleMarker(
+                [50.4558, 18.1692],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "green", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.315590870833333, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_6a43a0456538cef109fdfd96c61c2720 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_eaf932000e7da6c5daf6547bcfa4a673 = $(`<div id="html_eaf932000e7da6c5daf6547bcfa4a673" style="width: 100.0%; height: 100.0%;">Summit Góra Świętej Anny - SP/WS-002 (1 points) activated by SQ9RNW/P on 28.45 - SSB 3 minutes ago .</div>`)[0];
+            popup_6a43a0456538cef109fdfd96c61c2720.setContent(html_eaf932000e7da6c5daf6547bcfa4a673);
+        
+
+        circle_marker_7f991ff19acbaa6b28969796d3894142.bindPopup(popup_6a43a0456538cef109fdfd96c61c2720)
+        ;
+
+        
+    
+    
+            var circle_marker_7c6411b62be224dedf135aa62c92e59d = L.circleMarker(
+                [54.00271, -0.74771],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 14.055900779166667, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_248443371f6142d09055a004e3c772ef = L.popup({"maxWidth": "100%"});
+
+        
+            var html_4c6fc50198208f1acd7ed431d26d1293 = $(`<div id="html_4c6fc50198208f1acd7ed431d26d1293" style="width: 100.0%; height: 100.0%;">Summit Bishop Wilton Wold - G/TW-004 (1 points) activated by G4OOE/P on 14.061 - CW 4 minutes ago .</div>`)[0];
+            popup_248443371f6142d09055a004e3c772ef.setContent(html_4c6fc50198208f1acd7ed431d26d1293);
+        
+
+        circle_marker_7c6411b62be224dedf135aa62c92e59d.bindPopup(popup_248443371f6142d09055a004e3c772ef)
+        ;
+
+        
+    
+    
+            var circle_marker_52bbeb77027b6c572207b9fd8a132165 = L.circleMarker(
+                [51.93484, -4.17936],
+                {"bubblingMouseEvents": true, "color": "yellow", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13.962602354166666, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_6a3c0d50448237f265006e7abfedd1c6 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_f15e28197e9bc9a2753f6dc2e3df9ad0 = $(`<div id="html_f15e28197e9bc9a2753f6dc2e3df9ad0" style="width: 100.0%; height: 100.0%;">Summit Pen-Crug-Melyn - GW/MW-036 (1 points) activated by MW0KXN/P on 145.45 - FM 4 minutes ago .</div>`)[0];
+            popup_6a3c0d50448237f265006e7abfedd1c6.setContent(html_f15e28197e9bc9a2753f6dc2e3df9ad0);
+        
+
+        circle_marker_52bbeb77027b6c572207b9fd8a132165.bindPopup(popup_6a3c0d50448237f265006e7abfedd1c6)
+        ;
+
+        
+    
+    
+            var circle_marker_ec59f7aa84fc26e501ae9c1505837b79 = L.circleMarker(
+                [47.8053, 13.1125],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 13.3019481875, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_bd9d7a5f148c78b78e8f28d9fec10a8c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_a068b5ef5e7666094e7c132f97290607 = $(`<div id="html_a068b5ef5e7666094e7c132f97290607" style="width: 100.0%; height: 100.0%;">Summit Gaisberg - OE/SB-268 (4 points) activated by OE1WED/2 on 7.0229 - CW 7 minutes ago .</div>`)[0];
+            popup_bd9d7a5f148c78b78e8f28d9fec10a8c.setContent(html_a068b5ef5e7666094e7c132f97290607);
+        
+
+        circle_marker_ec59f7aa84fc26e501ae9c1505837b79.bindPopup(popup_bd9d7a5f148c78b78e8f28d9fec10a8c)
+        ;
+
+        
+    
+    
+            var circle_marker_e3e67a9ee102987d82c0d948c93f827a = L.circleMarker(
+                [41.41831, -8.40365],
+                {"bubblingMouseEvents": true, "color": "yellow", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12.652758095833335, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_4bd535f16cca3eae684260d1f57c278a = L.popup({"maxWidth": "100%"});
+
+        
+            var html_8fb807aeb58f7c6861a66e394c2cd499 = $(`<div id="html_8fb807aeb58f7c6861a66e394c2cd499" style="width: 100.0%; height: 100.0%;">Summit Santa Tecla - CT/MN-049 (1 points) activated by CT2GSN/P on 145.525 - FM 9 minutes ago .</div>`)[0];
+            popup_4bd535f16cca3eae684260d1f57c278a.setContent(html_8fb807aeb58f7c6861a66e394c2cd499);
+        
+
+        circle_marker_e3e67a9ee102987d82c0d948c93f827a.bindPopup(popup_4bd535f16cca3eae684260d1f57c278a)
+        ;
+
+        
+    
+    
+            var circle_marker_1d0900a0aea80345943f1876333bf577 = L.circleMarker(
+                [52.88611, -6.30569],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12.533872141666668, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_e1f05dbba105222230fe96cd0787245e = L.popup({"maxWidth": "100%"});
+
+        
+            var html_d623c3793cc55e66a1fa18daacd284b7 = $(`<div id="html_d623c3793cc55e66a1fa18daacd284b7" style="width: 100.0%; height: 100.0%;">Summit Cushbawn - EI/IE-042 (4 points) activated by EI6FR/P  on 14.064 - CW 10 minutes ago .</div>`)[0];
+            popup_e1f05dbba105222230fe96cd0787245e.setContent(html_d623c3793cc55e66a1fa18daacd284b7);
+        
+
+        circle_marker_1d0900a0aea80345943f1876333bf577.bindPopup(popup_e1f05dbba105222230fe96cd0787245e)
+        ;
+
+        
+    
+    
+            var circle_marker_d65a2818211d7fa5f166dc9db5a494ab = L.circleMarker(
+                [52.79547, -6.32415],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12.489765424999998, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_ea5b19a70f4b0be9650f99abf5d7d2fa = L.popup({"maxWidth": "100%"});
+
+        
+            var html_7dd8486ea7059173e76ebb6a20454da4 = $(`<div id="html_7dd8486ea7059173e76ebb6a20454da4" style="width: 100.0%; height: 100.0%;">Summit Croghan Kinsella - EI/IE-013 (8 points) activated by EI9KY/P on 14.062 - CW 10 minutes ago .</div>`)[0];
+            popup_ea5b19a70f4b0be9650f99abf5d7d2fa.setContent(html_7dd8486ea7059173e76ebb6a20454da4);
+        
+
+        circle_marker_d65a2818211d7fa5f166dc9db5a494ab.bindPopup(popup_ea5b19a70f4b0be9650f99abf5d7d2fa)
+        ;
+
+        
+    
+    
+            var circle_marker_977203d4e6bbf3b0083320fe060268fe = L.circleMarker(
+                [48.9352, 13.7288],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12.431919591666666, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_e44fe12637f841c1640ed557336c31fb = L.popup({"maxWidth": "100%"});
+
+        
+            var html_78e4e6186c99294506c2542b96866797 = $(`<div id="html_78e4e6186c99294506c2542b96866797" style="width: 100.0%; height: 100.0%;">Summit Žlíbský Vrch - OK/JC-127 (10 points) activated by OK4DX/P on 7.032 - CW 10 minutes ago .</div>`)[0];
+            popup_e44fe12637f841c1640ed557336c31fb.setContent(html_78e4e6186c99294506c2542b96866797);
+        
+
+        circle_marker_977203d4e6bbf3b0083320fe060268fe.bindPopup(popup_e44fe12637f841c1640ed557336c31fb)
+        ;
+
+        
+    
+    
+            var circle_marker_f9b32a0c17d62e38d83c160527f24f09 = L.circleMarker(
+                [52.85222, -6.38866],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12.256617, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_165484602c5618ba9f3f7e9238a49010 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_18793f1048195419fce4bce08b7c994f = $(`<div id="html_18793f1048195419fce4bce08b7c994f" style="width: 100.0%; height: 100.0%;">Summit Preban Hill - EI/IE-045 (2 points) activated by EI6FR/P  on 14.064 - CW 11 minutes ago .</div>`)[0];
+            popup_165484602c5618ba9f3f7e9238a49010.setContent(html_18793f1048195419fce4bce08b7c994f);
+        
+
+        circle_marker_f9b32a0c17d62e38d83c160527f24f09.bindPopup(popup_165484602c5618ba9f3f7e9238a49010)
+        ;
+
+        
+    
+    
+            var circle_marker_b5c65d2cf2c1ac9b6f191b5ba0d7a455 = L.circleMarker(
+                [47.6837, 12.4941],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 11.851331079166666, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_e46c5f00392a07e285b16ff87b4f03a3 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_5ecdcf011e0c7f2fb604e2076cca7628 = $(`<div id="html_5ecdcf011e0c7f2fb604e2076cca7628" style="width: 100.0%; height: 100.0%;">Summit Walmberg - DL/CG-110 (2 points) activated by DL2KL/P on 7.065 - SSB 13 minutes ago .</div>`)[0];
+            popup_e46c5f00392a07e285b16ff87b4f03a3.setContent(html_5ecdcf011e0c7f2fb604e2076cca7628);
+        
+
+        circle_marker_b5c65d2cf2c1ac9b6f191b5ba0d7a455.bindPopup(popup_e46c5f00392a07e285b16ff87b4f03a3)
+        ;
+
+        
+    
+    
+            var circle_marker_584a60ea024be2b8961d7213ffa43703 = L.circleMarker(
+                [59.9257, 7.0396],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 11.7027894125, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_e7b145f7795cf84c25f22f8d5af61a4b = L.popup({"maxWidth": "100%"});
+
+        
+            var html_e48ac240fa5331e72cffbf7137b1df51 = $(`<div id="html_e48ac240fa5331e72cffbf7137b1df51" style="width: 100.0%; height: 100.0%;">Summit East Of Kvessenuten - LA/HL-071 (6 points) activated by LA9XGA/P on 14.3335 - SSB 13 minutes ago .</div>`)[0];
+            popup_e7b145f7795cf84c25f22f8d5af61a4b.setContent(html_e48ac240fa5331e72cffbf7137b1df51);
+        
+
+        circle_marker_584a60ea024be2b8961d7213ffa43703.bindPopup(popup_e7b145f7795cf84c25f22f8d5af61a4b)
+        ;
+
+        
+    
+    
+            var circle_marker_e23af9113fea71d8ed2941838d25d73f = L.circleMarker(
+                [48.8357, 20.0288],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 11.464361820833334, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_915fa51ca463e3277eefe67f01c47b55 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_047b49d7ebba1047883f23ebe40ded30 = $(`<div id="html_047b49d7ebba1047883f23ebe40ded30" style="width: 100.0%; height: 100.0%;">Summit Gindura - OM/BB-050 (4 points) activated by OM1ALT/P on 14.28 - SSB 14 minutes ago .</div>`)[0];
+            popup_915fa51ca463e3277eefe67f01c47b55.setContent(html_047b49d7ebba1047883f23ebe40ded30);
+        
+
+        circle_marker_e23af9113fea71d8ed2941838d25d73f.bindPopup(popup_915fa51ca463e3277eefe67f01c47b55)
+        ;
+
+        
+    
+    
+            var circle_marker_d561d9d3f8afc393f20dc1bd66137005 = L.circleMarker(
+                [47.7867, 9.0353],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 11.290075891666667, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_de892873d3c1f14bb9b2d5eb8b57d4eb = L.popup({"maxWidth": "100%"});
+
+        
+            var html_7135211d3edf14b5b51cf987ac7b46c4 = $(`<div id="html_7135211d3edf14b5b51cf987ac7b46c4" style="width: 100.0%; height: 100.0%;">Summit Stöckenloch - DM/BW-359 (6 points) activated by DL/HB9FUE/P on 7.089 - SSB 15 minutes ago .</div>`)[0];
+            popup_de892873d3c1f14bb9b2d5eb8b57d4eb.setContent(html_7135211d3edf14b5b51cf987ac7b46c4);
+        
+
+        circle_marker_d561d9d3f8afc393f20dc1bd66137005.bindPopup(popup_de892873d3c1f14bb9b2d5eb8b57d4eb)
+        ;
+
+        
+    
+    
+            var circle_marker_c477ef9a39de346eed5fd692710a0ab0 = L.circleMarker(
+                [47.3094, 8.9425],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "salmon", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 11.034296724999999, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_12c77d10bf857751a0db9427a03d3d0c = L.popup({"maxWidth": "100%"});
+
+        
+            var html_3c4d3cb991ba876006bb5a1c61ccf0cd = $(`<div id="html_3c4d3cb991ba876006bb5a1c61ccf0cd" style="width: 100.0%; height: 100.0%;">Summit Brandegg - HB/ZH-018 (2 points) activated by HB9CYV/P on 10.1153 - CW 16 minutes ago .</div>`)[0];
+            popup_12c77d10bf857751a0db9427a03d3d0c.setContent(html_3c4d3cb991ba876006bb5a1c61ccf0cd);
+        
+
+        circle_marker_c477ef9a39de346eed5fd692710a0ab0.bindPopup(popup_12c77d10bf857751a0db9427a03d3d0c)
+        ;
+
+        
+    
+    
+            var circle_marker_d3e1e37220e177a31efb3d26f1cc6955 = L.circleMarker(
+                [41.41831, -8.40365],
+                {"bubblingMouseEvents": true, "color": "yellow", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 9.5851233125, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_26a8c935d5a574e57b490d01ab07d8b4 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_021d4a3cf84f22ccc22e43bf1cd677a6 = $(`<div id="html_021d4a3cf84f22ccc22e43bf1cd677a6" style="width: 100.0%; height: 100.0%;">Summit Santa Tecla - CT/MN-049 (1 points) activated by CT2GSN/P  on 145.525 - FM 22 minutes ago .</div>`)[0];
+            popup_26a8c935d5a574e57b490d01ab07d8b4.setContent(html_021d4a3cf84f22ccc22e43bf1cd677a6);
+        
+
+        circle_marker_d3e1e37220e177a31efb3d26f1cc6955.bindPopup(popup_26a8c935d5a574e57b490d01ab07d8b4)
+        ;
+
+        
+    
+    
+            var circle_marker_8601ba27f4948911dbc5d0299a9fcf48 = L.circleMarker(
+                [47.2731, 13.5433],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8.980541554166667, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_ba958861ec1051213b4ac20ec4f702ea = L.popup({"maxWidth": "100%"});
+
+        
+            var html_82bd04c12ec0c26d628b565acbb29e2f = $(`<div id="html_82bd04c12ec0c26d628b565acbb29e2f" style="width: 100.0%; height: 100.0%;">Summit Seekarspitze - OE/SB-073 (10 points) activated by OE6ADE/P on 14.31 - SSB 24 minutes ago .</div>`)[0];
+            popup_ba958861ec1051213b4ac20ec4f702ea.setContent(html_82bd04c12ec0c26d628b565acbb29e2f);
+        
+
+        circle_marker_8601ba27f4948911dbc5d0299a9fcf48.bindPopup(popup_ba958861ec1051213b4ac20ec4f702ea)
+        ;
+
+        
+    
+    
+            var circle_marker_8b1c698619a717955e662a81e6f7174d = L.circleMarker(
+                [38.6992, 23.435],
+                {"bubblingMouseEvents": true, "color": "yellow", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 7.744838958333334, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_8588a370a1573373d7158cf85ba16ec5 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_9a7887c1235bc89fbba41b84d2b7b869 = $(`<div id="html_9a7887c1235bc89fbba41b84d2b7b869" style="width: 100.0%; height: 100.0%;">Summit Strougitsa - SV/EV-005 (4 points) activated by SV1RVI/P on 145.375 - FM 29 minutes ago .</div>`)[0];
+            popup_8588a370a1573373d7158cf85ba16ec5.setContent(html_9a7887c1235bc89fbba41b84d2b7b869);
+        
+
+        circle_marker_8b1c698619a717955e662a81e6f7174d.bindPopup(popup_8588a370a1573373d7158cf85ba16ec5)
+        ;
+
+        
+    
+    
+            var circle_marker_9f40caf9278b2243b4d7688258439a59 = L.circleMarker(
+                [49.4706, 9.0411],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 7.5524764583333335, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_15b33334be118e511133ebcf23759248 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_34ab234c841054a3dfa67866f76d05a3 = $(`<div id="html_34ab234c841054a3dfa67866f76d05a3" style="width: 100.0%; height: 100.0%;">Summit Katzenbuckel - DM/BW-107 (6 points) activated by DL4TO/P on 7.033 - CW 30 minutes ago .</div>`)[0];
+            popup_15b33334be118e511133ebcf23759248.setContent(html_34ab234c841054a3dfa67866f76d05a3);
+        
+
+        circle_marker_9f40caf9278b2243b4d7688258439a59.bindPopup(popup_15b33334be118e511133ebcf23759248)
+        ;
+
+        
+    
+    
+            var circle_marker_43869cbe7483efcf45f1bc3127f96f19 = L.circleMarker(
+                [47.1467, 4.66],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 7.431261379166666, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_396b30463fb6c968eeca46fd383c696d = L.popup({"maxWidth": "100%"});
+
+        
+            var html_56fce53f90f9da3292185b60f2c3f32d = $(`<div id="html_56fce53f90f9da3292185b60f2c3f32d" style="width: 100.0%; height: 100.0%;">Summit Forêt Tarbet - FL/VL-051 (4 points) activated by TM2IF on 7.09 - SSB 30 minutes ago .</div>`)[0];
+            popup_396b30463fb6c968eeca46fd383c696d.setContent(html_56fce53f90f9da3292185b60f2c3f32d);
+        
+
+        circle_marker_43869cbe7483efcf45f1bc3127f96f19.bindPopup(popup_396b30463fb6c968eeca46fd383c696d)
+        ;
+
+        
+    
+    
+            var circle_marker_c43761c4b14992d4afafff4d61f11fdb = L.circleMarker(
+                [47.9153, 19.5725],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "gold", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5.801208783333332, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_dca1cfb520c1a03a16a4ca4fa97d89c6 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_12d9a570bafe53c38102dd8b32cb5930 = $(`<div id="html_12d9a570bafe53c38102dd8b32cb5930" style="width: 100.0%; height: 100.0%;">Summit Magas-Hegy - HA/EM-070 (1 points) activated by HA5CQZ/P on 18.082 - CW 37 minutes ago .</div>`)[0];
+            popup_dca1cfb520c1a03a16a4ca4fa97d89c6.setContent(html_12d9a570bafe53c38102dd8b32cb5930);
+        
+
+        circle_marker_c43761c4b14992d4afafff4d61f11fdb.bindPopup(popup_dca1cfb520c1a03a16a4ca4fa97d89c6)
+        ;
+
+        
+    
+    
+            var circle_marker_cc0e201f64511dd8b3120e9ee4b7ff30 = L.circleMarker(
+                [54.26329, -4.46163],
+                {"bubblingMouseEvents": true, "color": "yellow", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "blue", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4.961089529166667, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_d954a078888fc3e75f7e113059181160 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_0010711d1e4f1dd996c7e27f76bd2782 = $(`<div id="html_0010711d1e4f1dd996c7e27f76bd2782" style="width: 100.0%; height: 100.0%;">Summit Snaefell - GD/GD-001 (8 points) activated by MD0OVW/P on 145.475 - FM 40 minutes ago .</div>`)[0];
+            popup_d954a078888fc3e75f7e113059181160.setContent(html_0010711d1e4f1dd996c7e27f76bd2782);
+        
+
+        circle_marker_cc0e201f64511dd8b3120e9ee4b7ff30.bindPopup(popup_d954a078888fc3e75f7e113059181160)
+        ;
+
+        
+    
+    
+            var circle_marker_6319c8a8a55ac74609749f31b629c18c = L.circleMarker(
+                [47.0687, 9.1088],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 3.805857783333334, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_6ab545eaf12e8bc3b1e435dd37a69bc9 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_73a5e7c3d449057a04db8aebbd135047 = $(`<div id="html_73a5e7c3d449057a04db8aebbd135047" style="width: 100.0%; height: 100.0%;">Summit Fronalpstock - HB/GL-032 (8 points) activated by HB9DQM/P on 14.063 - CW 45 minutes ago .</div>`)[0];
+            popup_6ab545eaf12e8bc3b1e435dd37a69bc9.setContent(html_73a5e7c3d449057a04db8aebbd135047);
+        
+
+        circle_marker_6319c8a8a55ac74609749f31b629c18c.bindPopup(popup_6ab545eaf12e8bc3b1e435dd37a69bc9)
+        ;
+
+        
+    
+    
+            var circle_marker_552dd1891c555b16871026466d588ead = L.circleMarker(
+                [53.17037, -2.1447],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 3.80192445, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_a2fc2d464d12321d45e1fa3eafe21ba5 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_fbd8bd3c3369ba111bdd72e3f3b423c2 = $(`<div id="html_fbd8bd3c3369ba111bdd72e3f3b423c2" style="width: 100.0%; height: 100.0%;">Summit The Cloud - G/SP-015 (1 points) activated by GB20SOTA on 14.059 - CW 45 minutes ago .</div>`)[0];
+            popup_a2fc2d464d12321d45e1fa3eafe21ba5.setContent(html_fbd8bd3c3369ba111bdd72e3f3b423c2);
+        
+
+        circle_marker_552dd1891c555b16871026466d588ead.bindPopup(popup_a2fc2d464d12321d45e1fa3eafe21ba5)
+        ;
+
+        
+    
+    
+            var circle_marker_dc9c9d88b4c986b2841965552e1ebd17 = L.circleMarker(
+                [38.4577, -1.1158],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 1.3490968499999996, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_1f920d640e6adb2244658051937d1202 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_63f048439a32b319f2cb1b8b8c08ab59 = $(`<div id="html_63f048439a32b319f2cb1b8b8c08ab59" style="width: 100.0%; height: 100.0%;">Summit Pansas - EA5/MU-088 (4 points) activated by EA5IFF on 14.051 - CW 55 minutes ago .</div>`)[0];
+            popup_1f920d640e6adb2244658051937d1202.setContent(html_63f048439a32b319f2cb1b8b8c08ab59);
+        
+
+        circle_marker_dc9c9d88b4c986b2841965552e1ebd17.bindPopup(popup_1f920d640e6adb2244658051937d1202)
+        ;
+
+        
+    
+    
+            var circle_marker_1ff6f2cab4385ab4be714bdfe3a92be4 = L.circleMarker(
+                [51.28536, 9.78706],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 0.706335933333333, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_168737dab2d6d0af46576a44cbd8d0b9 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_5350786d078192b4906d8c63d6b57636 = $(`<div id="html_5350786d078192b4906d8c63d6b57636" style="width: 100.0%; height: 100.0%;">Summit Bilstein - DM/HE-035 (6 points) activated by DL2FAZ/P on 7.034 - CW 57 minutes ago .</div>`)[0];
+            popup_168737dab2d6d0af46576a44cbd8d0b9.setContent(html_5350786d078192b4906d8c63d6b57636);
+        
+
+        circle_marker_1ff6f2cab4385ab4be714bdfe3a92be4.bindPopup(popup_168737dab2d6d0af46576a44cbd8d0b9)
+        ;
+
+        
+    
+    
+            var circle_marker_7b4ea6be499c586a50e59beefc5434d0 = L.circleMarker(
+                [52.61913, -3.94712],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 0.6750442666666662, "stroke": true, "weight": 3}
+            ).addTo(map_e8b924021a3e94877ae228e58678a83d);
+        
+    
+        var popup_2f24f0bccc6796aa622beaa8bffc6431 = L.popup({"maxWidth": "100%"});
+
+        
+            var html_2b0aae4cab2c10feffc266be996b4b4d = $(`<div id="html_2b0aae4cab2c10feffc266be996b4b4d" style="width: 100.0%; height: 100.0%;">Summit Tarrenhendre - GW/NW-036 (4 points) activated by MW0PLA  on 14.32 - SSB 57 minutes ago .</div>`)[0];
+            popup_2f24f0bccc6796aa622beaa8bffc6431.setContent(html_2b0aae4cab2c10feffc266be996b4b4d);
+        
+
+        circle_marker_7b4ea6be499c586a50e59beefc5434d0.bindPopup(popup_2f24f0bccc6796aa622beaa8bffc6431)
+        ;
+
+        
+    
+</script>
