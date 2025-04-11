@@ -15,3 +15,10 @@ pyvenv.cfg
 pip-selfcheck.json
 SOTA_visualiser/*
 SOTA_visualiser/
+
+# gitignore
+.gitignore
+
+# secrets
+secrets/*
+secrets/
