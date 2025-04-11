@@ -6,7 +6,6 @@ unidecode
 folium
 maidenhead
 dash
-json
 dash
 dash-leaflet
 requests
