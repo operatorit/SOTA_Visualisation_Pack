@@ -22,3 +22,6 @@ SOTA_visualiser/
 # secrets
 secrets/*
 secrets/
+
+# other
+summmits_errors.txt
