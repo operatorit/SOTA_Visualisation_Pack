@@ -231,4 +231,4 @@ def update_map(bands, modes):
 
 # deploy the dashboard
 if __name__ == '__main__':
-    sota_spots_dashboard.run_server(port=8050, debug=True)
+    sota_spots_dashboard.run(port=8050, debug=True)
