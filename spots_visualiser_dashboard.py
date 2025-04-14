@@ -56,12 +56,15 @@ spots_dict = get_spots(-1)
 
 spots_df = pd.DataFrame(spots_dict)
 
+# replace frequency where it's provided in incorrect format with 0
+spots_df.loc[~spots_df['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
+
 # convert datatypes for relevant fields
 spots_df['activatorCallsign'] = spots_df['activatorCallsign'].astype('string')
 spots_df['associationCode'] = spots_df['associationCode'].astype('string')
 spots_df['summitCode'] = spots_df['summitCode'].astype('string')
 spots_df['mode'] = spots_df['mode'].astype('string')
-spots_df['frequency'] = spots_df['frequency'].astype('float')
+spots_df['frequency'] =  spots_df['frequency'].astype('float')
 spots_df['timeStamp'] = pd.to_datetime(spots_df['timeStamp'])
 
 # create DataFrame based on csv file with all the summits saved (regularly updated
@@ -228,4 +231,4 @@ def update_map(bands, modes):
 
 # deploy the dashboard
 if __name__ == '__main__':
-    sota_spots_dashboard.run_server(port=8050, debug=True)
+    sota_spots_dashboard.run(port=8050, debug=True)
