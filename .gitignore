@@ -1,5 +1,8 @@
 # created with gitignore.io support #
 
+# gitignore
+.gitignore
+
 ### venv ###
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
@@ -25,3 +28,4 @@ secrets/
 
 # other
 summmits_errors.txt
+activations_map.html

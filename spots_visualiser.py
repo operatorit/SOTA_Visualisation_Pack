@@ -52,6 +52,9 @@ spots_dict = {}
 spots_dict = get_spots()
 spots_df = pd.DataFrame(spots_dict)
 
+# replace frequency where it's provided in incorrect format with 0
+spots_df.loc[~spots_df['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
+
 # convert datatypes for relevant fields
 spots_df['activatorCallsign'] = spots_df['activatorCallsign'].astype('string')
 spots_df['associationCode'] = spots_df['associationCode'].astype('string')
@@ -142,7 +145,7 @@ if len(summits_errors) != 0:
             f.write(f'{error}\n')
 # create a map
 activations_map = folium.Map(location=[50, 20],  # map is centered on Kraków - city where I live
-                             tiles="Stamen Terrain",
+                             tiles="OpenStreetMap",
                              zoom_start=2  # show whole world at once
                              )
 
