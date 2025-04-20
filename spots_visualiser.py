@@ -1,59 +1,77 @@
 import requests # for communication with API
 import pandas as pd # for data analysis
-import folium # for data visualisation on a map
 from datetime import datetime, timedelta # for time calculations
+from dash import html, dcc, Dash, Input, Output # for dashboard construction
+import dash_leaflet as dl # to visualise map
 
-def get_spots(time = -1):
-      """Downdload spots aleted in defined timeframe or defined number of latests spots"""
-      # if time is negative - download spots alerted in defined number of alerts
-      # if time is positive - download given number of latest spots
-      # /api/.../all - if ... is positive - number of spots, if negative - number of hours
+class spots_visualiser:
+    
+    def __init__(self, lookback_time:int = -1):
+        """Initiates a class.
+        lookback_time - time in hours to look back for spots.
+        If lookback_time is negative - download spots alerted in defined number of alerts.
+        If lookback_time is positive - download given number of latest spots.
+        Default value is -1, which means that the latest 10 spots are downloaded.
+        """
+        self.lookback_time = lookback_time
+
+        self.define_constants()
+
+        self.spots = self.get_spots(lookback_time)
+
+    def define_constants(self):
+        """Defines contaants (related to SOTA API used and HAM radio characteristics)
+        required for the class to work.
+        Bands are groupped into ranges to fit bandplands for different countries.
+        """
+        self.api_url = f'https://api2.sota.org.uk/api/spots/{self.lookback_time}/all'
+
+        self.bands_df = pd.DataFrame({'band': ['1.8 MHz or below', '3.5 MHz', '5 MHz', '7 MHz', '10 MHz', '14 MHz', '18 MHz', '21 MHz', '24 MHz', '28 MHz', '50 MHz', '70 MHz', '144 MHz', '220 MHz', '433 MHz', '900 MHz or above'],
+                      'lower_freq': [0, 3, 4.5, 6, 9, 13, 16, 19, 24, 27, 45, 65, 142, 210, 420, 850],
+                      'upper_freq': [2.5, 4, 5.5, 8, 11, 15, 18.5, 23, 26, 35, 55, 75, 148, 240, 460, 500000],
+                      'color': ['saddlebrown','chocolate', 'brown','red', 'salmon', 'orange', 'gold', 'yellow', 'olivedrab', 'green', 'lime', 'cyan', 'blue', 'purple', 'magenta', 'pink'],
+                      })
+
+        self.bands_df = self.bands_df.set_index('band')
+        self.bands_df['color'] = self.bands_df['color'].astype('string')
+
+        self.modes_df = pd.DataFrame({'mode': ['AM', 'CW', 'Data', 'DV', 'FM', 'SSB', 'Other'],
+                                 'color': ['lime', 'red', 'cyan', 'magenta', 'yellow', 'blue', 'orange']
+                                 })
+        self.modes_df['color'] = self.modes_df['color'].astype('string')
+        self.modes_df['mode'] = self.modes_df['mode'].astype('string')
+
+    def get_spots(self) -> pd.DataFrame:
+      """Downloads spots aleted in defined timeframe or defined number of latests spots.
+      If there are no spots sent in time provided, return latest 10 to make sure dictionary is not empty.
+      """
       temp_spots_dict = {}
-      url = f'https://api2.sota.org.uk/api/spots/{time}/all'
-      r = requests.get(url)
+      r = requests.get(self.api_url)
       print(f'Status code: {r.status_code}')
       temp_spots_dict = r.json()
-      if time > 0:
-            print(f'{len(temp_spots_dict)} found where expected number was {time}.')
-      if time <= 0:
-            print(f'{len(temp_spots_dict)} spots found in latest {-time} h.')
-      # if there are no spots sent in time provided, return latest 10 to make sure dictionary is not empty
+
+      if self.lookback_time > 0:
+            print(f'{len(temp_spots_dict)} found where expected number was {self.lookback_time}.')
+      if self.lookback_time < 0:
+            print(f'{len(temp_spots_dict)} spots found in latest {-self.lookback_time} h.')
+
       if len(temp_spots_dict) == 0:
-          temp_spots_dict = get_spots(10)
-      return temp_spots_dict
+          temp_spots_dict = self.get_spots(10)
+          
+      return pd.DataFrame(temp_spots_dict)
+    
+    def amend_spots_frequencies(self) -> pd.DataFrame:
+        """Amend incorrect frequencies (defined as not matchng regular expression for
+        digits-dot-digits) to 0 to avoid errors during visualisation.
+        """
+        self.spots_df.loc[~self.spots_df['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
+    
+### NEW above
+### OLD below
 
 
-# create dataframes to store bands and modes data and map to colors for visualisation
-# lower and upper freqs does not refer to bandplan to make sure frequencies are mapped correctly during visualisation
-bands = {
-    'band': ['1.8 MHz or below', '3.5 MHz', '5 MHz', '7 MHz', '10 MHz', '14 MHz', '18 MHz', '21 MHz', '24 MHz', '28 MHz', '50 MHz', '70 MHz', '144 MHz', '220 MHz', '433 MHz', '900 MHz or above'],
-    'lower_freq': [0, 3, 4.5, 6, 9, 13, 16, 19, 24, 27, 45, 65, 142, 210, 420, 850],
-    'upper_freq': [2.5, 4, 5.5, 8, 11, 15, 18.5, 23, 26, 35, 55, 75, 148, 240, 460, 500000],
-    'color': ['saddlebrown','chocolate', 'brown','red', 'salmon', 'orange', 'gold', 'yellow', 'olivedrab', 'green', 'lime', 'cyan', 'blue', 'purple', 'magenta', 'pink'],
-}
-bands_df = pd.DataFrame(bands)
 
-bands_df = bands_df.set_index('band')
-bands_df['color'] = bands_df['color'].astype('string')
 
-modes = {
-    'mode': ['AM', 'CW', 'Data', 'DV', 'FM', 'SSB', 'Other'],
-    'color': ['lime', 'red', 'cyan', 'magenta', 'yellow', 'blue', 'orange']
-}
-
-modes_df = pd.DataFrame(modes)
-modes_df['color'] = modes_df['color'].astype('string')
-modes_df['mode'] = modes_df['mode'].astype('string')
-
-# create dictionary to keep the spots a list for summits
-spots_dict = {}
-
-# import spots and convert them into DataFrame
-spots_dict = get_spots()
-spots_df = pd.DataFrame(spots_dict)
-
-# replace frequency where it's provided in incorrect format with 0
-spots_df.loc[~spots_df['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
 
 # convert datatypes for relevant fields
 spots_df['activatorCallsign'] = spots_df['activatorCallsign'].astype('string')
