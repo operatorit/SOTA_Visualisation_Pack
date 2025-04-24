@@ -6,14 +6,19 @@ import dash_leaflet as dl # to visualise map
 
 class SpotsVisualiser:
     
-    def __init__(self, lookback_time:int = -1):
+    def __init__(self, 
+                 lookback_time:int = -1, 
+                 summits_filename:str = 'summitslist.csv'):
         """Initiates a class.
         lookback_time - time in hours to look back for spots.
         If lookback_time is negative - download spots alerted in defined number of hours.
         If lookback_time is positive - download given number of latest spots.
         Default value is -1, which means spots from last hour are downloaded.
+
+        summits_filename - name of the file with summits data, saved in project's folder.
         """
         self.lookback_time = lookback_time
+        self.summits_filename = summits_filename
 
         self.define_constants()
 
@@ -57,62 +62,81 @@ class SpotsVisualiser:
 
       if len(temp_spots_dict) == 0:
           temp_spots_dict = self.get_spots(10)
+          print(f"No spots found in the timeframe provided. Returning latest 10 spots.")
           
-      return pd.DataFrame(temp_spots_dict)
+      self.spots_to_visualisation = pd.DataFrame(temp_spots_dict)
     
     def amend_spots_frequencies(self) -> pd.DataFrame:
         """Amend incorrect frequencies (defined as not matchng regular expression for
         digits-dot-digits) to 0 to avoid errors during visualisation.
         """
-        self.spots_df.loc[~self.spots_df['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
+        self.spots_to_visualisation.loc[~self.spots_df['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
 
-# program flow
-spots_visualiser = SpotsVisualiser(lookback_time = -1)
+    def amend_spots_datatypes(self) -> pd.DataFrame:
+        """Convert datatypes for relevant fields.
+        """
+        self.spots_to_visualisation['activatorCallsign'] = self.spots_to_visualisation['activatorCallsign'].astype('string')
+        self.spots_to_visualisation['associationCode'] = self.spots_to_visualisation['associationCode'].astype('string')
+        self.spots_to_visualisation['summitCode'] = self.spots_to_visualisation['summitCode'].astype('string')
+        self.spots_to_visualisation['mode'] = self.spots_to_visualisation['mode'].astype('string')
+        self.spots_to_visualisation['frequency'] = self.spots_to_visualisation['frequency'].astype('float')
+        self.spots_to_visualisation['timeStamp'] = pd.to_datetime(self.spots_to_visualisation['timeStamp'])
+
+    def add_summit_codes(self) -> pd.DataFrame:
+        """Combines associationCode and summitCode to summit's reference in formmat country/range-summit_number.
+        Eg. SP/BZ-001.
+        """
+        self.spots_to_visualisation['summit_ref'] = self.spots_to_visualisation['associationCode'] \
+            + '/' \
+            + self.spots_to_visualisation['summitCode']
+
+    def get_summits_list(self) -> pd.DataFrame:
+        """Create DataFrame based on csv file with all the summits saved (regularly updated
+        from https://www.sotadata.org.uk/summitslist.csv), and converting the datatypes
+        first row of CSV file is a header, so should be ignored.
+        """
+        try:
+            self.SOTA_summits_df = pd.read_csv(self.summits_filename, 
+                                            skiprows = 1, 
+                                            dtype = {0: 'string',
+                                                        1: 'string',
+                                                        2: 'string',
+                                                        3: 'string',
+                                                        4: 'int',
+                                                        5: 'int',
+                                                        6: 'string',
+                                                        7: 'string',
+                                                        8: 'float',
+                                                        9: 'float',
+                                                        10: 'int',
+                                                        11: 'int',
+                                                    #    12: not relevant
+                                                    #    13: not relevant
+                                                        14: 'int',
+                                                    #    15: not relevant
+                                                        16: 'string'
+                                                    },
+                                                    index_col = 'SummitCode'
+                                            )
+        except FileNotFoundError:
+            print(f"File {self.summits_filename} not found. Make sure it's saved in project's directory.")
+
+        
+# script flow
+while True:
+    spots_visualiser = SpotsVisualiser(lookback_time = -1)
+    spots_visualiser.define_constants()
+    spots_visualiser.get_spots()
+    spots_visualiser.amend_spots_frequencies()
+    spots_visualiser.amend_spots_datatypes()
+    spots_visualiser.add_summit_codes()
+    spots_visualiser.get_summits_list()
+
+
 
 ### NEW above
 ### OLD below
 
-
-
-
-
-# convert datatypes for relevant fields
-spots_df['activatorCallsign'] = spots_df['activatorCallsign'].astype('string')
-spots_df['associationCode'] = spots_df['associationCode'].astype('string')
-spots_df['summitCode'] = spots_df['summitCode'].astype('string')
-spots_df['mode'] = spots_df['mode'].astype('string')
-spots_df['frequency'] = spots_df['frequency'].astype('float')
-spots_df['timeStamp'] = pd.to_datetime(spots_df['timeStamp'])
-
-# create DataFrame based on csv file with all the summits saved (regularly updated
-# from https://www.sotadata.org.uk/summitslist.csv, and converting the datatypes
-# first row of CSV file is a header, so should be ignored
-# create DataFrame based on csv file with all the summits saved
-SOTA_summits_df = pd.read_csv('summitslist.csv', skiprows = 1, dtype = {
-    0: 'string',
-    1: 'string',
-    2: 'string',
-    3: 'string',
-    4: 'int',
-    5: 'int',
-    6: 'string',
-    7: 'string',
-    8: 'float',
-    9: 'float',
-    10: 'int',
-    11: 'int',
-#    12: not relevant
-#    13: not relevant
-    14: 'int',
-#    15: not relevant
-    16: 'string'
-}
-)
-
-SOTA_summits_df = SOTA_summits_df.set_index('SummitCode')
-
-# add summit codes to spots_df DataFrame
-spots_df['summit'] = spots_df['associationCode']+'/'+spots_df['summitCode']
 
 # drop duplicated activator-summit pairs from spots_df to avoid double visualisation for them
 # only last spot sent by activator on a summit is considered
