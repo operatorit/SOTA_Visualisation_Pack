@@ -4,14 +4,14 @@ from datetime import datetime, timedelta # for time calculations
 from dash import html, dcc, Dash, Input, Output # for dashboard construction
 import dash_leaflet as dl # to visualise map
 
-class spots_visualiser:
+class SpotsVisualiser:
     
     def __init__(self, lookback_time:int = -1):
         """Initiates a class.
         lookback_time - time in hours to look back for spots.
-        If lookback_time is negative - download spots alerted in defined number of alerts.
+        If lookback_time is negative - download spots alerted in defined number of hours.
         If lookback_time is positive - download given number of latest spots.
-        Default value is -1, which means that the latest 10 spots are downloaded.
+        Default value is -1, which means spots from last hour are downloaded.
         """
         self.lookback_time = lookback_time
 
@@ -65,7 +65,10 @@ class spots_visualiser:
         digits-dot-digits) to 0 to avoid errors during visualisation.
         """
         self.spots_df.loc[~self.spots_df['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
-    
+
+# program flow
+spots_visualiser = SpotsVisualiser(lookback_time = -1)
+
 ### NEW above
 ### OLD below
 
