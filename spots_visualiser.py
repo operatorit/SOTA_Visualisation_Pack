@@ -29,29 +29,29 @@ class SpotsVisualiser:
         required for the class to work.
         Bands are groupped into ranges to fit bandplands for different countries.
         """
-        self.api_url = f'https://api2.sota.org.uk/api/spots/{self.lookback_time}/all'
+        self._API_URL = f'https://api2.sota.org.uk/api/spots/{self.lookback_time}/all'
 
-        self.bands_df = pd.DataFrame({'band': ['1.8 MHz or below', '3.5 MHz', '5 MHz', '7 MHz', '10 MHz', '14 MHz', '18 MHz', '21 MHz', '24 MHz', '28 MHz', '50 MHz', '70 MHz', '144 MHz', '220 MHz', '433 MHz', '900 MHz or above'],
+        self._BANDS = pd.DataFrame({'band': ['1.8 MHz or below', '3.5 MHz', '5 MHz', '7 MHz', '10 MHz', '14 MHz', '18 MHz', '21 MHz', '24 MHz', '28 MHz', '50 MHz', '70 MHz', '144 MHz', '220 MHz', '433 MHz', '900 MHz or above'],
                       'lower_freq': [0, 3, 4.5, 6, 9, 13, 16, 19, 24, 27, 45, 65, 142, 210, 420, 850],
                       'upper_freq': [2.5, 4, 5.5, 8, 11, 15, 18.5, 23, 26, 35, 55, 75, 148, 240, 460, 500000],
                       'color': ['saddlebrown','chocolate', 'brown','red', 'salmon', 'orange', 'gold', 'yellow', 'olivedrab', 'green', 'lime', 'cyan', 'blue', 'purple', 'magenta', 'pink'],
                       })
 
-        self.bands_df = self.bands_df.set_index('band')
-        self.bands_df['color'] = self.bands_df['color'].astype('string')
+        self._BANDS.set_index('band', drop = True, inplace = True)
+        self._BANDS['color'] = self._BANDS['color'].astype('string')
 
-        self.modes_df = pd.DataFrame({'mode': ['AM', 'CW', 'Data', 'DV', 'FM', 'SSB', 'Other'],
+        self._MODES = pd.DataFrame({'mode': ['AM', 'CW', 'Data', 'DV', 'FM', 'SSB', 'Other'],
                                  'color': ['lime', 'red', 'cyan', 'magenta', 'yellow', 'blue', 'orange']
                                  })
-        self.modes_df['color'] = self.modes_df['color'].astype('string')
-        self.modes_df['mode'] = self.modes_df['mode'].astype('string')
+        self._MODES['color'] = self._MODES['color'].astype('string')
+        self._MODES['mode'] = self._MODES['mode'].astype('string')
 
     def get_spots(self) -> pd.DataFrame:
       """Downloads spots aleted in defined timeframe or defined number of latests spots.
       If there are no spots sent in time provided, return latest 10 to make sure dictionary is not empty.
       """
       temp_spots_dict = {}
-      r = requests.get(self.api_url)
+      r = requests.get(self._API_URL)
       print(f'Status code: {r.status_code}')
       temp_spots_dict = r.json()
 
@@ -90,6 +90,25 @@ class SpotsVisualiser:
             + '/' \
             + self.spots_to_visualisation['summitCode']
 
+    def prepare_spots_to_join(self) -> pd.DataFrame:
+        """ Drops duplicated activator-summit pairs from self.spots_to_visualisation to avoid 
+        double visualisation for them. Only last spot sent by activator on a summit is considered.
+        Creates empty columns for data required for visualisation (will be filled with database data).
+        Finally, re-indexes dataframe with spots.
+        """
+        self.spots_to_visualisation.drop_duplicates(subset = ['activatorCallsign', 'summit'],
+                                                    inplace = True)
+        self.spots_to_visualisation['longitude'] = None
+        self.spots_to_visualisation['latitude'] = None
+        self.spots_to_visualisation['points'] = None
+        self.spots_to_visualisation['summitName'] = None
+        self.spots_to_visualisation['mode_color'] = None
+        self.spots_to_visualisation['band_color'] = None
+        self.spots_to_visualisation.reset_index(drop = True, inplace = True)
+        
+
+
+
     def get_summits_list(self) -> pd.DataFrame:
         """Create DataFrame based on csv file with all the summits saved (regularly updated
         from https://www.sotadata.org.uk/summitslist.csv), and converting the datatypes
@@ -121,35 +140,26 @@ class SpotsVisualiser:
         except FileNotFoundError:
             print(f"File {self.summits_filename} not found. Make sure it's saved in project's directory.")
 
-        
+  def 
+
 # script flow
-while True:
+if __name__ == "__main__":
     spots_visualiser = SpotsVisualiser(lookback_time = -1)
     spots_visualiser.define_constants()
     spots_visualiser.get_spots()
     spots_visualiser.amend_spots_frequencies()
     spots_visualiser.amend_spots_datatypes()
     spots_visualiser.add_summit_codes()
+    spots_visualiser.prepare_spots_to_join()
     spots_visualiser.get_summits_list()
-
+    
 
 
 ### NEW above
 ### OLD below
 
 
-# drop duplicated activator-summit pairs from spots_df to avoid double visualisation for them
-# only last spot sent by activator on a summit is considered
-# create empty columns for data required for visualisation (will b filled with database data)
-# then re-index this dataframe
-spots_df = spots_df.drop_duplicates(subset = ['activatorCallsign', 'summit'])
-spots_df['longitude'] = None
-spots_df['latitude'] = None
-spots_df['points'] = None
-spots_df['summitName'] = None
-spots_df['mode_color'] = None
-spots_df['band_color'] = None
-spots_df = spots_df.reset_index(drop = True)
+
 
 
 # list to keep summit codes not found in SOTA Database file
