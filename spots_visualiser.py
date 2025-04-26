@@ -19,6 +19,7 @@ class SpotsVisualiser:
         """
         self.lookback_time = lookback_time
         self.summits_filename = summits_filename
+        self.summits_errors = []
 
         self.define_constants()
 
@@ -140,18 +141,41 @@ class SpotsVisualiser:
         except FileNotFoundError:
             print(f"File {self.summits_filename} not found. Make sure it's saved in project's directory.")
 
-  def 
+    def check_error_references(self) -> list:
+        """Checks if all references in spots are on summits list.
+        If not, adds non-found ones to a list and prints a warning.
+        Such references stays on the spots list with data for visualisation filled with None,
+        thus no impacting map.
+        """
+        for summit_reference in self.spots_to_visualisation['summit_ref']:
+            if summit_reference.upper() not in self.SOTA_summits_df.index:
+                print(f"Summit {summit_reference} NOT FOUND.")
+                self.summits_errors.append(summit_reference)
+
+    def join_spots_with_summits(self) -> pd.DataFrame:
+        """Join spots dataframe with summits dataframe to get all the data required for visualisation.
+        """
+        pass
+        # placeholder - to check
+        # self.spots_df = self.spots_to_visualisation.join(self.SOTA_summits_df, on = 'summit_ref', how = 'left')
+        # self.spots_df.drop(columns = ['summit_ref'], inplace = True)
+        # self.spots_df.reset_index(drop = True, inplace = True)
+        # return self.spots_df
 
 # script flow
 if __name__ == "__main__":
     spots_visualiser = SpotsVisualiser(lookback_time = -1)
     spots_visualiser.define_constants()
+
     spots_visualiser.get_spots()
     spots_visualiser.amend_spots_frequencies()
     spots_visualiser.amend_spots_datatypes()
     spots_visualiser.add_summit_codes()
     spots_visualiser.prepare_spots_to_join()
+
     spots_visualiser.get_summits_list()
+    spots_visualiser.check_error_references()
+    spots_visualiser.join_spots_with_summits()
     
 
 
@@ -159,12 +183,6 @@ if __name__ == "__main__":
 ### OLD below
 
 
-
-
-
-# list to keep summit codes not found in SOTA Database file
-# List of summits is periodically updated, but typos in summits codes in spots are also common
-summits_errors = []
 
 # copying relevant data for visualisation from SOTA database extract to spots dataframe
 # also adding time since spot in hour fraction and description of spot
@@ -188,10 +206,7 @@ for i in range(0, len(spots_df)):
         for j in modes_df.index:
             if spots_df.loc[i, ('mode')] == modes_df.iloc[j]['mode'].upper():
                 spots_df.loc[i,('mode_color')] = modes_df.iloc[j]['color']
-    # if summit isn't found in database, print warning, save it on a list and leave their data with None
-    else:
-        print(f"Summit {spots_df.loc[i, ('summit')]} activated by {spots_df.loc[i, ('activatorCallsign')].upper()} on {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')].upper()}  NOT FOUND.")
-        summits_errors.append({spots_df.loc[i, ('summit')]})
+
 
 # save errors to file
 if len(summits_errors) != 0:
