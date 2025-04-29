@@ -23,8 +23,6 @@ class SpotsVisualiser:
 
         self.define_constants()
 
-        self.spots = self.get_spots(lookback_time)
-
     def define_constants(self):
         """Defines contaants (related to SOTA API used and HAM radio characteristics)
         required for the class to work.
@@ -71,7 +69,7 @@ class SpotsVisualiser:
         """Amend incorrect frequencies (defined as not matchng regular expression for
         digits-dot-digits) to 0 to avoid errors during visualisation.
         """
-        self.spots_to_visualisation.loc[~self.spots_df['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
+        self.spots_to_visualisation.loc[~self.spots_to_visualisation['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
 
     def amend_spots_datatypes(self) -> pd.DataFrame:
         """Convert datatypes for relevant fields.
@@ -97,7 +95,7 @@ class SpotsVisualiser:
         Creates empty columns for data required for visualisation (will be filled with database data).
         Finally, re-indexes dataframe with spots.
         """
-        self.spots_to_visualisation.drop_duplicates(subset = ['activatorCallsign', 'summit'],
+        self.spots_to_visualisation.drop_duplicates(subset = ['activatorCallsign', 'summit_ref'],
                                                     inplace = True)
         self.spots_to_visualisation['longitude'] = None
         self.spots_to_visualisation['latitude'] = None
@@ -157,25 +155,24 @@ class SpotsVisualiser:
         """
         pass
         # placeholder - to check
-        # self.spots_df = self.spots_to_visualisation.join(self.SOTA_summits_df, on = 'summit_ref', how = 'left')
+        self.spots_df = self.spots_to_visualisation.join(self.SOTA_summits_df, on = 'summit_ref', how = 'left')
         # self.spots_df.drop(columns = ['summit_ref'], inplace = True)
         # self.spots_df.reset_index(drop = True, inplace = True)
         # return self.spots_df
 
 # script flow
 if __name__ == "__main__":
-    spots_visualiser = SpotsVisualiser(lookback_time = -1)
-    spots_visualiser.define_constants()
+    spots_map = SpotsVisualiser(lookback_time = -1)
 
-    spots_visualiser.get_spots()
-    spots_visualiser.amend_spots_frequencies()
-    spots_visualiser.amend_spots_datatypes()
-    spots_visualiser.add_summit_codes()
-    spots_visualiser.prepare_spots_to_join()
+    spots_map.get_spots()
+    spots_map.amend_spots_frequencies()
+    spots_map.amend_spots_datatypes()
+    spots_map.add_summit_codes()
+    spots_map.prepare_spots_to_join()
 
-    spots_visualiser.get_summits_list()
-    spots_visualiser.check_error_references()
-    spots_visualiser.join_spots_with_summits()
+    spots_map.get_summits_list()
+    spots_map.check_error_references()
+    spots_map.join_spots_with_summits()
     
 
 
@@ -184,54 +181,54 @@ if __name__ == "__main__":
 
 
 
-# copying relevant data for visualisation from SOTA database extract to spots dataframe
-# also adding time since spot in hour fraction and description of spot
-# adding previously defined colorcodes for band and mode to each spot, together with a band for each one
-# popup column provides a summary of activation to be displayed on map
-for i in range(0, len(spots_df)):
-    # if summits data are correct,prepare spot's data for visualisation
-    if spots_df.loc[i, ('summit')].upper() in SOTA_summits_df.index:
-        spots_df.loc[i, ('longitude')] = SOTA_summits_df['Longitude'][spots_df.loc[i, 'summit']]
-        spots_df.loc[i, ('latitude')] = SOTA_summits_df['Latitude'][spots_df.loc[i, 'summit']]
-        spots_df.loc[i, ('points')] = SOTA_summits_df['Points'][spots_df.loc[i, 'summit']]
-        spots_df.loc[i, ('summitName')] = SOTA_summits_df['SummitName'][spots_df.loc[i, 'summit']]
-        spots_df.loc[i, ('time_since_spot')] = datetime.utcnow()-spots_df.loc[i, ('timeStamp')]
-        spots_df.loc[i, ('time_since_spot')] = spots_df.loc[i, ('time_since_spot')]/timedelta(hours=1)
-        spots_df.loc[i, ('popup')] = f"Summit {spots_df.loc[i, ('summitName')].title()} - {spots_df.loc[i, ('summit')]} ({spots_df.loc[i, ('points')]} points)\nactivated by {spots_df.loc[i, ('activatorCallsign')].upper()}\non {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')].upper()}\n{round(spots_df.loc[i, ('time_since_spot')]*60)} minutes ago\n."
-        spots_df.loc[i, ('mode')] = spots_df.loc[i, ('mode')].upper()
-        for band in bands_df.index: # assess band based on frequency spotted
-            if (spots_df.loc[i, ('frequency')] >= bands_df['lower_freq'][band]) and (spots_df.loc[i, ('frequency')] <= bands_df['upper_freq'][band]):
-                spots_df.loc[i, ('band_color')] = bands_df['color'][band]
-                spots_df.loc[i, ('band')] = band
-        for j in modes_df.index:
-            if spots_df.loc[i, ('mode')] == modes_df.iloc[j]['mode'].upper():
-                spots_df.loc[i,('mode_color')] = modes_df.iloc[j]['color']
+# # copying relevant data for visualisation from SOTA database extract to spots dataframe
+# # also adding time since spot in hour fraction and description of spot
+# # adding previously defined colorcodes for band and mode to each spot, together with a band for each one
+# # popup column provides a summary of activation to be displayed on map
+# for i in range(0, len(spots_df)):
+#     # if summits data are correct,prepare spot's data for visualisation
+#     if spots_df.loc[i, ('summit')].upper() in SOTA_summits_df.index:
+#         spots_df.loc[i, ('longitude')] = SOTA_summits_df['Longitude'][spots_df.loc[i, 'summit']]
+#         spots_df.loc[i, ('latitude')] = SOTA_summits_df['Latitude'][spots_df.loc[i, 'summit']]
+#         spots_df.loc[i, ('points')] = SOTA_summits_df['Points'][spots_df.loc[i, 'summit']]
+#         spots_df.loc[i, ('summitName')] = SOTA_summits_df['SummitName'][spots_df.loc[i, 'summit']]
+#         spots_df.loc[i, ('time_since_spot')] = datetime.utcnow()-spots_df.loc[i, ('timeStamp')]
+#         spots_df.loc[i, ('time_since_spot')] = spots_df.loc[i, ('time_since_spot')]/timedelta(hours=1)
+#         spots_df.loc[i, ('popup')] = f"Summit {spots_df.loc[i, ('summitName')].title()} - {spots_df.loc[i, ('summit')]} ({spots_df.loc[i, ('points')]} points)\nactivated by {spots_df.loc[i, ('activatorCallsign')].upper()}\non {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')].upper()}\n{round(spots_df.loc[i, ('time_since_spot')]*60)} minutes ago\n."
+#         spots_df.loc[i, ('mode')] = spots_df.loc[i, ('mode')].upper()
+#         for band in bands_df.index: # assess band based on frequency spotted
+#             if (spots_df.loc[i, ('frequency')] >= bands_df['lower_freq'][band]) and (spots_df.loc[i, ('frequency')] <= bands_df['upper_freq'][band]):
+#                 spots_df.loc[i, ('band_color')] = bands_df['color'][band]
+#                 spots_df.loc[i, ('band')] = band
+#         for j in modes_df.index:
+#             if spots_df.loc[i, ('mode')] == modes_df.iloc[j]['mode'].upper():
+#                 spots_df.loc[i,('mode_color')] = modes_df.iloc[j]['color']
 
 
-# save errors to file
-if len(summits_errors) != 0:
-    with open('summits_errors.txt', 'a') as f:
-        for error in summits_errors:
-            f.write(f'{error}\n')
-# create a map
-activations_map = folium.Map(location=[50, 20],  # map is centered on Kraków - city where I live
-                             tiles="OpenStreetMap",
-                             zoom_start=2  # show whole world at once
-                             )
+# # save errors to file
+# if len(summits_errors) != 0:
+#     with open('summits_errors.txt', 'a') as f:
+#         for error in summits_errors:
+#             f.write(f'{error}\n')
+# # create a map
+# activations_map = folium.Map(location=[50, 20],  # map is centered on Kraków - city where I live
+#                              tiles="OpenStreetMap",
+#                              zoom_start=2  # show whole world at once
+#                              )
 
-# add spots to a map
-for i in range(0, len(spots_df)):  # add point for every spot (with duplicates removed)
-    if spots_df.loc[i, ('longitude')] != None:  # ignore spots where no reference data in SOTA database was found
-        folium.CircleMarker(
-            location=[spots_df.loc[i, ('latitude')], spots_df.loc[i, ('longitude')]],  # spot's location
-            radius=(1 - spots_df.loc[i, ('time_since_spot')]) * 15,  # radius is proportional to time from sending
-            # the spot. The newest spot, the larger circle
-            popup=spots_df.loc[i, ("popup")],
-            fill_color=spots_df.loc[i, ('band_color')],  # circle's fill represents activation's band
-            weight=3,
-            color=spots_df.loc[i, ('mode_color')],  # border color represents activation's mode
-            fill_opacity=1
-        ).add_to(activations_map)
+# # add spots to a map
+# for i in range(0, len(spots_df)):  # add point for every spot (with duplicates removed)
+#     if spots_df.loc[i, ('longitude')] != None:  # ignore spots where no reference data in SOTA database was found
+#         folium.CircleMarker(
+#             location=[spots_df.loc[i, ('latitude')], spots_df.loc[i, ('longitude')]],  # spot's location
+#             radius=(1 - spots_df.loc[i, ('time_since_spot')]) * 15,  # radius is proportional to time from sending
+#             # the spot. The newest spot, the larger circle
+#             popup=spots_df.loc[i, ("popup")],
+#             fill_color=spots_df.loc[i, ('band_color')],  # circle's fill represents activation's band
+#             weight=3,
+#             color=spots_df.loc[i, ('mode_color')],  # border color represents activation's mode
+#             fill_opacity=1
+#         ).add_to(activations_map)
 
-# save map in a file
-activations_map.save('activations_map.html')
+# # save map in a file
+# activations_map.save('activations_map.html')
