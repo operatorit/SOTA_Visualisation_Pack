@@ -134,7 +134,7 @@ class SpotsVisualiser:
                                                     #    15: not relevant
                                                         16: 'string'
                                                     },
-                                                    index_col = 'SummitCode'
+                                                    # index_col = 'SummitCode'
                                             )
         except FileNotFoundError:
             print(f"File {self.summits_filename} not found. Make sure it's saved in project's directory.")
@@ -155,7 +155,11 @@ class SpotsVisualiser:
         """
         pass
         # placeholder - to check
-        self.spots_df = self.spots_to_visualisation.join(self.SOTA_summits_data, on = 'summit_ref', how = 'left')
+        self.spots_to_visualisation.merge(self.SOTA_summits_data, 
+                                          left_on = 'summit_ref', 
+                                          right_on = 'SummitCode',
+                                          how = 'left')
+        self.spots_to_visualisation
         # self.spots_df.drop(columns = ['summit_ref'], inplace = True)
         # self.spots_df.reset_index(drop = True, inplace = True)
         # return self.spots_df
