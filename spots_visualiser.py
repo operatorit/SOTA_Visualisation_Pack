@@ -97,12 +97,12 @@ class SpotsVisualiser:
         """
         self.spots_to_visualisation.drop_duplicates(subset = ['activatorCallsign', 'summit_ref'],
                                                     inplace = True)
-        self.spots_to_visualisation['longitude'] = None
-        self.spots_to_visualisation['latitude'] = None
-        self.spots_to_visualisation['points'] = None
-        self.spots_to_visualisation['summitName'] = None
-        self.spots_to_visualisation['mode_color'] = None
-        self.spots_to_visualisation['band_color'] = None
+        # self.spots_to_visualisation['longitude'] = None
+        # self.spots_to_visualisation['latitude'] = None
+        # self.spots_to_visualisation['points'] = None
+        # self.spots_to_visualisation['summitName'] = None
+        # self.spots_to_visualisation['mode_color'] = None
+        # self.spots_to_visualisation['band_color'] = None
         self.spots_to_visualisation.reset_index(drop = True, inplace = True)
         
 
@@ -146,23 +146,25 @@ class SpotsVisualiser:
         thus no impacting map.
         """
         for summit_reference in self.spots_to_visualisation['summit_ref']:
-            if summit_reference.upper() not in self.SOTA_summits_data.index:
+            if summit_reference.upper() not in self.SOTA_summits_data['SummitCode'].str.upper().values:
                 print(f"Summit {summit_reference} NOT FOUND.")
                 self.summits_errors.append(summit_reference)
 
     def join_spots_with_summits(self) -> pd.DataFrame:
         """Join spots dataframe with summits dataframe to get all the data required for visualisation.
         """
-        pass
-        # placeholder - to check
-        self.spots_to_visualisation.merge(self.SOTA_summits_data, 
-                                          left_on = 'summit_ref', 
-                                          right_on = 'SummitCode',
-                                          how = 'left')
-        self.spots_to_visualisation
-        # self.spots_df.drop(columns = ['summit_ref'], inplace = True)
-        # self.spots_df.reset_index(drop = True, inplace = True)
-        # return self.spots_df
+        self.spots_to_visualisation = pd.merge(left = self.spots_to_visualisation,
+                                               right = self.SOTA_summits_data, 
+                                               left_on = 'summit_ref', 
+                                               right_on = 'SummitCode',
+                                               how = 'left',
+                                               )
+        self.spots_to_visualisation.rename(columns = {'Longitude': 'longitude',
+                                                      'Latitude': 'latitude',
+                                                      'Points': 'points',
+                                                      'SummitName': 'summitName',
+                                                      }, inplace = True)
+        print(self.spots_to_visualisation.columns)
 
 # script flow
 if __name__ == "__main__":
@@ -192,10 +194,6 @@ if __name__ == "__main__":
 # for i in range(0, len(spots_df)):
 #     # if summits data are correct,prepare spot's data for visualisation
 #     if spots_df.loc[i, ('summit')].upper() in SOTA_summits_data.index:
-#         spots_df.loc[i, ('longitude')] = SOTA_summits_data['Longitude'][spots_df.loc[i, 'summit']]
-#         spots_df.loc[i, ('latitude')] = SOTA_summits_data['Latitude'][spots_df.loc[i, 'summit']]
-#         spots_df.loc[i, ('points')] = SOTA_summits_data['Points'][spots_df.loc[i, 'summit']]
-#         spots_df.loc[i, ('summitName')] = SOTA_summits_data['SummitName'][spots_df.loc[i, 'summit']]
 #         spots_df.loc[i, ('time_since_spot')] = datetime.utcnow()-spots_df.loc[i, ('timeStamp')]
 #         spots_df.loc[i, ('time_since_spot')] = spots_df.loc[i, ('time_since_spot')]/timedelta(hours=1)
 #         spots_df.loc[i, ('popup')] = f"Summit {spots_df.loc[i, ('summitName')].title()} - {spots_df.loc[i, ('summit')]} ({spots_df.loc[i, ('points')]} points)\nactivated by {spots_df.loc[i, ('activatorCallsign')].upper()}\non {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')].upper()}\n{round(spots_df.loc[i, ('time_since_spot')]*60)} minutes ago\n."
