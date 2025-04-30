@@ -114,7 +114,7 @@ class SpotsVisualiser:
         first row of CSV file is a header, so should be ignored.
         """
         try:
-            self.SOTA_summits_df = pd.read_csv(self.summits_filename, 
+            self.SOTA_summits_data = pd.read_csv(self.summits_filename, 
                                             skiprows = 1, 
                                             dtype = {0: 'string',
                                                         1: 'string',
@@ -146,7 +146,7 @@ class SpotsVisualiser:
         thus no impacting map.
         """
         for summit_reference in self.spots_to_visualisation['summit_ref']:
-            if summit_reference.upper() not in self.SOTA_summits_df.index:
+            if summit_reference.upper() not in self.SOTA_summits_data.index:
                 print(f"Summit {summit_reference} NOT FOUND.")
                 self.summits_errors.append(summit_reference)
 
@@ -155,7 +155,7 @@ class SpotsVisualiser:
         """
         pass
         # placeholder - to check
-        self.spots_df = self.spots_to_visualisation.join(self.SOTA_summits_df, on = 'summit_ref', how = 'left')
+        self.spots_df = self.spots_to_visualisation.join(self.SOTA_summits_data, on = 'summit_ref', how = 'left')
         # self.spots_df.drop(columns = ['summit_ref'], inplace = True)
         # self.spots_df.reset_index(drop = True, inplace = True)
         # return self.spots_df
@@ -187,11 +187,11 @@ if __name__ == "__main__":
 # # popup column provides a summary of activation to be displayed on map
 # for i in range(0, len(spots_df)):
 #     # if summits data are correct,prepare spot's data for visualisation
-#     if spots_df.loc[i, ('summit')].upper() in SOTA_summits_df.index:
-#         spots_df.loc[i, ('longitude')] = SOTA_summits_df['Longitude'][spots_df.loc[i, 'summit']]
-#         spots_df.loc[i, ('latitude')] = SOTA_summits_df['Latitude'][spots_df.loc[i, 'summit']]
-#         spots_df.loc[i, ('points')] = SOTA_summits_df['Points'][spots_df.loc[i, 'summit']]
-#         spots_df.loc[i, ('summitName')] = SOTA_summits_df['SummitName'][spots_df.loc[i, 'summit']]
+#     if spots_df.loc[i, ('summit')].upper() in SOTA_summits_data.index:
+#         spots_df.loc[i, ('longitude')] = SOTA_summits_data['Longitude'][spots_df.loc[i, 'summit']]
+#         spots_df.loc[i, ('latitude')] = SOTA_summits_data['Latitude'][spots_df.loc[i, 'summit']]
+#         spots_df.loc[i, ('points')] = SOTA_summits_data['Points'][spots_df.loc[i, 'summit']]
+#         spots_df.loc[i, ('summitName')] = SOTA_summits_data['SummitName'][spots_df.loc[i, 'summit']]
 #         spots_df.loc[i, ('time_since_spot')] = datetime.utcnow()-spots_df.loc[i, ('timeStamp')]
 #         spots_df.loc[i, ('time_since_spot')] = spots_df.loc[i, ('time_since_spot')]/timedelta(hours=1)
 #         spots_df.loc[i, ('popup')] = f"Summit {spots_df.loc[i, ('summitName')].title()} - {spots_df.loc[i, ('summit')]} ({spots_df.loc[i, ('points')]} points)\nactivated by {spots_df.loc[i, ('activatorCallsign')].upper()}\non {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')].upper()}\n{round(spots_df.loc[i, ('time_since_spot')]*60)} minutes ago\n."
