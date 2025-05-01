@@ -23,7 +23,7 @@ class SpotsVisualiser:
 
         self.define_constants()
 
-    def define_constants(self):
+    def define_constants(self) -> None:
         """Defines contaants (related to SOTA API used and HAM radio characteristics)
         required for the class to work.
         Bands are groupped into ranges to fit bandplands for different countries.
@@ -45,7 +45,7 @@ class SpotsVisualiser:
         self._MODES['color'] = self._MODES['color'].astype('string')
         self._MODES['mode'] = self._MODES['mode'].astype('string')
 
-    def get_spots(self) -> pd.DataFrame:
+    def get_spots(self) -> None:
       """Downloads spots aleted in defined timeframe or defined number of latests spots.
       If there are no spots sent in time provided, return latest 10 to make sure dictionary is not empty.
       """
@@ -65,13 +65,13 @@ class SpotsVisualiser:
           
       self.spots_to_visualisation = pd.DataFrame(temp_spots_dict)
     
-    def amend_spots_frequencies(self) -> pd.DataFrame:
+    def amend_spots_frequencies(self) -> None:
         """Amend incorrect frequencies (defined as not matchng regular expression for
         digits-dot-digits) to 0 to avoid errors during visualisation.
         """
         self.spots_to_visualisation.loc[~self.spots_to_visualisation['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
 
-    def amend_spots_datatypes(self) -> pd.DataFrame:
+    def amend_spots_datatypes(self) -> None:
         """Convert datatypes for relevant fields.
         """
         self.spots_to_visualisation['activatorCallsign'] = self.spots_to_visualisation['activatorCallsign'].astype('string')
@@ -81,7 +81,7 @@ class SpotsVisualiser:
         self.spots_to_visualisation['frequency'] = self.spots_to_visualisation['frequency'].astype('float')
         self.spots_to_visualisation['timeStamp'] = pd.to_datetime(self.spots_to_visualisation['timeStamp'])
 
-    def add_summit_codes(self) -> pd.DataFrame:
+    def add_summit_codes(self) -> None:
         """Combines associationCode and summitCode to summit's reference in formmat country/range-summit_number.
         Eg. SP/BZ-001.
         """
@@ -89,7 +89,7 @@ class SpotsVisualiser:
             + '/' \
             + self.spots_to_visualisation['summitCode']
 
-    def prepare_spots_to_join(self) -> pd.DataFrame:
+    def prepare_spots_to_join(self) -> None:
         """ Drops duplicated activator-summit pairs from self.spots_to_visualisation to avoid 
         double visualisation for them. Only last spot sent by activator on a summit is considered.
         Creates empty columns for data required for visualisation (will be filled with database data).
@@ -108,7 +108,7 @@ class SpotsVisualiser:
 
 
 
-    def get_summits_list(self) -> pd.DataFrame:
+    def get_summits_list(self) -> None:
         """Create DataFrame based on csv file with all the summits saved (regularly updated
         from https://www.sotadata.org.uk/summitslist.csv), and converting the datatypes
         first row of CSV file is a header, so should be ignored.
@@ -139,7 +139,7 @@ class SpotsVisualiser:
         except FileNotFoundError:
             print(f"File {self.summits_filename} not found. Make sure it's saved in project's directory.")
 
-    def check_error_references(self) -> list:
+    def check_error_references(self) -> None:
         """Checks if all references in spots are on summits list.
         If not, adds non-found ones to a list and prints a warning.
         Such references stays on the spots list with data for visualisation filled with None,
@@ -150,7 +150,7 @@ class SpotsVisualiser:
                 print(f"Summit {summit_reference} NOT FOUND.")
                 self.summits_errors.append(summit_reference)
 
-    def join_spots_with_summits(self) -> pd.DataFrame:
+    def join_spots_with_summits(self) -> None:
         """Join spots dataframe with summits dataframe to get all the data required for visualisation.
         """
         self.spots_to_visualisation = pd.merge(left = self.spots_to_visualisation,
