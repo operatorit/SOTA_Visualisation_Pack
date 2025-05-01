@@ -207,58 +207,101 @@ if __name__ == "__main__":
     spots_map.get_summits_list()
     spots_map.check_error_references()
     spots_map.join_spots_with_summits()
+    spots_map.add_time_markers()
+    spots_map.add_visualisation_markers()
+    spots_map.remove_unused_columns()
     
 
 
 ### NEW above
 ### OLD below
 
-
-
-# # copying relevant data for visualisation from SOTA database extract to spots dataframe
-# # also adding time since spot in hour fraction and description of spot
-# # adding previously defined colorcodes for band and mode to each spot, together with a band for each one
-# # popup column provides a summary of activation to be displayed on map
-# for i in range(0, len(spots_df)):
-#     # if summits data are correct,prepare spot's data for visualisation
-#     if spots_df.loc[i, ('summit')].upper() in SOTA_summits_data.index:
-#         spots_df.loc[i, ('time_since_spot')] = datetime.utcnow()-spots_df.loc[i, ('timeStamp')]
-#         spots_df.loc[i, ('time_since_spot')] = spots_df.loc[i, ('time_since_spot')]/timedelta(hours=1)
-#         spots_df.loc[i, ('popup')] = f"Summit {spots_df.loc[i, ('summitName')].title()} - {spots_df.loc[i, ('summit')]} ({spots_df.loc[i, ('points')]} points)\nactivated by {spots_df.loc[i, ('activatorCallsign')].upper()}\non {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')].upper()}\n{round(spots_df.loc[i, ('time_since_spot')]*60)} minutes ago\n."
-#         spots_df.loc[i, ('mode')] = spots_df.loc[i, ('mode')].upper()
-#         for band in bands_df.index: # assess band based on frequency spotted
-#             if (spots_df.loc[i, ('frequency')] >= bands_df['lower_freq'][band]) and (spots_df.loc[i, ('frequency')] <= bands_df['upper_freq'][band]):
-#                 spots_df.loc[i, ('band_color')] = bands_df['color'][band]
-#                 spots_df.loc[i, ('band')] = band
-#         for j in modes_df.index:
-#             if spots_df.loc[i, ('mode')] == modes_df.iloc[j]['mode'].upper():
-#                 spots_df.loc[i,('mode_color')] = modes_df.iloc[j]['color']
-
-
 # # save errors to file
 # if len(summits_errors) != 0:
 #     with open('summits_errors.txt', 'a') as f:
 #         for error in summits_errors:
 #             f.write(f'{error}\n')
-# # create a map
-# activations_map = folium.Map(location=[50, 20],  # map is centered on Kraków - city where I live
-#                              tiles="OpenStreetMap",
-#                              zoom_start=2  # show whole world at once
-#                              )
+# create spots_df_filtered dataframe as a copy of spots_df to be used later on in callbacks
+# spots_df_filtered = spots_df.copy()
 
-# # add spots to a map
-# for i in range(0, len(spots_df)):  # add point for every spot (with duplicates removed)
-#     if spots_df.loc[i, ('longitude')] != None:  # ignore spots where no reference data in SOTA database was found
-#         folium.CircleMarker(
-#             location=[spots_df.loc[i, ('latitude')], spots_df.loc[i, ('longitude')]],  # spot's location
-#             radius=(1 - spots_df.loc[i, ('time_since_spot')]) * 15,  # radius is proportional to time from sending
-#             # the spot. The newest spot, the larger circle
-#             popup=spots_df.loc[i, ("popup")],
-#             fill_color=spots_df.loc[i, ('band_color')],  # circle's fill represents activation's band
-#             weight=3,
-#             color=spots_df.loc[i, ('mode_color')],  # border color represents activation's mode
-#             fill_opacity=1
-#         ).add_to(activations_map)
 
-# # save map in a file
-# activations_map.save('activations_map.html')
+# def get_activation_data(spots):
+#     """Prepare CircleMarkers list for spots visualisation, return a table of CircleMarkers"""
+#     markers = []
+#     for i in range(0, len(spots)):
+#         if spots.loc[i, ('longitude')] != None: # ignore spots where no reference data in SOTA database was found
+#             markers.append(
+#             dl.CircleMarker(
+#                 center=[spots.loc[i, ('latitude')], spots.loc[i, ('longitude')]],  # spot's location
+#                 radius=(1 - spots.loc[i, ('time_since_spot')]) * 30,  # radius is proportional to time from sending
+#                 # the spot. The newest spot, the larger circle. Spots with time above 1 hour will be presented as small points
+#                 children = dl.Popup(spots.loc[i, ("popup")]), # pop-up with spot description
+#                 fillColor=spots.loc[i, ('band_color')],  # circle's fill represents activation's band
+#                 weight=3,
+#                 color=spots.loc[i, ('mode_color')],  # border color represents activation's mode
+#                 opacity=1,
+#                 fillOpacity=1,
+#             )
+#             )
+#         # skip incorrect summits
+#         else:
+#             pass
+#     return markers
+
+# def generate_maps(spots):
+#     """Generate an input for dl.Map object"""
+#     return [
+#             dl.TileLayer(), # background layer
+#             dl.LayerGroup(get_activation_data(spots)), # add layer with spots
+#         ]
+
+# # define Dash app layout
+# sota_spots_dashboard.layout = html.Div([
+#     html.Div(
+#             dcc.Dropdown(
+#                 modes_df['mode'], # values available
+#                 modes_df['mode'], # values selected by default - all modes
+#                 multi=True,
+#                 placeholder='Select mode to apply filter or refresh page to show all',
+#                 id = 'mode_selection' # dropdown list to select modes to visualise
+#                 )),
+#     html.Div(
+#             dcc.Dropdown(
+#                 bands_df.index, # valus available
+#                 bands_df.index, # values selected by default - all bands
+#                 multi=True,
+#                 placeholder='Select band to apply filter or refresh page to show all',
+#                 id = 'band_selection' #dropdown list to select bands to visualise
+#                 )),
+#     dl.Map(
+#             children = generate_maps(spots_df), # generate map's layers
+#             zoom=3, # whole world should be presented upon dashboard start
+#             center=(50, 20), # map is centered near Kraków - city where I live
+#             style={
+#                 "height": "100vh", # map's height is 100% of the window
+#             },
+#             id = 'spots_map', # create a map with spots visualisation
+#         )
+# ])
+
+# # add callbacks to dashboard to allow user to filter spots by band and mode
+# @sota_spots_dashboard.callback(
+#     Output('spots_map','children'),
+#     Input('band_selection', 'value'),
+#     Input('mode_selection', 'value')
+#     )
+# def update_map(bands, modes):
+#     """Apply filters set-up by the user, return re-created map object"""
+#     global spots_df
+#     # operations are done on spots_df.filtered to make sure original DataFrame is kept safe
+#     # dropdowns return lists with selected bands/modes, so need to check if spot's parameters are within these lists
+#     spots_df_filtered = spots_df[spots_df['band'].isin(bands)].copy()
+#     spots_df_filtered = spots_df_filtered[spots_df_filtered['mode'].isin(modes)]
+#     # reset index to be list starting from 0
+#     spots_df_filtered = spots_df_filtered.reset_index(drop = True)
+#     return generate_maps(spots_df_filtered)
+
+
+# # deploy the dashboard
+# if __name__ == '__main__':
+#     sota_spots_dashboard.run(port=8050, debug=True)
