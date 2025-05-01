@@ -166,6 +166,34 @@ class SpotsVisualiser:
                                                       }, inplace = True)
         print(self.spots_to_visualisation.columns)
 
+    def add_time_markers(self)  -> None:
+        """Adds information regarding time since spot to spots_to_visualisation DataFrame.
+        """
+        self.spots_to_visualisation['time_since_spot'] = datetime.utcnow() - self.spots_to_visualisation['timeStamp']
+        self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours=1)
+#        
+    
+    def add_visualisation_markers(self) -> None:
+        """Adds information regarding visualisation markers to spots_to_visualisation DataFrame.
+        """
+        pass
+        #  spots_df.loc[i, ('popup')] = f"Summit {spots_df.loc[i, ('summitName')].title()} - {spots_df.loc[i, ('summit')]} ({spots_df.loc[i, ('points')]} points)\nactivated by {spots_df.loc[i, ('activatorCallsign')].upper()}\non {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')].upper()}\n{round(spots_df.loc[i, ('time_since_spot')]*60)} minutes ago\n."
+#         spots_df.loc[i, ('mode')] = spots_df.loc[i, ('mode')].upper()
+#         for band in bands_df.index: # assess band based on frequency spotted
+#             if (spots_df.loc[i, ('frequency')] >= bands_df['lower_freq'][band]) and (spots_df.loc[i, ('frequency')] <= bands_df['upper_freq'][band]):
+#                 spots_df.loc[i, ('band_color')] = bands_df['color'][band]
+#                 spots_df.loc[i, ('band')] = band
+#         for j in modes_df.index:
+#             if spots_df.loc[i, ('mode')] == modes_df.iloc[j]['mode'].upper():
+#                 spots_df.loc[i,('mode_color')] = modes_df.iloc[j]['color']
+
+    def remove_unused_columns(self) -> None:
+        """Removes columns not used for visualisation from spots_to_visualisation DataFrame.
+        """
+        pass
+        # self.spots_to_visualisation.drop(columns = [], inplace = True)
+
+
 # script flow
 if __name__ == "__main__":
     spots_map = SpotsVisualiser(lookback_time = -1)
