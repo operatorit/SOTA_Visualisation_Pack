@@ -25,6 +25,7 @@ SOTA_visualiser/
 # secrets
 secrets/*
 secrets/
+config.py
 
 # other
 summmits_errors.txt

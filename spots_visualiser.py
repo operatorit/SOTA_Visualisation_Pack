@@ -4,11 +4,13 @@ from datetime import datetime, timedelta # for time calculations
 from dash import html, dcc, Dash, Input, Output # for dashboard construction
 import dash_leaflet as dl # to visualise map
 
+import config # script configuration
+
 class SpotsVisualiser:
     
     def __init__(self, 
                  lookback_time:int = -1, 
-                 summits_filename:str = 'summitslist.csv'):
+                 summits_filename:str = config._SUMMITS_FILENAME):
         """Initiates a class.
         lookback_time - time in hours to look back for spots.
         If lookback_time is negative - download spots alerted in defined number of hours.
@@ -28,14 +30,13 @@ class SpotsVisualiser:
         required for the class to work.
         Bands are groupped into ranges to fit bandplands for different countries.
         """
-        self._API_URL = f'https://api2.sota.org.uk/api/spots/{self.lookback_time}/all'
+        self._API_URL = f'https://api2.sota.org.uk/api/spots/{self.lookback_time}/all' # explicitely address for other implementations, thus not via config file
 
         self._BANDS = pd.DataFrame({'band': ['1.8 MHz or below', '3.5 MHz', '5 MHz', '7 MHz', '10 MHz', '14 MHz', '18 MHz', '21 MHz', '24 MHz', '28 MHz', '50 MHz', '70 MHz', '144 MHz', '220 MHz', '433 MHz', '900 MHz or above'],
                       'lower_freq': [0, 3, 4.5, 6, 9, 13, 16, 19, 24, 27, 45, 65, 142, 210, 420, 850],
                       'upper_freq': [2.5, 4, 5.5, 8, 11, 15, 18.5, 23, 26, 35, 55, 75, 148, 240, 460, 500000],
                       'color': ['saddlebrown','chocolate', 'brown','red', 'salmon', 'orange', 'gold', 'yellow', 'olivedrab', 'green', 'lime', 'cyan', 'blue', 'purple', 'magenta', 'pink'],
                       })
-
         self._BANDS.set_index('band', drop = True, inplace = True)
         self._BANDS['color'] = self._BANDS['color'].astype('string')
 
@@ -134,7 +135,6 @@ class SpotsVisualiser:
                                                     #    15: not relevant
                                                         16: 'string'
                                                     },
-                                                    # index_col = 'SummitCode'
                                             )
         except FileNotFoundError:
             print(f"File {self.summits_filename} not found. Make sure it's saved in project's directory.")
