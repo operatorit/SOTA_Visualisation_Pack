@@ -19,6 +19,9 @@ pip-selfcheck.json
 SOTA_visualiser/*
 SOTA_visualiser/
 
+# configuration
+pyproject.toml
+
 # gitignore
 .gitignore
 

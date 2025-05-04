@@ -34,7 +34,7 @@ class SpotsVisualiser:
 
         self._BANDS = pd.DataFrame({'band': ['1.8 MHz or below', '3.5 MHz', '5 MHz', '7 MHz', '10 MHz', '14 MHz', '18 MHz', '21 MHz', '24 MHz', '28 MHz', '50 MHz', '70 MHz', '144 MHz', '220 MHz', '433 MHz', '900 MHz or above'],
                       'lower_freq': [0, 3, 4.5, 6, 9, 13, 16, 19, 24, 27, 45, 65, 142, 210, 420, 850],
-                      'upper_freq': [2.5, 4, 5.5, 8, 11, 15, 18.5, 23, 26, 35, 55, 75, 148, 240, 460, 500000],
+                      'upper_freq': [2.5, 4, 5.5, 8, 11, 15, 18.5, 23, 26, 35, 55, 75, 148, 240, 460, 500000], # upper limit is a placeholder for 900 MHz and above
                       'color': ['saddlebrown','chocolate', 'brown','red', 'salmon', 'orange', 'gold', 'yellow', 'olivedrab', 'green', 'lime', 'cyan', 'blue', 'purple', 'magenta', 'pink'],
                       })
         self._BANDS.set_index('band', drop = True, inplace = True)
@@ -98,12 +98,6 @@ class SpotsVisualiser:
         """
         self.spots_to_visualisation.drop_duplicates(subset = ['activatorCallsign', 'summit_ref'],
                                                     inplace = True)
-        # self.spots_to_visualisation['longitude'] = None
-        # self.spots_to_visualisation['latitude'] = None
-        # self.spots_to_visualisation['points'] = None
-        # self.spots_to_visualisation['summitName'] = None
-        # self.spots_to_visualisation['mode_color'] = None
-        # self.spots_to_visualisation['band_color'] = None
         self.spots_to_visualisation.reset_index(drop = True, inplace = True)
         
 
@@ -129,10 +123,10 @@ class SpotsVisualiser:
                                                         9: 'float',
                                                         10: 'int',
                                                         11: 'int',
-                                                    #    12: not relevant
-                                                    #    13: not relevant
+                                                    #    12: '', # not relevant
+                                                    #    13: '', # not relevant
                                                         14: 'int',
-                                                    #    15: not relevant
+                                                    #    15: '', # not relevant
                                                         16: 'string'
                                                     },
                                             )
@@ -170,8 +164,7 @@ class SpotsVisualiser:
         """Adds information regarding time since spot to spots_to_visualisation DataFrame.
         """
         self.spots_to_visualisation['time_since_spot'] = datetime.utcnow() - self.spots_to_visualisation['timeStamp']
-        self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours=1)
-#        
+        self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours = 1)  
     
     def add_visualisation_markers(self) -> None:
         """Adds information regarding visualisation markers to spots_to_visualisation DataFrame.
