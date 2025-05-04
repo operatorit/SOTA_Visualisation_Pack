@@ -6,6 +6,7 @@ unidecode
 folium
 maidenhead
 dash
-dash
 dash-leaflet
 requests
+mypy
+black
