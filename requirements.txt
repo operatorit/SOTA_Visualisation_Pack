@@ -10,3 +10,7 @@ dash-leaflet
 requests
 mypy
 black
+pylint
+Bandit
+pre-commit
+Isort

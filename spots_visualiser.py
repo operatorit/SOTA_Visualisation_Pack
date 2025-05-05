@@ -21,7 +21,7 @@ class SpotsVisualiser:
         """
         self.lookback_time = lookback_time
         self.summits_filename = summits_filename
-        self.summits_errors = []
+        self.summits_errors:list = []
 
         self.define_constants()
 
