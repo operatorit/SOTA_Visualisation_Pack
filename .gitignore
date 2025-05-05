@@ -29,6 +29,7 @@ pyproject.toml
 secrets/*
 secrets/
 config.py
+code_formatting_test.py
 
 # other
 summmits_errors.txt
