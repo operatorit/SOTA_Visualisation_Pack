@@ -169,16 +169,27 @@ class SpotsVisualiser:
     def add_visualisation_markers(self) -> None:
         """Adds information regarding visualisation markers to spots_to_visualisation DataFrame.
         """
-        pass
-        #  spots_df.loc[i, ('popup')] = f"Summit {spots_df.loc[i, ('summitName')].title()} - {spots_df.loc[i, ('summit')]} ({spots_df.loc[i, ('points')]} points)\nactivated by {spots_df.loc[i, ('activatorCallsign')].upper()}\non {spots_df.loc[i, ('frequency')]} - {spots_df.loc[i, ('mode')].upper()}\n{round(spots_df.loc[i, ('time_since_spot')]*60)} minutes ago\n."
-#         spots_df.loc[i, ('mode')] = spots_df.loc[i, ('mode')].upper()
-#         for band in bands_df.index: # assess band based on frequency spotted
-#             if (spots_df.loc[i, ('frequency')] >= bands_df['lower_freq'][band]) and (spots_df.loc[i, ('frequency')] <= bands_df['upper_freq'][band]):
-#                 spots_df.loc[i, ('band_color')] = bands_df['color'][band]
-#                 spots_df.loc[i, ('band')] = band
-#         for j in modes_df.index:
-#             if spots_df.loc[i, ('mode')] == modes_df.iloc[j]['mode'].upper():
-#                 spots_df.loc[i,('mode_color')] = modes_df.iloc[j]['color']
+
+        self.spots_to_visualisation['popup'] = f"Summit {self.spots_to_visualisation['summitName'].str.title()} \
+                                                - {self.spots_to_visualisation['summit_ref']} \
+                                                ({self.spots_to_visualisation['points']} points)\n\
+                                                activated by {self.spots_to_visualisation['activatorCallsign'].str.upper()}\n\
+                                                on {self.spots_to_visualisation['frequency']} \
+                                                - {self.spots_to_visualisation['mode'].str.upper()}\n\
+                                                {round(self.spots_to_visualisation['time_since_spot']*60)} minutes ago\n."
+        self.spots_to_visualisation['mode'] = self.spots_to_visualisation['mode'].str.upper()
+
+        self.spots_to_visualisation['band_color'], self.spots_to_visualisation['band'], self.spots_to_visualisation['mode'], self.spots_to_visualisation['mode_color'] = pd.NA, pd.NA, pd.NA, pd.NA
+        for band in self._BANDS.index: # assess band based on frequency spotted
+            
+            self.spots_to_visualisation.loc[(self._BANDS['upper_freq'][band] >= self.spots_to_visualisation['frequency']) \
+                                                 & (self.spots_to_visualisation['frequency']>= self._BANDS['lower_freq'][band]), 
+                                                 'band'] = band
+            self.spots_to_visualisation.loc[(self._BANDS['upper_freq'][band] >= self.spots_to_visualisation['frequency']) \
+                                                 & (self.spots_to_visualisation['frequency'] >= self._BANDS['lower_freq'][band]), 
+                                                 'band_color'] = self._BANDS['color'][band]
+        for mode in self._MODES.index:
+            self.spots_to_visualisation.loc[self.spots_to_visualisation['mode'] == mode, 'mode_color'] = self._MODES['color'][mode]
 
     def remove_unused_columns(self) -> None:
         """Removes columns not used for visualisation from spots_to_visualisation DataFrame.
@@ -214,8 +225,8 @@ if __name__ == "__main__":
 #     with open('summits_errors.txt', 'a') as f:
 #         for error in summits_errors:
 #             f.write(f'{error}\n')
-# create spots_df_filtered dataframe as a copy of spots_df to be used later on in callbacks
-# spots_df_filtered = spots_df.copy()
+# create self.spots_to_visualisation_filtered dataframe as a copy of self.spots_to_visualisation to be used later on in callbacks
+# self.spots_to_visualisation_filtered = self.spots_to_visualisation.copy()
 
 
 # def get_activation_data(spots):
@@ -260,14 +271,14 @@ if __name__ == "__main__":
 #                 )),
 #     html.Div(
 #             dcc.Dropdown(
-#                 bands_df.index, # valus available
-#                 bands_df.index, # values selected by default - all bands
+#                 _BANDS.index, # valus available
+#                 _BANDS.index, # values selected by default - all bands
 #                 multi=True,
 #                 placeholder='Select band to apply filter or refresh page to show all',
 #                 id = 'band_selection' #dropdown list to select bands to visualise
 #                 )),
 #     dl.Map(
-#             children = generate_maps(spots_df), # generate map's layers
+#             children = generate_maps(self.spots_to_visualisation), # generate map's layers
 #             zoom=3, # whole world should be presented upon dashboard start
 #             center=(50, 20), # map is centered near Kraków - city where I live
 #             style={
@@ -285,14 +296,14 @@ if __name__ == "__main__":
 #     )
 # def update_map(bands, modes):
 #     """Apply filters set-up by the user, return re-created map object"""
-#     global spots_df
-#     # operations are done on spots_df.filtered to make sure original DataFrame is kept safe
+#     global self.spots_to_visualisation
+#     # operations are done on self.spots_to_visualisation.filtered to make sure original DataFrame is kept safe
 #     # dropdowns return lists with selected bands/modes, so need to check if spot's parameters are within these lists
-#     spots_df_filtered = spots_df[spots_df['band'].isin(bands)].copy()
-#     spots_df_filtered = spots_df_filtered[spots_df_filtered['mode'].isin(modes)]
+#     self.spots_to_visualisation_filtered = self.spots_to_visualisation[self.spots_to_visualisation['band'].isin(bands)].copy()
+#     self.spots_to_visualisation_filtered = self.spots_to_visualisation_filtered[self.spots_to_visualisation_filtered['mode'].isin(modes)]
 #     # reset index to be list starting from 0
-#     spots_df_filtered = spots_df_filtered.reset_index(drop = True)
-#     return generate_maps(spots_df_filtered)
+#     self.spots_to_visualisation_filtered = self.spots_to_visualisation_filtered.reset_index(drop = True)
+#     return generate_maps(self.spots_to_visualisation_filtered)
 
 
 # # deploy the dashboard

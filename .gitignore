@@ -30,6 +30,7 @@ secrets/*
 secrets/
 config.py
 code_formatting_test.py
+code_formatting_test.ipynb
 
 # other
 summmits_errors.txt
