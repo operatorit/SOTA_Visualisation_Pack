@@ -9,8 +9,7 @@ dash
 dash-leaflet
 requests
 mypy
-black
-pylint
+ruff
 Bandit
 pre-commit
 Isort
