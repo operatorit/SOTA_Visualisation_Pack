@@ -166,7 +166,7 @@ class SpotsVisualiser:
         self.spots_to_visualisation['time_since_spot'] = datetime.utcnow() - self.spots_to_visualisation['timeStamp']
         self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours = 1)  
     
-    def add_visualisation_markers(self) -> None:
+    def create_visualisation_data(self) -> None:
         """Adds information regarding visualisation markers to spots_to_visualisation DataFrame.
         """
 
@@ -181,7 +181,6 @@ class SpotsVisualiser:
 
         self.spots_to_visualisation['band_color'], self.spots_to_visualisation['band'], self.spots_to_visualisation['mode'], self.spots_to_visualisation['mode_color'] = pd.NA, pd.NA, pd.NA, pd.NA
         for band in self._BANDS.index: # assess band based on frequency spotted
-            
             self.spots_to_visualisation.loc[(self._BANDS['upper_freq'][band] >= self.spots_to_visualisation['frequency']) \
                                                  & (self.spots_to_visualisation['frequency']>= self._BANDS['lower_freq'][band]), 
                                                  'band'] = band
@@ -195,8 +194,35 @@ class SpotsVisualiser:
         """Removes columns not used for visualisation from spots_to_visualisation DataFrame.
         """
         pass
-        # self.spots_to_visualisation.drop(columns = [], inplace = True)
+        # self.spots_to_visualisation = self.spots_to_visualisation[['']]
 
+    def drop_summits_not_found(self) -> None:
+        """Removes spots with references not found in SOTA summits list.
+        """
+        self.spots_to_visualisation.drop(self.spots_to_visualisation[self.spots_to_visualisation['longitude'].isna()].index, inplace = True)
+        self.spots_to_visualisation.reset_index(drop = True, inplace = True)
+
+    def create_spots_markers(self) -> None:
+        """Prepare CircleMarkers list for spots visualisation."""
+
+        self.spots_markers_for_map = []
+        
+        for i in range(len(self.spots_to_visualisation)):
+            self.spots_markers_for_map.append(
+            dl.CircleMarker(
+                center = [self.spots_to_visualisation.[i, ('latitude')], self.spots_to_visualisation.[i, ('longitude')]],
+                radius = (1 - self.spots_to_visualisation.[i, ('time_since_spot')]) * 30,  # radius is proportional to time from sending
+                # the spot. The newest spot, the larger circle. Spots with time above 1 hour will be presented as small points
+                children = dl.Popup(self.spots_to_visualisation.[i, ("popup")]), # pop-up with spot description
+                fillColor =  self.spots_to_visualisation.[i, ('band_color')],  # circle's fill represents activation's band
+                weight =   3,
+                color = self.spots_to_visualisation.[i, ('mode_color')],  # border color represents activation's mode
+                opacity  = 1,
+                fillOpacity = 1,
+            )
+            )
+
+    
 
 # script flow
 if __name__ == "__main__":
@@ -212,8 +238,14 @@ if __name__ == "__main__":
     spots_map.check_error_references()
     spots_map.join_spots_with_summits()
     spots_map.add_time_markers()
-    spots_map.add_visualisation_markers()
+    spots_map.create_visualisation_data()
     spots_map.remove_unused_columns()
+    spots_map.drop_summits_not_found()
+    spots_map.create_spots_markers()
+
+
+
+
     
 
 
@@ -229,28 +261,6 @@ if __name__ == "__main__":
 # self.spots_to_visualisation_filtered = self.spots_to_visualisation.copy()
 
 
-# def get_activation_data(spots):
-#     """Prepare CircleMarkers list for spots visualisation, return a table of CircleMarkers"""
-#     markers = []
-#     for i in range(0, len(spots)):
-#         if spots.loc[i, ('longitude')] != None: # ignore spots where no reference data in SOTA database was found
-#             markers.append(
-#             dl.CircleMarker(
-#                 center=[spots.loc[i, ('latitude')], spots.loc[i, ('longitude')]],  # spot's location
-#                 radius=(1 - spots.loc[i, ('time_since_spot')]) * 30,  # radius is proportional to time from sending
-#                 # the spot. The newest spot, the larger circle. Spots with time above 1 hour will be presented as small points
-#                 children = dl.Popup(spots.loc[i, ("popup")]), # pop-up with spot description
-#                 fillColor=spots.loc[i, ('band_color')],  # circle's fill represents activation's band
-#                 weight=3,
-#                 color=spots.loc[i, ('mode_color')],  # border color represents activation's mode
-#                 opacity=1,
-#                 fillOpacity=1,
-#             )
-#             )
-#         # skip incorrect summits
-#         else:
-#             pass
-#     return markers
 
 # def generate_maps(spots):
 #     """Generate an input for dl.Map object"""
