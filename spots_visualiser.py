@@ -169,14 +169,28 @@ class SpotsVisualiser:
     def create_visualisation_data(self) -> None:
         """Adds information regarding visualisation markers to spots_to_visualisation DataFrame.
         """
-
-        self.spots_to_visualisation['popup'] = f"Summit {self.spots_to_visualisation['summitName'].str.title()} \
-                                                - {self.spots_to_visualisation['summit_ref']} \
-                                                ({self.spots_to_visualisation['points']} points)\n\
-                                                activated by {self.spots_to_visualisation['activatorCallsign'].str.upper()}\n\
-                                                on {self.spots_to_visualisation['frequency']} \
-                                                - {self.spots_to_visualisation['mode'].str.upper()}\n\
-                                                {round(self.spots_to_visualisation['time_since_spot']*60)} minutes ago\n."
+        self.spots_to_visualisation['popup'] = self.spots_to_visualisation.apply(lambda row: f"Summit {row['summitName'].title()} - {row['summit_ref']} \
+                                                                                                {row['points']} points\n \
+                                                                                                activated by {row['activatorCallsign'].upper()}\n\
+                                                                                                on {row['frequency']} \
+                                                                                                - {row['mode'].upper()}\n\
+                                                                                                {round(row['time_since_spot']*60)} minutes ago\n.", axis=1)
+        
+        # f"Summit {self.spots_to_visualisation['summitName'].str.title()}"# \
+        #                                         - {self.spots_to_visualisation['summit_ref']} \
+        #                                         ({self.spots_to_visualisation['points']} points)\n\
+        #                                         activated by {self.spots_to_visualisation['activatorCallsign'].str.upper()}\n\
+        #                                         on {self.spots_to_visualisation['frequency']} \
+        #                                         - {self.spots_to_visualisation['mode'].str.upper()}\n\
+        #                                         {round(self.spots_to_visualisation['time_since_spot']*60)} minutes ago\n.", axis=1)
+        
+        # f"Summit {self.spots_to_visualisation['summitName'].str.title()} \
+        #                                         - {self.spots_to_visualisation['summit_ref']} \
+        #                                         ({self.spots_to_visualisation['points']} points)\n\
+        #                                         activated by {self.spots_to_visualisation['activatorCallsign'].str.upper()}\n\
+        #                                         on {self.spots_to_visualisation['frequency']} \
+        #                                         - {self.spots_to_visualisation['mode'].str.upper()}\n\
+        #                                         {round(self.spots_to_visualisation['time_since_spot']*60)} minutes ago\n."
         self.spots_to_visualisation['mode'] = self.spots_to_visualisation['mode'].str.upper()
 
         self.spots_to_visualisation['band_color'], self.spots_to_visualisation['band'], self.spots_to_visualisation['mode'], self.spots_to_visualisation['mode_color'] = pd.NA, pd.NA, pd.NA, pd.NA
@@ -193,8 +207,14 @@ class SpotsVisualiser:
     def remove_unused_columns(self) -> None:
         """Removes columns not used for visualisation from spots_to_visualisation DataFrame.
         """
-        pass
-        # self.spots_to_visualisation = self.spots_to_visualisation[['']]
+        #TODO: check which columns are nmecessary
+        self.spots_to_visualisation = self.spots_to_visualisation[['timeStamp', 'comments', 'callsign', 'associationCode',
+       'summitCode', 'activatorCallsign', 'activatorName', 'frequency', 'mode',
+       'summitDetails', 'summit_ref', 'SummitCode',
+       'AssociationName', 'RegionName', 'summitName', 'longitude', 'latitude', 'points',
+       'BonusPoints',
+       'ActivationDate', 'ActivationCall', 'time_since_spot', 'popup',
+       'band_color', 'band', 'mode_color']]
 
     def drop_summits_not_found(self) -> None:
         """Removes spots with references not found in SOTA summits list.
@@ -203,24 +223,26 @@ class SpotsVisualiser:
         self.spots_to_visualisation.reset_index(drop = True, inplace = True)
 
     def create_spots_markers(self) -> None:
-        """Prepare CircleMarkers list for spots visualisation."""
+        """Prepare CircleMarkers list for spots visualisation.
+        """
 
         self.spots_markers_for_map = []
         
         for i in range(len(self.spots_to_visualisation)):
             self.spots_markers_for_map.append(
             dl.CircleMarker(
-                center = [self.spots_to_visualisation.[i, ('latitude')], self.spots_to_visualisation.[i, ('longitude')]],
-                radius = (1 - self.spots_to_visualisation.[i, ('time_since_spot')]) * 30,  # radius is proportional to time from sending
+                center = [self.spots_to_visualisation.iloc[i]['latitude'], self.spots_to_visualisation.iloc[i]['longitude']],
+                radius = (1 - self.spots_to_visualisation.iloc[i]['time_since_spot']) * 30,  # radius is proportional to time from sending
                 # the spot. The newest spot, the larger circle. Spots with time above 1 hour will be presented as small points
-                children = dl.Popup(self.spots_to_visualisation.[i, ("popup")]), # pop-up with spot description
-                fillColor =  self.spots_to_visualisation.[i, ('band_color')],  # circle's fill represents activation's band
+                children = dl.Popup(self.spots_to_visualisation.iloc[i]["popup"]), # pop-up with spot description
+                fillColor =  self.spots_to_visualisation.iloc[i]['band_color'],  # circle's fill represents activation's band
                 weight =   3,
-                color = self.spots_to_visualisation.[i, ('mode_color')],  # border color represents activation's mode
+                color = self.spots_to_visualisation.iloc[i]['mode_color'],  # border color represents activation's mode
                 opacity  = 1,
                 fillOpacity = 1,
             )
             )
+        print(self.spots_markers_for_map)
 
     
 
