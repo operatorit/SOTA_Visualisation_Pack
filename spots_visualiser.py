@@ -242,9 +242,47 @@ class SpotsVisualiser:
                 fillOpacity = 1,
             )
             )
-        print(self.spots_markers_for_map)
 
-    
+    def initiate_dashboard(self) -> None:
+        """Deploys sota_spots_dashboard app in Dash."""
+        self.sota_spots_dashboard = Dash(__name__)
+
+    def set_map_design(self) -> None:
+        """Defines Dash app layout."""
+        self.sota_spots_dashboard.layout = html.Div([
+            html.Div(
+                    dcc.Dropdown(
+                        self._MODES['mode'], # values available
+                        self._MODES['mode'], # values selected by default - all modes
+                        multi=True,
+                        placeholder='Select mode to apply filter or refresh page to show all',
+                        id = 'mode_selection' # dropdown list to select modes to visualise
+                        )),
+            html.Div(
+                    dcc.Dropdown(
+                        self._BANDS.index, # valus available
+                        self._BANDS.index, # values selected by default - all bands
+                        multi=True,
+                        placeholder='Select band to apply filter or refresh page to show all',
+                        id = 'band_selection' #dropdown list to select bands to visualise
+                        )),
+            dl.Map(
+                    children = self.generate_maps(), # generate map's layers
+                    zoom=3, # whole world should be presented upon dashboard start
+                    center=(50, 20), # map is centered near Kraków - city where I live
+                    style={
+                        "height": "100vh", # map's height is 100% of the window
+                    },
+                    id = 'spots_map', # create a map with spots visualisation
+                )
+            ],)
+
+    def generate_maps(self) -> list:
+        """Generate an input for dl.Map object"""
+        return [
+                dl.TileLayer(), # background layer
+                dl.LayerGroup(self.spots_markers_for_map), # add layer with spots
+            ]        
 
 # script flow
 if __name__ == "__main__":
@@ -264,6 +302,9 @@ if __name__ == "__main__":
     spots_map.remove_unused_columns()
     spots_map.drop_summits_not_found()
     spots_map.create_spots_markers()
+    spots_map.initiate_dashboard()
+    spots_map.set_map_design()
+    spots_map.sota_spots_dashboard.run(port=8050, debug=True)
 
 
 
@@ -284,41 +325,9 @@ if __name__ == "__main__":
 
 
 
-# def generate_maps(spots):
-#     """Generate an input for dl.Map object"""
-#     return [
-#             dl.TileLayer(), # background layer
-#             dl.LayerGroup(get_activation_data(spots)), # add layer with spots
-#         ]
 
-# # define Dash app layout
-# sota_spots_dashboard.layout = html.Div([
-#     html.Div(
-#             dcc.Dropdown(
-#                 modes_df['mode'], # values available
-#                 modes_df['mode'], # values selected by default - all modes
-#                 multi=True,
-#                 placeholder='Select mode to apply filter or refresh page to show all',
-#                 id = 'mode_selection' # dropdown list to select modes to visualise
-#                 )),
-#     html.Div(
-#             dcc.Dropdown(
-#                 _BANDS.index, # valus available
-#                 _BANDS.index, # values selected by default - all bands
-#                 multi=True,
-#                 placeholder='Select band to apply filter or refresh page to show all',
-#                 id = 'band_selection' #dropdown list to select bands to visualise
-#                 )),
-#     dl.Map(
-#             children = generate_maps(self.spots_to_visualisation), # generate map's layers
-#             zoom=3, # whole world should be presented upon dashboard start
-#             center=(50, 20), # map is centered near Kraków - city where I live
-#             style={
-#                 "height": "100vh", # map's height is 100% of the window
-#             },
-#             id = 'spots_map', # create a map with spots visualisation
-#         )
-# ])
+
+
 
 # # add callbacks to dashboard to allow user to filter spots by band and mode
 # @sota_spots_dashboard.callback(
