@@ -35,3 +35,40 @@ code_formatting_test.ipynb
 # other
 summmits_errors.txt
 activations_map.html
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Testy i coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Pliki danych i logi
+*.log
+*.csv
+*.sqlite
+*.db
+*.json
+*.bak
+*.tmp
+.~*
