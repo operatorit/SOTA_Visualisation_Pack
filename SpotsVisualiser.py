@@ -184,8 +184,7 @@ class SpotsVisualiser:
                                                  'band_color'] = self._BANDS['color'][band]
 
         for mode in self._MODES['mode'].unique():
-            self.spots_to_visualisation.loc[self.spots_to_visualisation['mode'] == mode, 'mode_color'] = self._MODES.loc[self._MODES['mode'] == mode, 'color']
-        print('fin', self.spots_to_visualisation['mode'].unique())    
+            self.spots_to_visualisation.loc[self.spots_to_visualisation['mode'] == mode, 'mode_color'] = self._MODES.loc[self._MODES['mode'] == mode, 'color'].item()
 
     def remove_unused_columns(self) -> None:
         """Removes columns not used for visualisation from spots_to_visualisation DataFrame.
@@ -215,21 +214,23 @@ class SpotsVisualiser:
         filtered_spots.reset_index(drop=True, inplace=True)
         return filtered_spots
     
-    def create_spots_markers(self, spots_df) -> list:
+    def create_spots_markers(self) -> list:
         """Prepare CircleMarkers list for spots visualisation.
         """
-        spots_markers_for_map = []
+        self.spots_markers_for_map = []
+
         
-        for i in range(len(spots_df)):
-            spots_markers_for_map.append(
+        
+        for i in range(len(self.spots_to_visualisation)):
+            self.spots_markers_for_map.append(
             dl.CircleMarker(
-                center = [spots_df.iloc[i]['latitude'], spots_df.iloc[i]['longitude']],
-                radius = (1 - spots_df.iloc[i]['time_since_spot']) * 30,  # radius is proportional to time from sending
+                center = [self.spots_to_visualisation.iloc[i]['latitude'], self.spots_to_visualisation.iloc[i]['longitude']],
+                radius = (1 - self.spots_to_visualisation.iloc[i]['time_since_spot']) * 30,  # radius is proportional to time from sending
                 # the spot. The newest spot, the larger circle. Spots with time above 1 hour will be presented as small points
-                children = dl.Popup(spots_df.iloc[i]["popup"]), # pop-up with spot description
-                fillColor =  spots_df.iloc[i]['band_color'],  # circle's fill represents activation's band
+                children = dl.Popup(self.spots_to_visualisation.iloc[i]["popup"]), # pop-up with spot description
+                fillColor =  self.spots_to_visualisation.iloc[i]['band_color'],  # circle's fill represents activation's band
                 weight =   3,
-                color = spots_df.iloc[i]['mode_color'],  # border color represents activation's mode
+                color = self.spots_to_visualisation.iloc[i]['mode_color'],  # border color represents activation's mode
                 opacity  = 1,
                 fillOpacity = 1,
             )
