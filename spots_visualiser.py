@@ -62,12 +62,31 @@ def create_callback(spots_map_instance):
             (spots_map_instance.spots_to_visualisation['band'].isin(bands)) & 
             (spots_map_instance.spots_to_visualisation['mode'].isin(modes))
         ].copy()
-        
-        # create markers for spots visualisation
-        markers = spots_map_instance.spots_markers_for_map
-        return generate_maps(markers)
+
+        return generate_maps(create_spots_markers(filtered_spots))
     
     return update_map
+
+def create_spots_markers(spots_df) -> list:
+    """Prepare CircleMarkers list for spots visualisation.
+    """
+    spots_markers_for_map = []
+    
+    for i in range(len(spots_df)):
+        spots_markers_for_map.append(
+        dl.CircleMarker(
+            center = [spots_df.iloc[i]['latitude'], spots_df.iloc[i]['longitude']],
+            radius = (1 - spots_df.iloc[i]['time_since_spot']) * 30,  # radius is proportional to time from sending
+            # the spot. The newest spot, the larger circle. Spots with time above 1 hour will be presented as small points
+            children = dl.Popup(spots_df.iloc[i]["popup"]), # pop-up with spot description
+            fillColor =  spots_df.iloc[i]['band_color'],  # circle's fill represents activation's band
+            weight =   3,
+            color = spots_df.iloc[i]['mode_color'],  # border color represents activation's mode
+            opacity  = 1,
+            fillOpacity = 1,
+        )
+        )
+    return spots_markers_for_map
 
 def generate_maps(spots_markers) -> list:
     """Generate an input for dl.Map object"""
@@ -78,24 +97,24 @@ def generate_maps(spots_markers) -> list:
         ]    
 
 # script flow
-spots_map = SpotsVisualiser(lookback_time = -1)
-spots_map.get_spots()
-spots_map.amend_spots_frequencies()
-spots_map.amend_spots_datatypes()
-spots_map.add_summit_codes()
-spots_map.prepare_spots_to_join()
-spots_map.get_summits_list()
-spots_map.check_error_references()
-spots_map.join_spots_with_summits()
-spots_map.add_time_markers()
-spots_map.create_visualisation_data()
-spots_map.remove_unused_columns()
-spots_map.drop_summits_not_found()
-spots_map.create_spots_markers()
-set_map_design(sota_spots_dashboard, spots_map)
-create_callback(spots_map) 
-
 if __name__ == "__main__":
+    spots_map = SpotsVisualiser(lookback_time = -1)
+    spots_map.get_spots()
+    spots_map.amend_spots_frequencies()
+    spots_map.amend_spots_datatypes()
+    spots_map.add_summit_codes()
+    spots_map.prepare_spots_to_join()
+    spots_map.get_summits_list()
+    spots_map.check_error_references()
+    spots_map.join_spots_with_summits()
+    spots_map.add_time_markers()
+    spots_map.create_visualisation_data()
+    spots_map.remove_unused_columns()
+    spots_map.drop_summits_not_found()
+    spots_map.create_spots_markers()
+    set_map_design(sota_spots_dashboard, spots_map)
+    create_callback(spots_map) 
+
     sota_spots_dashboard.run(port=config._PORT_NUMBER, 
                              debug=config._DEBUG_FLAG)
 

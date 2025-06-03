@@ -218,8 +218,6 @@ class SpotsVisualiser:
         """Prepare CircleMarkers list for spots visualisation.
         """
         self.spots_markers_for_map = []
-
-        
         
         for i in range(len(self.spots_to_visualisation)):
             self.spots_markers_for_map.append(
