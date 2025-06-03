@@ -1,5 +1,6 @@
 import requests # for communication with API
 import pandas as pd # for data analysis
+import dash_leaflet as dl # to visualise map
 
 from datetime import datetime, timedelta # for time calculations
 
@@ -204,6 +205,16 @@ class SpotsVisualiser:
         self.spots_to_visualisation.drop(self.spots_to_visualisation[self.spots_to_visualisation['longitude'].isna()].index, inplace = True)
         self.spots_to_visualisation.reset_index(drop = True, inplace = True)
 
+    def filter_spots(self, filter_params: list):
+        """Filter spots based on provided parameters"""
+        filtered_spots = self.spots_to_visualisation.loc[
+            (self.spots_to_visualisation['band'].isin(filter_params.bands)) & 
+            (self.spots_to_visualisation['mode'].isin(filter_params.modes))
+        ].copy()
+        
+        filtered_spots.reset_index(drop=True, inplace=True)
+        return filtered_spots
+    
     def create_spots_markers(self, spots_df) -> list:
         """Prepare CircleMarkers list for spots visualisation.
         """

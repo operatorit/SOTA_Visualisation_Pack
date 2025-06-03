@@ -39,34 +39,35 @@ def set_map_design(map_dashboard, spots_map_instance) -> None:
                 )
             ],)
 
-@sota_spots_dashboard.callback(Output('spots_map', 'children'),
-                               [Input('band_selection', 'value'),
-                                Input('mode_selection', 'value')]
-                                )
-
-def update_map(bands, modes):
-    """Apply filters set-up by the user, return re-created map object"""
-
-    if not bands:
-        bands = spots_map_instance._BANDS.index
-    if not modes:
-        modes = spots_map_instance._MODES['mode']
-    print(spots_map_instance.spots_to_visualisation[['band', 'mode']])
-
-    filtered_spots = spots_map_instance.spots_to_visualisation.loc[
-        (spots_map_instance.spots_to_visualisation['band'].isin(bands)) 
-        & (spots_map_instance.spots_to_visualisation['mode'].isin(modes))
-    ].copy()
-    print('filtered', filtered_spots)   
+def create_callback(spots_map_instance):
+    """
+    Creates callback function with access to SpotsVisualiser instance.
+    Args:
+        spots_map_instance: SpotsVisualiser instance
+    """
+    @sota_spots_dashboard.callback(
+        Output('spots_map', 'children'),
+        [Input('band_selection', 'value'),
+         Input('mode_selection', 'value')]
+    )
+    def update_map(bands, modes):
+        # Set default values if none selected
+        if not bands:
+            bands = spots_map_instance._BANDS.index
+        if not modes:
+            modes = spots_map_instance._MODES['mode']
+            
+        # spots_filtering
+        filtered_spots = spots_map_instance.spots_to_visualisation[
+            (spots_map_instance.spots_to_visualisation['band'].isin(bands)) & 
+            (spots_map_instance.spots_to_visualisation['mode'].isin(modes))
+        ].copy()
+        
+        # create markers for spots visualisation
+        markers = spots_map_instance.create_spots_markers(filtered_spots)
+        return generate_maps(markers)
     
-    filtered_spots.reset_index(drop=True, inplace=True)
-    
-    markers = spots_map_instance.create_spots_markers(filtered_spots)
-    map_layers = spots_map_instance.generate_maps(markers)
-    
-    print("markers", markers)
-    print("layers", map_layers)
-    return map_layers
+    return update_map
 
 def generate_maps(spots_markers) -> list:
     """Generate an input for dl.Map object"""
@@ -90,10 +91,15 @@ if __name__ == "__main__":
     spots_map.create_visualisation_data()
     spots_map.remove_unused_columns()
     spots_map.drop_summits_not_found()
+    print(spots_map.spots_to_visualisation)
     spots_map.create_spots_markers(spots_map.spots_to_visualisation)
+    print(spots_map.spots_to_visualisation)
     
     set_map_design(sota_spots_dashboard, spots_map)
-    sota_spots_dashboard.run(port=config._PORT_NUMBER, debug=config._DEBUG_FLAG)
+    create_callback(spots_map) 
+
+    sota_spots_dashboard.run(port=config._PORT_NUMBER, 
+                             debug=config._DEBUG_FLAG)
 
 
 ### NEW above
