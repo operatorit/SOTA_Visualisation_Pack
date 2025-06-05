@@ -7,8 +7,6 @@ import config # script configuration
 
 # functions to deploy dash map 
 
-sota_spots_dashboard = Dash(__name__)
-
 def set_map_design(map_dashboard, spots_map_instance) -> None:
         """Defines Dash app layout."""
         map_dashboard.layout = html.Div([
@@ -57,23 +55,38 @@ def create_callback(spots_map_instance):
         if not modes:
             modes = spots_map_instance._MODES['mode']
             
-        # spots_filtering
+        # spots filtering
         filtered_spots = spots_map_instance.spots_to_visualisation[
             (spots_map_instance.spots_to_visualisation['band'].isin(bands)) & 
             (spots_map_instance.spots_to_visualisation['mode'].isin(modes))
         ].copy()
 
-        return generate_maps(create_spots_markers(filtered_spots))
+        filtered_markers = []
+        for _, spot in filtered_spots.iterrows():
+            filtered_markers.append(
+                dl.CircleMarker(
+                    center=[spot['latitude'], spot['longitude']],
+                    radius=(1 - spot['time_since_spot']) * 30,
+                    children=dl.Popup(spot["popup"]),
+                    fillColor=spot['band_color'], 
+                    weight=3,
+                    color=spot['mode_color'],
+                    opacity=1,
+                    fillOpacity=1,
+                )
+            )
+        
+        return generate_maps(filtered_markers)
     
     return update_map
 
-def create_spots_markers(spots_df) -> list:
+def create_spots_markers(spots_df, spots_map_instance) -> list:
     """Prepare CircleMarkers list for spots visualisation.
     """
-    spots_markers_for_map = []
+    spots_map_instance.spots_markers_for_map = []
     
     for i in range(len(spots_df)):
-        spots_markers_for_map.append(
+        spots_map_instance.spots_markers_for_map.append(
         dl.CircleMarker(
             center = [spots_df.iloc[i]['latitude'], spots_df.iloc[i]['longitude']],
             radius = (1 - spots_df.iloc[i]['time_since_spot']) * 30,  # radius is proportional to time from sending
@@ -86,7 +99,7 @@ def create_spots_markers(spots_df) -> list:
             fillOpacity = 1,
         )
         )
-    return spots_markers_for_map
+    return spots_map_instance.spots_markers_for_map
 
 def generate_maps(spots_markers) -> list:
     """Generate an input for dl.Map object"""
@@ -97,6 +110,9 @@ def generate_maps(spots_markers) -> list:
         ]    
 
 # script flow
+
+sota_spots_dashboard = Dash(__name__)
+
 if __name__ == "__main__":
     spots_map = SpotsVisualiser(lookback_time = -1)
     spots_map.get_spots()
@@ -111,7 +127,8 @@ if __name__ == "__main__":
     spots_map.create_visualisation_data()
     spots_map.remove_unused_columns()
     spots_map.drop_summits_not_found()
-    spots_map.create_spots_markers()
+    # spots_map.create_spots_markers()
+    create_spots_markers(spots_map.spots_to_visualisation, spots_map)
     set_map_design(sota_spots_dashboard, spots_map)
     create_callback(spots_map) 
 

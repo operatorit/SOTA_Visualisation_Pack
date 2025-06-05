@@ -203,33 +203,3 @@ class SpotsVisualiser:
         """
         self.spots_to_visualisation.drop(self.spots_to_visualisation[self.spots_to_visualisation['longitude'].isna()].index, inplace = True)
         self.spots_to_visualisation.reset_index(drop = True, inplace = True)
-
-    def filter_spots(self, filter_params: list):
-        """Filter spots based on provided parameters"""
-        filtered_spots = self.spots_to_visualisation.loc[
-            (self.spots_to_visualisation['band'].isin(filter_params.bands)) & 
-            (self.spots_to_visualisation['mode'].isin(filter_params.modes))
-        ].copy()
-        
-        filtered_spots.reset_index(drop=True, inplace=True)
-        return filtered_spots
-    
-    def create_spots_markers(self) -> list:
-        """Prepare CircleMarkers list for spots visualisation.
-        """
-        self.spots_markers_for_map = []
-        
-        for i in range(len(self.spots_to_visualisation)):
-            self.spots_markers_for_map.append(
-            dl.CircleMarker(
-                center = [self.spots_to_visualisation.iloc[i]['latitude'], self.spots_to_visualisation.iloc[i]['longitude']],
-                radius = (1 - self.spots_to_visualisation.iloc[i]['time_since_spot']) * 30,  # radius is proportional to time from sending
-                # the spot. The newest spot, the larger circle. Spots with time above 1 hour will be presented as small points
-                children = dl.Popup(self.spots_to_visualisation.iloc[i]["popup"]), # pop-up with spot description
-                fillColor =  self.spots_to_visualisation.iloc[i]['band_color'],  # circle's fill represents activation's band
-                weight =   3,
-                color = self.spots_to_visualisation.iloc[i]['mode_color'],  # border color represents activation's mode
-                opacity  = 1,
-                fillOpacity = 1,
-            )
-            )
