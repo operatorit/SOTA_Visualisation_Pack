@@ -4,7 +4,6 @@ import dash_leaflet as dl # to visualise map
 
 from datetime import datetime, timedelta # for time calculations
 
-
 import config # script configuration
 
 class SpotsVisualiser:
@@ -46,26 +45,49 @@ class SpotsVisualiser:
                                  })
         self._MODES['color'] = self._MODES['color'].astype('string')
         self._MODES['mode'] = self._MODES['mode'].astype('string')
+    
+    def process_spots(self) -> pd.DataFrame:
+        self.spots_to_visualisation = self.get_spots()
+        self.amend_spots_frequencies()
+        self.amend_spots_datatypes()
+        self.add_summit_codes()
+        self.prepare_spots_to_join()
+        self.get_summits_list()
+        self.check_error_references()
+        self.join_spots_with_summits()
+        self.add_time_markers()
+        print(self.spots_to_visualisation)
+        self.create_visualisation_data()
+        self.remove_unused_columns()
+        self.drop_summits_not_found()
 
-    def get_spots(self) -> None:
-      """Downloads spots aleted in defined timeframe or defined number of latests spots.
-      If there are no spots sent in time provided, return latest 10 to make sure dictionary is not empty.
-      """
-      temp_spots_dict = {}
-      r = requests.get(self._API_URL)
-      print(f'Status code: {r.status_code}')
-      temp_spots_dict = r.json()
+        return self.spots_to_visualisation
 
-      if self.lookback_time > 0:
-            print(f'{len(temp_spots_dict)} found where expected number was {self.lookback_time}.')
-      if self.lookback_time < 0:
-            print(f'{len(temp_spots_dict)} spots found in latest {-self.lookback_time} h.')
 
-      if len(temp_spots_dict) == 0:
-          temp_spots_dict = self.get_spots(10)
-          print(f"No spots found in the timeframe provided. Returning latest 10 spots.")
-          
-      self.spots_to_visualisation = pd.DataFrame(temp_spots_dict)
+    def get_spots(self) -> pd.DataFrame:
+        """Downloads spots aleted in defined timeframe or defined number of latests spots.
+        If there are no spots sent in time provided, return latest 10 to make sure dictionary is not empty.
+        """
+        temp_spots_dict = {}
+        try:
+            r = requests.get(self._API_URL)
+            print(f'Status code: {r.status_code}')
+            temp_spots_dict = r.json()
+
+            if self.lookback_time > 0:
+                    print(f'{len(temp_spots_dict)} found where expected number was {self.lookback_time}.')
+            if self.lookback_time < 0:
+                    print(f'{len(temp_spots_dict)} spots found in latest {-self.lookback_time} h.')
+
+            if len(temp_spots_dict) == 0:
+                temp_spots_dict = self.get_spots(10)
+                print(f"No spots found in the timeframe provided. Returning latest 10 spots.")
+            
+            return pd.DataFrame(temp_spots_dict)
+        
+        except requests.exceptions.RequestException as e:
+            print(f"Error occurred, spots not downloaded.")
+            return pd.DataFrame()  # return empty DataFrame if error occurs
     
     def amend_spots_frequencies(self) -> None:
         """Amend incorrect frequencies (defined as not matchng regular expression for
@@ -141,6 +163,8 @@ class SpotsVisualiser:
             if summit_reference.upper() not in self.SOTA_summits_data['SummitCode'].str.upper().values:
                 print(f"Summit {summit_reference} NOT FOUND.")
                 self.summits_errors.append(summit_reference)
+                self.spots_to_visualisation.drop(self.spots_to_visualisation.loc[self.spots_to_visualisation['summit_ref'] == summit_reference].index, inplace = True)
+                self.spots_to_visualisation.reset_index(drop = True, inplace = True)
 
     def join_spots_with_summits(self) -> None:
         """Join spots dataframe with summits dataframe to get all the data required for visualisation.
@@ -156,6 +180,7 @@ class SpotsVisualiser:
                                                       'Points': 'points',
                                                       'SummitName': 'summitName',
                                                       }, inplace = True)
+
 
     def add_time_markers(self)  -> None:
         """Adds information regarding time since spot to spots_to_visualisation DataFrame.

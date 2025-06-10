@@ -60,7 +60,7 @@ def create_callback(spots_map_instance):
             (spots_map_instance.spots_to_visualisation['band'].isin(bands)) & 
             (spots_map_instance.spots_to_visualisation['mode'].isin(modes))
         ].copy()
-
+        print(filtered_spots)
         filtered_markers = []
         for _, spot in filtered_spots.iterrows():
             filtered_markers.append(
@@ -75,6 +75,7 @@ def create_callback(spots_map_instance):
                     fillOpacity=1,
                 )
             )
+        print(filtered_markers)
         
         return generate_maps(filtered_markers)
     
@@ -116,17 +117,7 @@ sota_spots_dashboard = Dash(__name__)
 if __name__ == "__main__":
     spots_map = SpotsVisualiser(lookback_time = -1)
     spots_map.get_spots()
-    spots_map.amend_spots_frequencies()
-    spots_map.amend_spots_datatypes()
-    spots_map.add_summit_codes()
-    spots_map.prepare_spots_to_join()
-    spots_map.get_summits_list()
-    spots_map.check_error_references()
-    spots_map.join_spots_with_summits()
-    spots_map.add_time_markers()
-    spots_map.create_visualisation_data()
-    spots_map.remove_unused_columns()
-    spots_map.drop_summits_not_found()
+    spots_map.spots_to_visualisation = spots_map.process_spots()
     # spots_map.create_spots_markers()
     create_spots_markers(spots_map.spots_to_visualisation, spots_map)
     set_map_design(sota_spots_dashboard, spots_map)
@@ -134,10 +125,6 @@ if __name__ == "__main__":
 
     sota_spots_dashboard.run(port=config._PORT_NUMBER, 
                              debug=config._DEBUG_FLAG)
-
-
-### NEW above
-### OLD below
 
 # # save errors to file
 # if len(summits_errors) != 0:
