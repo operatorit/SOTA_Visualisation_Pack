@@ -1,4 +1,5 @@
 import dash_leaflet as dl # to visualise map
+import pandas as pd
 
 from dash import html, dcc, Dash, Input, Output # for dashboard construction
 
@@ -7,35 +8,39 @@ import config # script configuration
 
 # functions to deploy dash map 
 
-def set_map_design(map_dashboard, spots_map_instance) -> None:
-        """Defines Dash app layout."""
-        map_dashboard.layout = html.Div([
-            html.Div(
-                    dcc.Dropdown(
-                        spots_map_instance._MODES['mode'], # values available
-                        spots_map_instance._MODES['mode'], # values selected by default - all modes
-                        multi=True,
-                        placeholder='Select mode to apply filter or refresh page to show all',
-                        id = 'mode_selection' # dropdown list to select modes to visualise
-                        )),
-            html.Div(
-                    dcc.Dropdown(
-                        spots_map_instance._BANDS.index, # valus available
-                        spots_map_instance._BANDS.index, # values selected by default - all bands
-                        multi=True,
-                        placeholder='Select band to apply filter or refresh page to show all',
-                        id = 'band_selection' #dropdown list to select bands to visualise
-                        )),
-            dl.Map(
-                    children = generate_maps(spots_map_instance.spots_markers_for_map), # generate map's layers
-                    zoom=3, # whole world should be presented upon dashboard start
-                    center=(50, 20), # map is centered near Kraków - city where I live
-                    style={
-                        "height": "100vh", # map's height is 100% of the window
-                    },
-                    id = 'spots_map', # create a map with spots visualisation
-                )
-            ],)
+def set_map_design(spots_map_instance) -> Dash.layout:
+    """Defines Dash app layout."""
+
+    layout = html.Div([
+        html.Div(
+                dcc.Dropdown(
+                    spots_map_instance._MODES['mode'], # values available
+                    spots_map_instance._MODES['mode'], # values selected by default - all modes
+                    multi=True,
+                    placeholder='Select mode to apply filter or refresh page to show all',
+                    id = 'mode_selection' # dropdown list to select modes to visualise
+                    )),
+        html.Div(
+                dcc.Dropdown(
+                    spots_map_instance._BANDS.index, # valus available
+                    spots_map_instance._BANDS.index, # values selected by default - all bands
+                    multi=True,
+                    placeholder='Select band to apply filter or refresh page to show all',
+                    id = 'band_selection' #dropdown list to select bands to visualise
+                    )),
+        dl.Map(
+                children = [dl.TileLayer(),
+                            dl.LayerGroup(id='spots_layer')], 
+                zoom=3, # whole world should be presented upon dashboard start
+                center=(50, 20), # map is centered near Kraków - city where I live
+                style={
+                    "height": "100vh", # map's height is 100% of the window
+                },
+                id = 'spots_map', # create a map with spots visualisation
+            )
+        ],)
+    
+    return layout
 
 def create_callback(spots_map_instance):
     """
@@ -44,71 +49,46 @@ def create_callback(spots_map_instance):
         spots_map_instance: SpotsVisualiser instance
     """
     @sota_spots_dashboard.callback(
-        Output('spots_map', 'children'),
+        Output('spots_layer', 'children'),
         [Input('band_selection', 'value'),
          Input('mode_selection', 'value')]
     )
     def update_map(bands, modes):
-        # Set default values if none selected
         if not bands:
-            bands = spots_map_instance._BANDS.index
+            bands = spots_map_instance._BANDS.index.to_list()
         if not modes:
-            modes = spots_map_instance._MODES['mode']
-            
-        # spots filtering
-        filtered_spots = spots_map_instance.spots_to_visualisation[
-            (spots_map_instance.spots_to_visualisation['band'].isin(bands)) & 
-            (spots_map_instance.spots_to_visualisation['mode'].isin(modes))
-        ].copy()
+            modes = spots_map_instance._MODES['mode'].to_list()
+        filtered_spots = filter_spots(spots_map_instance, bands, modes)
         print(filtered_spots)
-        filtered_markers = []
-        for _, spot in filtered_spots.iterrows():
-            filtered_markers.append(
-                dl.CircleMarker(
-                    center=[spot['latitude'], spot['longitude']],
-                    radius=(1 - spot['time_since_spot']) * 30,
-                    children=dl.Popup(spot["popup"]),
-                    fillColor=spot['band_color'], 
-                    weight=3,
-                    color=spot['mode_color'],
-                    opacity=1,
-                    fillOpacity=1,
-                )
-            )
-        print(filtered_markers)
-        
-        return generate_maps(filtered_markers)
-    
+        markers = create_spots_markers(filtered_spots)
+        print(markers[0])
+        return markers
     return update_map
 
-def create_spots_markers(spots_df, spots_map_instance) -> list:
-    """Prepare CircleMarkers list for spots visualisation.
-    """
-    spots_map_instance.spots_markers_for_map = []
-    
-    for i in range(len(spots_df)):
-        spots_map_instance.spots_markers_for_map.append(
-        dl.CircleMarker(
-            center = [spots_df.iloc[i]['latitude'], spots_df.iloc[i]['longitude']],
-            radius = (1 - spots_df.iloc[i]['time_since_spot']) * 30,  # radius is proportional to time from sending
-            # the spot. The newest spot, the larger circle. Spots with time above 1 hour will be presented as small points
-            children = dl.Popup(spots_df.iloc[i]["popup"]), # pop-up with spot description
-            fillColor =  spots_df.iloc[i]['band_color'],  # circle's fill represents activation's band
-            weight =   3,
-            color = spots_df.iloc[i]['mode_color'],  # border color represents activation's mode
-            opacity  = 1,
-            fillOpacity = 1,
-        )
-        )
-    return spots_map_instance.spots_markers_for_map
+def filter_spots(spots_map_instance, bands:list, modes:list) -> pd.DataFrame:
+        """ Filter spots for selected bands and modes."""
+        return spots_map_instance.spots_to_visualisation.loc[
+            (spots_map_instance.spots_to_visualisation['band'].isin(bands)) & 
+            (spots_map_instance.spots_to_visualisation['mode'].isin(modes))
+        ]
 
-def generate_maps(spots_markers) -> list:
-    """Generate an input for dl.Map object"""
-    
-    return [
-            dl.TileLayer(),
-            dl.LayerGroup(spots_markers),
-        ]    
+def create_spots_markers(spots_df) -> list:
+    """Prepare CircleMarkers list for spots visualisation."""
+    spots_markers_for_map = []
+    for _, row in spots_df.iterrows():
+        spots_markers_for_map.append(
+            dl.CircleMarker(
+                center=[row['latitude'], row['longitude']],
+                radius=(1 - row['time_since_spot']) * 30,
+                children=dl.Popup(row['popup']),
+                fillColor=row['band_color'],
+                weight=3,
+                color=row['mode_color'],
+                opacity=1,
+                fillOpacity=1,
+            )
+        )
+    return spots_markers_for_map
 
 # script flow
 
@@ -116,13 +96,12 @@ sota_spots_dashboard = Dash(__name__)
 
 if __name__ == "__main__":
     spots_map = SpotsVisualiser(lookback_time = -1)
-    spots_map.get_spots()
-    spots_map.spots_to_visualisation = spots_map.process_spots()
-    # spots_map.create_spots_markers()
-    create_spots_markers(spots_map.spots_to_visualisation, spots_map)
-    set_map_design(sota_spots_dashboard, spots_map)
-    create_callback(spots_map) 
+    # spots_to_visualisation_df = spots_map.process_spots()
+    spots_map.process_spots()
+    # spots_markers_for_map_list = create_spots_markers(spots_to_visualisation_df)
 
+    sota_spots_dashboard.layout = set_map_design(spots_map)
+    create_callback(spots_map) 
     sota_spots_dashboard.run(port=config._PORT_NUMBER, 
                              debug=config._DEBUG_FLAG)
 

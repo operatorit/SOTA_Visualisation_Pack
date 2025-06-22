@@ -26,7 +26,7 @@ class SpotsVisualiser:
         self.define_constants()
 
     def define_constants(self) -> None:
-        """Defines contaants (related to SOTA API used and HAM radio characteristics)
+        """Defines contants (related to SOTA API used and HAM radio characteristics)
         required for the class to work.
         Bands are groupped into ranges to fit bandplands for different countries.
         """
@@ -56,7 +56,7 @@ class SpotsVisualiser:
         self.check_error_references()
         self.join_spots_with_summits()
         self.add_time_markers()
-        print(self.spots_to_visualisation)
+        # print(self.spots_to_visualisation)
         self.create_visualisation_data()
         self.remove_unused_columns()
         self.drop_summits_not_found()
@@ -120,7 +120,7 @@ class SpotsVisualiser:
         Finally, re-indexes dataframe with spots.
         """
         self.spots_to_visualisation.drop_duplicates(subset = ['activatorCallsign', 'summit_ref'],
-                                                    inplace = True)
+                                                    inplace = True, keep = 'last')
         self.spots_to_visualisation.reset_index(drop = True, inplace = True)
         
     def get_summits_list(self) -> None:
