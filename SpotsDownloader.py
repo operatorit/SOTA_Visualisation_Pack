@@ -1,6 +1,5 @@
 import requests # for communication with API
 import pandas as pd # for data analysis
-import dash_leaflet as dl # to visualise map
 
 from datetime import datetime, timedelta # for time calculations
 
@@ -59,7 +58,6 @@ class SpotsDownloader:
         self.check_error_references()
         self.join_spots_with_summits()
         self.add_time_markers()
-        # print(self.spots_to_visualisation)
         self.create_visualisation_data()
         self.remove_unused_columns()
         self.drop_summits_not_found()
@@ -106,7 +104,7 @@ class SpotsDownloader:
         self.spots_to_visualisation['summitCode'] = self.spots_to_visualisation['summitCode'].astype('string')
         self.spots_to_visualisation['mode'] = self.spots_to_visualisation['mode'].astype('string')
         self.spots_to_visualisation['frequency'] = self.spots_to_visualisation['frequency'].astype('float')
-        self.spots_to_visualisation['timeStamp'] = pd.to_datetime(self.spots_to_visualisation['timeStamp'])
+        self.spots_to_visualisation['timeStamp'] = pd.to_datetime(self.spots_to_visualisation['timeStamp'], format="%Y-%m-%dT%H:%M:%S")
 
     def add_summit_codes(self) -> None:
         """Combines associationCode and summitCode to summit's reference in formmat country/range-summit_number.

@@ -3,7 +3,7 @@ import pandas as pd
 
 from dash import html, dcc, Dash, Input, Output # for dashboard construction
 
-from SpotsVisualiser import SpotsVisualiser
+from SpotsDownloader import SpotsDownloader
 import config # script configuration
 
 # functions to deploy dash map 
@@ -44,9 +44,9 @@ def set_map_design(spots_map_instance) -> Dash.layout:
 
 def create_callback(spots_map_instance):
     """
-    Creates callback function with access to SpotsVisualiser instance.
+    Creates callback function with access to SpotsDownloader instance.
     Args:
-        spots_map_instance: SpotsVisualiser instance
+        spots_map_instance: SpotsDownloader instance
     """
     @sota_spots_dashboard.callback(
         Output('spots_layer', 'children'),
@@ -59,10 +59,8 @@ def create_callback(spots_map_instance):
         if not modes:
             modes = spots_map_instance._MODES['mode'].to_list()
         filtered_spots = filter_spots(spots_map_instance, bands, modes)
-        print(filtered_spots)
-        markers = create_spots_markers(filtered_spots)
-        print(markers[0])
-        return markers
+        spots_markers = create_spots_markers(filtered_spots)
+        return spots_markers
     return update_map
 
 def filter_spots(spots_map_instance, bands:list, modes:list) -> pd.DataFrame:
@@ -95,7 +93,7 @@ def create_spots_markers(spots_df) -> list:
 sota_spots_dashboard = Dash(__name__)
 
 if __name__ == "__main__":
-    spots_map = SpotsVisualiser(lookback_time = -1)
+    spots_map = SpotsDownloader(lookback_time = -1)
     # spots_to_visualisation_df = spots_map.process_spots()
     spots_map.process_spots()
     # spots_markers_for_map_list = create_spots_markers(spots_to_visualisation_df)
