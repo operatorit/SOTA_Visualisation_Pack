@@ -32,7 +32,7 @@ def set_map_design(spots_map_instance) -> Dash.layout:
                 children = [dl.TileLayer(),
                             dl.LayerGroup(id='spots_layer')], 
                 zoom=3, # whole world should be presented upon dashboard start
-                center=(50, 20), # map is centered near Kraków - city where I live
+                center=(50, 20), # map is centered near Kraków
                 style={
                     "height": "100vh", # map's height is 100% of the window
                 },
@@ -94,16 +94,17 @@ sota_spots_dashboard = Dash(__name__)
 
 if __name__ == "__main__":
     spots_map = SpotsDownloader(lookback_time = -1)
-    # spots_to_visualisation_df = spots_map.process_spots()
     spots_map.process_spots()
-    # spots_markers_for_map_list = create_spots_markers(spots_to_visualisation_df)
 
     sota_spots_dashboard.layout = set_map_design(spots_map)
     create_callback(spots_map) 
     sota_spots_dashboard.run(port=config._PORT_NUMBER, 
                              debug=config._DEBUG_FLAG)
 
-# # save errors to file
+# TODO: Amend variables annotations
+# TODO; Amend docstrings
+# TODO: update documentation
+# TODO: save errors to file
 # if len(summits_errors) != 0:
 #     with open('summits_errors.txt', 'a') as f:
 #         for error in summits_errors:
