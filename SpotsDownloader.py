@@ -6,7 +6,10 @@ from datetime import datetime, timedelta # for time calculations
 
 import config # script configuration
 
-class SpotsVisualiser:
+class SpotsDownloader:
+    """A class to downlooad SOTA spots via API, represent it as pd.DataFrame object, and
+    prepare for visualisation on the map.
+    """
     
     def __init__(self, 
                  lookback_time:int = -1, 
