@@ -38,6 +38,7 @@ activations_map.html
 
 # Python
 __pycache__/
+__pycache__
 *.py[cod]
 *$py.class
 *.so
@@ -62,7 +63,7 @@ eggs/
 .pytest_cache/
 .coverage
 htmlcov/
-test/
+tests/
 
 # Pliki danych i logi
 *.log
