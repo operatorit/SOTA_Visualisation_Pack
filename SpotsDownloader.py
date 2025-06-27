@@ -49,6 +49,9 @@ class SpotsDownloader:
         self._MODES['mode'] = self._MODES['mode'].astype('string')
     
     def process_spots(self) -> pd.DataFrame:
+        """Flow for spots processing. Starts with downloading spots via SOTA API as a dictionary, 
+        merging with SOTA summits list, and preparing dataframe for visualisation.
+        """
         self.spots_to_visualisation = self.get_spots()
         self.amend_spots_frequencies()
         self.amend_spots_datatypes()
