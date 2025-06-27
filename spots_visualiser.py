@@ -10,7 +10,6 @@ import config # script configuration
 
 def set_map_design(spots_map_instance) -> Dash.layout:
     """Defines Dash app layout."""
-
     layout = html.Div([
         html.Div(
                 dcc.Dropdown(
@@ -42,7 +41,7 @@ def set_map_design(spots_map_instance) -> Dash.layout:
     
     return layout
 
-def create_callback(spots_map_instance):
+def create_callback(spots_map_instance) -> list:
     """
     Creates callback function with access to SpotsDownloader instance.
     Args:
@@ -53,15 +52,12 @@ def create_callback(spots_map_instance):
         [Input('band_selection', 'value'),
          Input('mode_selection', 'value')]
     )
-    def update_map(bands, modes):
-        if not bands:
-            bands = spots_map_instance._BANDS.index.to_list()
-        if not modes:
-            modes = spots_map_instance._MODES['mode'].to_list()
+    def update_markers(bands, modes) -> list:
+        """Update markers on the map according to bands and modes selected in callback."""
         filtered_spots = filter_spots(spots_map_instance, bands, modes)
         spots_markers = create_spots_markers(filtered_spots)
         return spots_markers
-    return update_map
+    return update_markers
 
 def filter_spots(spots_map_instance, bands:list, modes:list) -> pd.DataFrame:
         """ Filter spots for selected bands and modes."""
@@ -73,17 +69,19 @@ def filter_spots(spots_map_instance, bands:list, modes:list) -> pd.DataFrame:
 def create_spots_markers(spots_df) -> list:
     """Prepare CircleMarkers list for spots visualisation."""
     spots_markers_for_map = []
+    spots_df.reset_index(inplace=True, drop=True)
     for _, row in spots_df.iterrows():
         spots_markers_for_map.append(
             dl.CircleMarker(
-                center=[row['latitude'], row['longitude']],
-                radius=(1 - row['time_since_spot']) * 30,
-                children=dl.Popup(row['popup']),
-                fillColor=row['band_color'],
-                weight=3,
-                color=row['mode_color'],
-                opacity=1,
-                fillOpacity=1,
+                center = [row['latitude'], row['longitude']],
+                radius = (1 - row['time_since_spot']) * 30,
+                children = dl.Popup(row['popup']),
+                fillColor = row['band_color'],
+                weight = 3,
+                color = row['mode_color'],
+                opacity = 1,
+                fillOpacity = 1,
+                id = f"{row['latitude']}_{row['longitude']}_{row['timeStamp']}"
             )
         )
     return spots_markers_for_map
