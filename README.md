@@ -1,5 +1,5 @@
 # SOTA Visualisation Pack
-by www.operator-paramedy.pl
+by www.operatorit.pl
 
 **Project is currently under major changes. Documentation will be updated accordingly.**
 
