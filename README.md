@@ -1,6 +1,8 @@
 # SOTA Visualisation Pack
 by www.operator-paramedy.pl
 
+**Project is currently under major changes. Documentation will be updated accordingly.**
+
 # What SOTA is?
 
 SOTA (Summits On The Air) is an activity designed for radio amateurs (called also HAMs) who like hiking. It is about communication via ration between an activator - operator who climbed a designated summit (map available at https://sotl.as/map) - and chasers - all other operators. Call  (or QSO) may be done with the use of telegraphy (morse code), voice or data transmission on any band available for radio amateurs. To make a successfull call, both operators need to exchange reports, which say how they hear each other, and log it into a log. SOTA results are then uploaded into https://www.sotadata.org.uk/en/ webpage.

@@ -63,7 +63,6 @@ eggs/
 .pytest_cache/
 .coverage
 htmlcov/
-tests/
 
 # Pliki danych i logi
 *.log
