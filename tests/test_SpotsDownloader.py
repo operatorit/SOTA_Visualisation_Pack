@@ -39,7 +39,7 @@ def mock_sota_spots():
 
 def test_init_default():
     """Default initialisation test for SpotsDownloader."""
-    downloader = SpotsDownloader()
+    spots_downloader = SpotsDownloader()
     assert spots_downloader.lookback_time == -1
     assert spots_downloader.summits_filename == config._SUMMITS_FILENAME
 
