@@ -4,6 +4,7 @@ import pytest
 from datetime import datetime, timedelta
 
 from SpotsDownloader import SpotsDownloader
+import config
 
 
 def generate_timestamps(n = 6):
@@ -39,14 +40,15 @@ def mock_sota_spots():
 def test_init_default():
     """Default initialisation test for SpotsDownloader."""
     downloader = SpotsDownloader()
-    assert downloader.some_attr == "expected_value", "Atrybut nie został poprawnie ustawiony"
+    assert spots_downloader.lookback_time == -1
+    assert spots_downloader.summits_filename == config._SUMMITS_FILENAME
 
 def test_init_with_args():
     """Parametrised initialisation test for SpotsDownloader."""
-    downloader = SpotsDownloader(lookback_time = -3, 
+    spots_downloader = SpotsDownloader(lookback_time = -3, 
                                  summits_filename = 'file_with_summits.csv')
-    assert downloader.lookback_time == -3
-    assert downloader.summits_filename == 'file_with_summits.csv'
+    assert spots_downloader.lookback_time == -3
+    assert spots_downloader.summits_filename == 'file_with_summits.csv'
 
 
 # def test__init__():
