@@ -48,6 +48,12 @@ class SpotsDownloader:
         self._MODES['color'] = self._MODES['color'].astype('string')
         self._MODES['mode'] = self._MODES['mode'].astype('string')
     
+    def update_request_parameters(self) -> None:
+        """Modifies parameters for API request in case no spots were found in given lookback_time."""
+        self.lookback_time -= 1 # extend time window with one hour
+        self.define_constants()  # update API reference with new lookback_time
+
+
     def process_spots(self) -> pd.DataFrame:
         """Flow for spots processing. Starts with downloading spots via SOTA API as a dictionary, 
         merging with SOTA summits list, and preparing dataframe for visualisation.
@@ -73,26 +79,28 @@ class SpotsDownloader:
         If there are no spots sent in time provided, return latest 10 to make sure dictionary is not empty.
         """
         temp_spots_dict = {}
-        try:
-            r = requests.get(self._API_URL)
-            print(f'Status code: {r.status_code}')
-            temp_spots_dict = r.json()
+        while len(temp_spots_dict) == 0:
+            try:
+                r = requests.get(self._API_URL)
+                print(f'Status code: {r.status_code}')
+                temp_spots_dict = r.json()
 
-            if self.lookback_time > 0:
+                if len(temp_spots_dict) == 0:
+                    print(f'No spots found in {-self.lookback_time} h. Extending time window by 1 hour.')
+                    self.update_request_parameters()
+                    return self.get_spots()
+                    
+                if self.lookback_time > 0:
                     print(f'{len(temp_spots_dict)} found where expected number was {self.lookback_time}.')
-            if self.lookback_time < 0:
+                if self.lookback_time < 0:
                     print(f'{len(temp_spots_dict)} spots found in latest {-self.lookback_time} h.')
 
-            if len(temp_spots_dict) == 0:
-                temp_spots_dict = self.get_spots(10)
-                print(f"No spots found in the timeframe provided. Returning latest 10 spots.")
+                return pd.DataFrame(temp_spots_dict)
             
-            return pd.DataFrame(temp_spots_dict)
+            except requests.exceptions.RequestException as e:
+                print(f"Error occurred, spots not downloaded.")
+                return pd.DataFrame()  # return empty DataFrame if error occurs
         
-        except requests.exceptions.RequestException as e:
-            print(f"Error occurred, spots not downloaded.")
-            return pd.DataFrame()  # return empty DataFrame if error occurs
-    
     def amend_spots_frequencies(self) -> None:
         """Amend incorrect frequencies (defined as not matchng regular expression for
         digits-dot-digits) to 0 to avoid errors during visualisation.
@@ -190,7 +198,7 @@ class SpotsDownloader:
         """Adds information regarding time since spot to spots_to_visualisation DataFrame.
         """
         self.spots_to_visualisation['time_since_spot'] = datetime.utcnow() - self.spots_to_visualisation['timeStamp']
-        self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours = 1)  
+        self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours = -self.lookback_time)  
     
     def create_visualisation_data(self) -> None:
         """Adds information regarding visualisation markers to spots_to_visualisation DataFrame.

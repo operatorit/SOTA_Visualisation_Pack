@@ -3,6 +3,9 @@ import pytest
 
 from datetime import datetime, timedelta
 
+from SpotsDownloader import SpotsDownloader
+
+
 def generate_timestamps(n = 6):
     """Generate a list of n timestamps for testing."""
     start_time = datetime.now()
@@ -32,6 +35,27 @@ def mock_sota_spots():
                        "highlightColor": [null, null, null, null, null, null],
                        }
     return test_spots_dict
-    
-    
-    
+
+def test_init_default():
+    """Default initialisation test for SpotsDownloader."""
+    downloader = SpotsDownloader()
+    assert downloader.some_attr == "expected_value", "Atrybut nie został poprawnie ustawiony"
+
+def test_init_with_args():
+    """Parametrised initialisation test for SpotsDownloader."""
+    downloader = SpotsDownloader(lookback_time = -3, 
+                                 summits_filename = 'file_with_summits.csv')
+    assert downloader.lookback_time == -3
+    assert downloader.summits_filename == 'file_with_summits.csv'
+
+
+# def test__init__():
+#     """Test SpotsDownloader initialization."""
+#     spots_downloader = SpotsDownloader.SpotsDownloader(lookback_time = -1,
+#                                                        summits_filenate = 'test_summits.csv')
+#     assert isinstance(spots_downloader, SpotsDownloader.SpotsDownloader), "Initiated object is not a SpotsDownloader instance"
+#     assert isinstance(spots_downloader.spots_to_visualisation, pd.DataFrame), "Initiated spots_to_visualisation is not a pd.DataFrame"
+#     assert spots_downloader.spots_to_visualisation.empty, "Initiated spots_to_visualisation is NOT empty." # no spots at initiation
+#     assert spots_downloader.lookback_time == -1, "Lookcback time initiated incorrectly"
+#     assert spots_downloader.summits_filename == 'test_summits.csv' "Summits filename initiated incorrectly"
+
