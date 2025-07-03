@@ -40,15 +40,15 @@ def mock_sota_spots():
 def test_init_default():
     """Default initialisation test for SpotsDownloader."""
     spots_downloader = SpotsDownloader()
-    assert spots_downloader.lookback_time == -1
-    assert spots_downloader.summits_filename == config._SUMMITS_FILENAME
+    assert spots_downloader.lookback_time == -1, f"Default initiation failed, spots_downloader.lookback_time = {spots_downloader.lookback_time} (should be -1)"
+    assert spots_downloader.summits_filename == config._SUMMITS_FILENAME, f"Default initiation failed, spots_downloader.summits_filename = {spots_downloader.summits_filename} (should be {config._SUMMITS_FILENAME})"
 
 def test_init_with_args():
     """Parametrised initialisation test for SpotsDownloader."""
     spots_downloader = SpotsDownloader(lookback_time = -3, 
                                  summits_filename = 'file_with_summits.csv')
-    assert spots_downloader.lookback_time == -3
-    assert spots_downloader.summits_filename == 'file_with_summits.csv'
+    assert spots_downloader.lookback_time == -3, f"Parametrized initiation failed, spots_downloader.lookback_time = {spots_downloader.lookback_time} (should be -3)"
+    assert spots_downloader.summits_filename == 'file_with_summits.csv', f"Parametrized initiation failed, spots_downloader.summits_filename = {spots_downloader.summits_filename} (should be 'file_with_summits.csv')"
 
 
 # def test__init__():
