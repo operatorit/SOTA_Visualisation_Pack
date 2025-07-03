@@ -37,28 +37,45 @@ def mock_sota_spots():
                        }
     return test_spots_dict
 
-def test_init_default():
+@pytest.fixture(scope = "module")
+def SpotsDownloader_default_instance():
+    """Fixture to create an instance of SpotsDownloader with default parameters."""
+    return SpotsDownloader()
+
+@pytest.fixture(scope = "module")
+def SpotsDownloader_custom_instance():
+    """Fixture to create an instance of SpotsDownloader with default parameters."""
+    return SpotsDownloader(lookback_time = -3,
+                           summits_filename = 'file_with_summits.csv',)
+
+def test_init_default(SpotsDownloader_default_instance):
     """Default initialisation test for SpotsDownloader."""
-    spots_downloader = SpotsDownloader()
-    assert spots_downloader.lookback_time == -1, f"Default initiation failed, spots_downloader.lookback_time = {spots_downloader.lookback_time} (should be -1)"
-    assert spots_downloader.summits_filename == config._SUMMITS_FILENAME, f"Default initiation failed, spots_downloader.summits_filename = {spots_downloader.summits_filename} (should be {config._SUMMITS_FILENAME})"
-    assert spots_downloader.summits_errors == [], f"Default initiation failed, spots_downloader.summits_errors = {spots_downloader.summits_errors} (should be empty list)"
+    assert SpotsDownloader_default_instance.lookback_time == -1, f"Default initiation failed, spots_downloader.lookback_time = {SpotsDownloader_default_instance.lookback_time} (should be -1)"
+    assert SpotsDownloader_default_instance.summits_filename == config._SUMMITS_FILENAME, f"Default initiation failed, spots_downloader.summits_filename = {SpotsDownloader_default_instance.summits_filename} (should be {config._SUMMITS_FILENAME})"
+    assert SpotsDownloader_default_instance.summits_errors == [], f"Default initiation failed, spots_downloader.summits_errors = {SpotsDownloader_default_instance.summits_errors} (should be empty list)"
 
-def test_init_with_args():
+def test_init_custom(SpotsDownloader_custom_instance):
     """Parametrised initialisation test for SpotsDownloader."""
-    spots_downloader = SpotsDownloader(lookback_time = -3, 
-                                 summits_filename = 'file_with_summits.csv')
-    assert spots_downloader.lookback_time == -3, f"Parametrized initiation failed, spots_downloader.lookback_time = {spots_downloader.lookback_time} (should be -3)"
-    assert spots_downloader.summits_filename == 'file_with_summits.csv', f"Parametrized initiation failed, spots_downloader.summits_filename = {spots_downloader.summits_filename} (should be 'file_with_summits.csv')"
-    assert spots_downloader.summits_errors == [], f"Default initiation failed, spots_downloader.summits_errors = {spots_downloader.summits_errors} (should be empty list)"
+    assert SpotsDownloader_custom_instance.lookback_time == -3, f"Parametrized initiation failed, spots_downloader.lookback_time = {SpotsDownloader_custom_instance.lookback_time} (should be -3)"
+    assert SpotsDownloader_custom_instance.summits_filename == 'file_with_summits.csv', f"Parametrized initiation failed, spots_downloader.summits_filename = {SpotsDownloader_custom_instance.summits_filename} (should be 'file_with_summits.csv')"
+    assert SpotsDownloader_custom_instance.summits_errors == [], f"Default initiation failed, spots_downloader.summits_errors = {SpotsDownloader_custom_instance.summits_errors} (should be empty list)"
 
-# def test__init__():
-#     """Test SpotsDownloader initialization."""
-#     spots_downloader = SpotsDownloader.SpotsDownloader(lookback_time = -1,
-#                                                        summits_filenate = 'test_summits.csv')
-#     assert isinstance(spots_downloader, SpotsDownloader.SpotsDownloader), "Initiated object is not a SpotsDownloader instance"
-#     assert isinstance(spots_downloader.spots_to_visualisation, pd.DataFrame), "Initiated spots_to_visualisation is not a pd.DataFrame"
-#     assert spots_downloader.spots_to_visualisation.empty, "Initiated spots_to_visualisation is NOT empty." # no spots at initiation
-#     assert spots_downloader.lookback_time == -1, "Lookcback time initiated incorrectly"
-#     assert spots_downloader.summits_filename == 'test_summits.csv' "Summits filename initiated incorrectly"
+def test_define_constants_default(SpotsDownloader_default_instance):
+    """Test define_constants method with default parameters."""
+    pass
 
+def test_define_constants_custom(SpotsDownloader_custom_instance):
+    """Test define_constants method with custom parameters."""
+    pass
+
+def test_update_request_parameters_default(SpotsDownloader_default_instance):
+    """Test update_request_parameters method with default parameters."""
+    SpotsDownloader_default_instance.update_request_parameters()
+    assert SpotsDownloader_default_instance.lookback_time == -2, f"Updated default lookback_time should be -2, got {SpotsDownloader_default_instance.lookback_time}"
+    assert SpotsDownloader_default_instance._API_URL == 'https://api2.sota.org.uk/api/spots/-2/all', "Incorrect APi URL generated when refreshed after updating self.lookback_time."
+
+def test_update_request_parameters_custom(SpotsDownloader_custom_instance):
+    """Test update_request_parameters method with custom parameters."""
+    SpotsDownloader_custom_instance.update_request_parameters()
+    assert SpotsDownloader_custom_instance.lookback_time == -4, f"Updated custom lookback_time should be -2, got {SpotsDownloader_custom_instance.lookback_time}"
+    assert SpotsDownloader_custom_instance._API_URL == 'https://api2.sota.org.uk/api/spots/-4/all', "Incorrect APi URL generated when refreshed after updating self.lookback_time."
