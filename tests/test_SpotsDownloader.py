@@ -12,30 +12,107 @@ def generate_timestamps(n = 6):
     start_time = datetime.now()
     return [(start_time - timedelta(minutes=5*i)).isoformat() for i in range(n)]
 
+@pytest.fixture
+def mock_sota_spots_list() -> list:
+    """Fixture: test data as a list of dicts (one dict per row)."""
+    data = [
+        {
+            'id': 1001,
+            'userID': 2001,
+            'timeStamp': '2025-07-05T12:00:00',
+            'comments': 'comment1',
+            'callsign': 'SP0ABC',
+            'associationCode': 'W7O',
+            'summitCode': 'CS-098',
+            'activatorCallsign': 'SP0ABC',
+            'activatorName': 'Amy',
+            'frequency': '14.0615',
+            'mode': 'CW',
+            'summitDetails': 'Bieberstedt Butte, 1599m, 4 points',
+            'highlightColor': None
+        },
+        {
+            'id': 1002,
+            'userID': 2002,
+            'timeStamp': '2025-07-05T12:05:00',
+            'comments': 'comment2',
+            'callsign': 'AG7EDG',
+            'associationCode': 'W8W',
+            'summitCode': 'CW-076',
+            'activatorCallsign': 'AG7EDG',
+            'activatorName': 'Bob',
+            'frequency': '145.550',
+            'mode': 'FM',
+            'summitDetails': 'Amabilis Mountain, 1396m, 4 points',
+            'highlightColor': None
+        },
+        {
+            'id': 1003,
+            'userID': 2003,
+            'timeStamp': '2025-07-05T12:10:00',
+            'comments': 'comment3',
+            'callsign': 'W6HIJ',
+            'associationCode': 'SP',
+            'summitCode': 'BZ-001',
+            'activatorCallsign': 'W6HIJ',
+            'activatorName': 'Charlie',
+            'frequency': '7.0615',
+            'mode': 'CW',
+            'summitDetails': 'Babia Góra, 1725m, 10 points',
+            'highlightColor': None
+        },
+        {
+            'id': 1004,
+            'userID': 2004,
+            'timeStamp': '2025-07-05T12:15:00',
+            'comments': 'comment4',
+            'callsign': 'IK1LMN',
+            'associationCode': 'JA',
+            'summitCode': 'GM-107',
+            'activatorCallsign': 'IK1LMN',
+            'activatorName': 'David',
+            'frequency': '7.158',
+            'mode': 'SSB',
+            'summitDetails': 'Hirschberg, 1660m, 6 points',
+            'highlightColor': None
+        },
+        {
+            'id': 1005,
+            'userID': 2005,
+            'timeStamp': '2025-07-05T12:20:00',
+            'comments': 'comment5',
+            'callsign': 'GB10OPR',
+            'associationCode': 'DL',
+            'summitCode': 'EW-017',
+            'activatorCallsign': 'GB10OPR',
+            'activatorName': 'Eve',
+            'frequency': '21.055',
+            'mode': 'CW',
+            'summitDetails': 'Amabilis Mountain, 1396m, 4 points',
+            'highlightColor': None
+        },
+        {
+            'id': 1006,
+            'userID': 2002,
+            'timeStamp': '2025-07-05T12:25:00',
+            'comments': 'comment6',
+            'callsign': 'AG7EDG',
+            'associationCode': 'W8W',
+            'summitCode': 'CW-076',
+            'activatorCallsign': 'AG7EDG',
+            'activatorName': 'Bob',
+            'frequency': '433,500',
+            'mode': 'FM',
+            'summitDetails': None,
+            'highlightColor': None
+        },
+    ]
+    return data
 
-@pytest.fixture(scope = "module")
-def mock_sota_spots():
-    """Fixture to mock API response - dictionary with spots data."""
-    test_spots_dict = {"id": [1001, 1002, 1003, 1004, 1005, 1006,],
-                       "userID": [2001, 2002, 2003, 2004, 2005, 2002,],
-                       "timeStamp": [generate_timestamps(6)],
-                       "comments": ["comment1", "comment2", "comment3", "comment4", "comment5", "comment6",],
-                       "callsign": ["SP0ABC", "AG7EDG", "W6HIJ", "IK1LMN", "GB10OPR", "AG7EDG",],
-                       "associationCode": ["W7O", "W8W", "SP", "JA", "DL", "W8W",],
-                       "summitCode": ["CS-098", "CW-076", "BZ-001", "GM-107", "EW-017", "CW-076",],
-                       "activatorCallsign": ["SP0ABC", "AG7EDG", "W6HIJ", "IK1LMN", "GB10OPR", "AG7EDG",],
-                       "activatorName": ["Amy", "Bob", "Charlie", "David", "Eve", "Bob",],
-                       "frequency": ["14.0615", "145.550", "7.0615", "7.158", "21.055", "433,500",],
-                       "mode": ["CW", "FM", "CW", "SSB", "CW", "FM"] ,
-                       "summitDetails": ["Bieberstedt Butte, 1599m, 4 points", 
-                                         "Amabilis Mountain, 1396m, 4 points",
-                                         "Babia Góra, 1725m, 10 points",
-                                         "Takajyokki, 1237m, 8 points",
-                                         "Hirschberg, 1660m, 6 points",
-                                         "Amabilis Mountain, 1396m, 4 points",],
-                       "highlightColor": [null, null, null, null, null, null],
-                       }
-    return test_spots_dict
+@pytest.fixture
+def mock_sota_spots_dataframe(mock_sota_spots_list) -> pd.DataFrame:
+    """Fixture: returns a DataFrame based on mock_sota_spots_list."""
+    return pd.DataFrame(mock_sota_spots_list)
 
 @pytest.fixture(scope = "module")
 def default_spots_downloader() -> SpotsDownloader:
@@ -96,13 +173,11 @@ def test_get_spots_custom(custom_spots_downloader: SpotsDownloader) -> None:
     """Test get_spots on custom instance."""
     pass
 
-def test_amend_spots_frequencies_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test amend_spots_frequencies on default instance."""
+def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader, 
+                                 mock_sota_spots_dataframe:pd.DataFrame) -> None:
+    """Test amend_spots_frequencies on test DataFrame."""
     pass
 
-def test_amend_spots_frequencies_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test amend_spots_frequencies on custom instance."""
-    pass
 
 def test_amend_spots_datatypes_default(default_spots_downloader: SpotsDownloader) -> None:
     """Test amend_spots_datatypes on default instance."""

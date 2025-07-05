@@ -37,7 +37,8 @@ def set_map_design(spots_map_instance) -> Dash.layout:
                 },
                 id = 'spots_map', # create a map with spots visualisation
             )
-        ],)
+        ],
+        )
     
     return layout
 
