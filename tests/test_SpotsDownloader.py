@@ -12,14 +12,17 @@ def generate_timestamps(n = 6):
     start_time = datetime.now()
     return [(start_time - timedelta(minutes=5*i)).isoformat() for i in range(n)]
 
-@pytest.fixture
+@pytest.fixture(scope = "module")
 def mock_sota_spots_list() -> list:
     """Fixture: test data as a list of dicts (one dict per row)."""
+
+    test_timestamps = generate_timestamps(7)
+    
     data = [
         {
             'id': 1001,
             'userID': 2001,
-            'timeStamp': '2025-07-05T12:00:00',
+            'timeStamp': test_timestamps[0],
             'comments': 'comment1',
             'callsign': 'SP0ABC',
             'associationCode': 'W7O',
@@ -34,7 +37,7 @@ def mock_sota_spots_list() -> list:
         {
             'id': 1002,
             'userID': 2002,
-            'timeStamp': '2025-07-05T12:05:00',
+            'timeStamp': test_timestamps[1],
             'comments': 'comment2',
             'callsign': 'AG7EDG',
             'associationCode': 'W8W',
@@ -49,7 +52,7 @@ def mock_sota_spots_list() -> list:
         {
             'id': 1003,
             'userID': 2003,
-            'timeStamp': '2025-07-05T12:10:00',
+            'timeStamp': test_timestamps[2],
             'comments': 'comment3',
             'callsign': 'W6HIJ',
             'associationCode': 'SP',
@@ -64,7 +67,7 @@ def mock_sota_spots_list() -> list:
         {
             'id': 1004,
             'userID': 2004,
-            'timeStamp': '2025-07-05T12:15:00',
+            'timeStamp': test_timestamps[3],
             'comments': 'comment4',
             'callsign': 'IK1LMN',
             'associationCode': 'JA',
@@ -79,7 +82,7 @@ def mock_sota_spots_list() -> list:
         {
             'id': 1005,
             'userID': 2005,
-            'timeStamp': '2025-07-05T12:20:00',
+            'timeStamp': test_timestamps[4],
             'comments': 'comment5',
             'callsign': 'GB10OPR',
             'associationCode': 'DL',
@@ -94,7 +97,7 @@ def mock_sota_spots_list() -> list:
         {
             'id': 1006,
             'userID': 2002,
-            'timeStamp': '2025-07-05T12:25:00',
+            'timeStamp': test_timestamps[5],
             'comments': 'comment6',
             'callsign': 'AG7EDG',
             'associationCode': 'W8W',
@@ -106,10 +109,26 @@ def mock_sota_spots_list() -> list:
             'summitDetails': None,
             'highlightColor': None
         },
+        { # incorrect frequency format for amend_spots_frequencies test
+            'id': 1007,
+            'userID': 2006,
+            'timeStamp': test_timestamps[6],
+            'comments': 'comment7',
+            'callsign': 'K1XYZ',
+            'associationCode': 'W1',
+            'summitCode': 'W1-001',
+            'activatorCallsign': 'K1XYZ',
+            'activatorName': 'Alice',
+            'frequency': '.18',
+            'mode': 'CW',
+            'summitDetails': None,
+            'highlightColor': None
+        }
+
     ]
     return data
 
-@pytest.fixture
+@pytest.fixture(scope = "module")
 def mock_sota_spots_dataframe(mock_sota_spots_list) -> pd.DataFrame:
     """Fixture: returns a DataFrame based on mock_sota_spots_list."""
     return pd.DataFrame(mock_sota_spots_list)
@@ -176,7 +195,9 @@ def test_get_spots_custom(custom_spots_downloader: SpotsDownloader) -> None:
 def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader, 
                                  mock_sota_spots_dataframe:pd.DataFrame) -> None:
     """Test amend_spots_frequencies on test DataFrame."""
-    pass
+    default_spots_downloader.spots_to_visualisation = mock_sota_spots_dataframe.copy()
+    default_spots_downloader.amend_spots_frequencies()
+    assert default_spots_downloader.spots_to_visualisation.iloc[6]['frequency'] == 0, "Frequency of incorrect format (no integer part) not amended."
 
 
 def test_amend_spots_datatypes_default(default_spots_downloader: SpotsDownloader) -> None:
