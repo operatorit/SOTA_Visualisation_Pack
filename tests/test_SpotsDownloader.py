@@ -1,5 +1,6 @@
-import pandas as pd
 import pytest
+import pandas as pd
+
 
 from datetime import datetime, timedelta
 
@@ -128,6 +129,50 @@ def mock_sota_spots_list() -> list:
     ]
     return data
 
+@pytest.fixture
+def create_expected_bands_df():
+    """Fixture: expected DataFrame for self._BANDS, defined as a list of dicts (one per row)."""
+    bands_data = [
+        {'band': '1.8 MHz or below', 'lower_freq': 0,    'upper_freq': 2.5,    'color': 'saddlebrown'},
+        {'band': '3.5 MHz',          'lower_freq': 3,    'upper_freq': 4,      'color': 'chocolate'},
+        {'band': '5 MHz',            'lower_freq': 4.5,  'upper_freq': 5.5,    'color': 'brown'},
+        {'band': '7 MHz',            'lower_freq': 6,    'upper_freq': 8,      'color': 'red'},
+        {'band': '10 MHz',           'lower_freq': 9,    'upper_freq': 11,     'color': 'salmon'},
+        {'band': '14 MHz',           'lower_freq': 13,   'upper_freq': 15,     'color': 'orange'},
+        {'band': '18 MHz',           'lower_freq': 16,   'upper_freq': 18.5,   'color': 'gold'},
+        {'band': '21 MHz',           'lower_freq': 19,   'upper_freq': 23,     'color': 'yellow'},
+        {'band': '24 MHz',           'lower_freq': 24,   'upper_freq': 26,     'color': 'olivedrab'},
+        {'band': '28 MHz',           'lower_freq': 27,   'upper_freq': 35,     'color': 'green'},
+        {'band': '50 MHz',           'lower_freq': 45,   'upper_freq': 55,     'color': 'lime'},
+        {'band': '70 MHz',           'lower_freq': 65,   'upper_freq': 75,     'color': 'cyan'},
+        {'band': '144 MHz',          'lower_freq': 142,  'upper_freq': 148,    'color': 'blue'},
+        {'band': '220 MHz',          'lower_freq': 210,  'upper_freq': 240,    'color': 'purple'},
+        {'band': '433 MHz',          'lower_freq': 420,  'upper_freq': 460,    'color': 'magenta'},
+        {'band': '900 MHz or above', 'lower_freq': 850,  'upper_freq': 500000, 'color': 'pink'},
+    ]
+    bands_df = pd.DataFrame(bands_data)
+    bands_df.set_index('band', drop=True, inplace=True)
+    bands_df['color'] = bands_df['color'].astype('string')
+    return  bands_df
+
+@pytest.fixture
+def create_expected_modes_df():
+    """Fixture: expected DataFrame for self._MODES, defined as a list of dicts (one per row)."""
+    modes_data = [
+        {'mode': 'AM',    'color': 'lime'},
+        {'mode': 'CW',    'color': 'red'},
+        {'mode': 'Data',  'color': 'cyan'},
+        {'mode': 'DV',    'color': 'magenta'},
+        {'mode': 'FM',    'color': 'yellow'},
+        {'mode': 'SSB',   'color': 'blue'},
+        {'mode': 'Other', 'color': 'orange'},
+    ]
+    modes_df = pd.DataFrame(modes_data)
+    modes_df['color'] = modes_df['color'].astype('string')
+    modes_df['mode'] = modes_df['mode'].astype('string')
+    return modes_df
+
+
 @pytest.fixture(scope = "module")
 def mock_sota_spots_dataframe(mock_sota_spots_list) -> pd.DataFrame:
     """Fixture: returns a DataFrame based on mock_sota_spots_list."""
@@ -156,13 +201,23 @@ def test_init_custom(custom_spots_downloader: SpotsDownloader) -> None:
     assert custom_spots_downloader.summits_filename == 'file_with_summits.csv', f"Parametrized initiation failed, spots_downloader.summits_filename = {custom_spots_downloader.summits_filename} (should be 'file_with_summits.csv')"
     assert custom_spots_downloader.summits_errors == [], f"Default initiation failed, spots_downloader.summits_errors = {custom_spots_downloader.summits_errors} (should be empty list)"
 
-def test_define_constants_default(default_spots_downloader: SpotsDownloader) -> None:
+def test_define_constants_default(default_spots_downloader: SpotsDownloader,
+                                  create_expected_bands_df: pd.DataFrame,
+                                  create_expected_modes_df: pd.DataFrame) -> None:
     """Test define_constants method with default parameters."""
-    pass
+    default_spots_downloader.define_constants()
+    assert default_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-1/all', f"self._API_URL is {default_spots_downloader._API_URL}, should be 'https://api2.sota.org.uk/api/spots/-1/all."
+    pd.testing.assert_frame_equal(default_spots_downloader._BANDS, create_expected_bands_df)#, f"self._BANDS is not as expected."
+    pd.testing.assert_frame_equal(default_spots_downloader._MODES, create_expected_modes_df)#, f"self._MODES is not as expected."
 
-def test_define_constants_custom(custom_spots_downloader: SpotsDownloader) -> None:
+def test_define_constants_custom(custom_spots_downloader: SpotsDownloader, 
+                                 create_expected_bands_df: pd.DataFrame,
+                                 create_expected_modes_df: pd.DataFrame) -> None:
     """Test define_constants method with custom parameters."""
-    pass
+    custom_spots_downloader.define_constants()
+    assert custom_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-3/all', f"self._API_URL is {custom_spots_downloader._API_URL}, should be 'https://api2.sota.org.uk/api/spots/-3/all."
+    pd.testing.assert_frame_equal(custom_spots_downloader._BANDS, create_expected_bands_df)#, f"self._BANDS is not as expected."
+    pd.testing.assert_frame_equal(custom_spots_downloader._MODES, create_expected_modes_df)#, f"self._MODES is not as expected."
 
 def test_update_request_parameters_default(default_spots_downloader: SpotsDownloader) -> None:
     """Test update_request_parameters method with default parameters."""
