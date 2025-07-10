@@ -214,8 +214,7 @@ def test_define_constants_default(default_spots_downloader: SpotsDownloader,
     default_spots_downloader.define_constants()
     assert default_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-1/all', f"self._API_URL is {default_spots_downloader._API_URL}, should be 'https://api2.sota.org.uk/api/spots/-1/all."
     assert_bands_and_modes_are_correct(default_spots_downloader, create_expected_bands_df, create_expected_modes_df)
-    # pd.testing.assert_frame_equal(default_spots_downloader._BANDS, create_expected_bands_df)#, f"self._BANDS is not as expected."
-    # pd.testing.assert_frame_equal(default_spots_downloader._MODES, create_expected_modes_df)#, f"self._MODES is not as expected."
+    
 
 def test_define_constants_custom(custom_spots_downloader: SpotsDownloader, 
                                  create_expected_bands_df: pd.DataFrame,
