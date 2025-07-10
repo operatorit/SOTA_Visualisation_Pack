@@ -163,7 +163,7 @@ def create_expected_modes_df():
         {'mode': 'CW',    'color': 'red'},
         {'mode': 'Data',  'color': 'cyan'},
         {'mode': 'DV',    'color': 'magenta'},
-        {'mode': 'F',    'color': 'yellow'},
+        {'mode': 'FM',    'color': 'yellow'},
         {'mode': 'SSB',   'color': 'blue'},
         {'mode': 'Other', 'color': 'orange'},
     ]
@@ -192,20 +192,20 @@ def custom_spots_downloader() -> SpotsDownloader:
 def test_init_default(default_spots_downloader: SpotsDownloader) -> None:
     """Default initialisation test for SpotsDownloader."""
     assert default_spots_downloader.lookback_time == -1, f"Default initiation failed, spots_downloader.lookback_time = {default_spots_downloader.lookback_time} (should be -1)"
-    assert default_spots_downloader.summits_filename == config._SUMMITS_FILENAME, f"Default initiation failed, spots_downloader.summits_filename = {default_spots_downloader.summits_filename} (should be {config._SUMMITS_FILENAME})"
-    assert default_spots_downloader.summits_errors == [], f"Default initiation failed, spots_downloader.summits_errors = {default_spots_downloader.summits_errors} (should be empty list)"
+    asserts_summits_filename_errors_list_are_correct(default_spots_downloader)
 
 def test_init_custom(custom_spots_downloader: SpotsDownloader) -> None:
     """Parametrised initialisation test for SpotsDownloader."""
     assert custom_spots_downloader.lookback_time == -3, f"Parametrized initiation failed, spots_downloader.lookback_time = {custom_spots_downloader.lookback_time} (should be -3)"
-    assert custom_spots_downloader.summits_filename == 'file_with_summits.csv', f"Parametrized initiation failed, spots_downloader.summits_filename = {custom_spots_downloader.summits_filename} (should be 'file_with_summits.csv')"
-    assert custom_spots_downloader.summits_errors == [], f"Default initiation failed, spots_downloader.summits_errors = {custom_spots_downloader.summits_errors} (should be empty list)"
+    asserts_summits_filename_errors_list_are_correct(custom_spots_downloader, 
+                                                     summits_filename = 'file_with_summits.csv')
 
-def assert_bands_and_modes_are_correct(initated_instance: SpotsDownloader, 
-                                       expected_bands_df: pd.DataFrame, 
-                                       expected_modes_df: pd.DataFrame) -> None:
-    pd.testing.assert_frame_equal(initated_instance._BANDS, expected_bands_df)
-    pd.testing.assert_frame_equal(initated_instance._MODES, expected_modes_df)
+def asserts_summits_filename_errors_list_are_correct(initated_instance: SpotsDownloader,
+                                                     summits_filename:str = config._SUMMITS_FILENAME,
+                                                     errors_list:list = []) -> None:
+    """Assert that summits_filename and errors_list are correct."""
+    assert initated_instance.summits_filename == summits_filename, f"Parametrized initiation failed, spots_downloader.summits_filename = {initated_instance.summits_filename} (should be {summits_filename})"
+    assert initated_instance.summits_errors == errors_list, f"Default initiation failed, spots_downloader.summits_errors = {initated_instance.summits_errors} (should be {errors_list})"
 
 def test_define_constants_default(default_spots_downloader: SpotsDownloader,
                                   create_expected_bands_df: pd.DataFrame,
@@ -224,6 +224,12 @@ def test_define_constants_custom(custom_spots_downloader: SpotsDownloader,
     custom_spots_downloader.define_constants()
     assert custom_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-3/all', f"self._API_URL is {custom_spots_downloader._API_URL}, should be 'https://api2.sota.org.uk/api/spots/-3/all."
     assert_bands_and_modes_are_correct(custom_spots_downloader, create_expected_bands_df, create_expected_modes_df)
+
+def assert_bands_and_modes_are_correct(initated_instance: SpotsDownloader, 
+                                       expected_bands_df: pd.DataFrame, 
+                                       expected_modes_df: pd.DataFrame) -> None:
+    pd.testing.assert_frame_equal(initated_instance._BANDS, expected_bands_df)
+    pd.testing.assert_frame_equal(initated_instance._MODES, expected_modes_df)
 
 def test_update_request_parameters_default(default_spots_downloader: SpotsDownloader) -> None:
     """Test update_request_parameters method with default parameters."""
