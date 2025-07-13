@@ -242,6 +242,7 @@ def test_update_request_parameters_custom(custom_spots_downloader: SpotsDownload
     assert custom_spots_downloader.lookback_time == -4, f"Updated custom lookback_time should be -2, got {custom_spots_downloader.lookback_time}"
     assert custom_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-4/all', "Incorrect APi URL generated when refreshed after updating self.lookback_time."
 
+@pytest.mark.skip(reason="test_shell")
 def test_process_spots_default(default_spots_downloader: SpotsDownloader) -> None:
     """Test process_spots. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
@@ -260,38 +261,47 @@ def test_get_spots(default_spots_downloader: SpotsDownloader,
     assert len(spots_mock_df) == len(mock_sota_spots_list), f"Returned DataFrame has {len(spots_mock_df)} rows, expected {len(mock_sota_spots_list)}."
     assert set(spots_mock_df.columns) >= set(mock_sota_spots_list[0].keys()), "Returned DataFrame columns do not match mock data keys."
 
+@pytest.mark.skip(reason="test_shell")
 def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader) -> None:
     """Test amend_spots_datatypes. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
+@pytest.mark.skip(reason="test_shell")
 def test_add_summit_codes(default_spots_downloader: SpotsDownloader) -> None:
     """Test add_summit_codes. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
+@pytest.mark.skip(reason="test_shell")
 def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader) -> None:
     """Test prepare_spots_to_join. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
+@pytest.mark.skip(reason="test_shell")
 def test_get_summits_list(default_spots_downloader: SpotsDownloader) -> None:
     """Test get_summits_list. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
+@pytest.mark.skip(reason="test_shell")
 def test_check_error_references(default_spots_downloader: SpotsDownloader) -> None:
     """Test check_error_references. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
+@pytest.mark.skip(reason="test_shell")
 def test_add_time_markers(default_spots_downloader: SpotsDownloader) -> None:
     """Test add_time_markers. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
+@pytest.mark.skip(reason="test_shell")
 def test_create_visualisation_data(default_spots_downloader: SpotsDownloader) -> None:
     """Test create_visualisation_data. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
+@pytest.mark.skip(reason="test_shell")
 def test_remove_unused_columns(default_spots_downloader: SpotsDownloader) -> None:
     """Test remove_unused_columns. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
+@pytest.mark.skip(reason="test_shell")
 def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader) -> None:
     """Test drop_summits_not_found. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
