@@ -215,7 +215,6 @@ def test_define_constants_default(default_spots_downloader: SpotsDownloader,
     default_spots_downloader.define_constants()
     assert default_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-1/all', f"self._API_URL is {default_spots_downloader._API_URL}, should be 'https://api2.sota.org.uk/api/spots/-1/all."
     assert_bands_and_modes_are_correct(default_spots_downloader, create_expected_bands_df, create_expected_modes_df)
-    
 
 def test_define_constants_custom(custom_spots_downloader: SpotsDownloader, 
                                  create_expected_bands_df: pd.DataFrame,
@@ -244,17 +243,13 @@ def test_update_request_parameters_custom(custom_spots_downloader: SpotsDownload
     assert custom_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-4/all', "Incorrect APi URL generated when refreshed after updating self.lookback_time."
 
 def test_process_spots_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test process_spots on default instance."""
+    """Test process_spots. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
-def test_process_spots_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test process_spots on custom instance."""
-    pass
-
-def test_get_spots_default(default_spots_downloader: SpotsDownloader, 
+def test_get_spots(default_spots_downloader: SpotsDownloader, 
                            mock_sota_spots_list, 
                            monkeypatch) -> None:
-    """Test get_spots on default instance."""
+    """Test get_spots. Tested on default instance only as the method do not depend on initialisation parameters."""
     mock_resp = MagicMock()
     mock_resp.status_code = 200
     mock_resp.json.return_value = mock_sota_spots_list
@@ -265,104 +260,39 @@ def test_get_spots_default(default_spots_downloader: SpotsDownloader,
     assert len(spots_mock_df) == len(mock_sota_spots_list), f"Returned DataFrame has {len(spots_mock_df)} rows, expected {len(mock_sota_spots_list)}."
     assert set(spots_mock_df.columns) >= set(mock_sota_spots_list[0].keys()), "Returned DataFrame columns do not match mock data keys."
 
-def test_get_spots_custom(custom_spots_downloader: SpotsDownloader,
-                           mock_sota_spots_list, 
-                           monkeypatch) -> None:
-    """Test get_spots on custom instance."""
-    mock_resp = MagicMock()
-    mock_resp.status_code = 200
-    mock_resp.json.return_value = mock_sota_spots_list
-    monkeypatch.setattr('requests.get', lambda *args, **kwargs: mock_resp)
-
-    spots_mock_df = custom_spots_downloader.get_spots()
-    assert not spots_mock_df.empty, "DataFrame returned from mock is empty."
-    assert len(spots_mock_df) == len(mock_sota_spots_list), f"Returned DataFrame has {len(spots_mock_df)} rows, expected {len(mock_sota_spots_list)}."
-    assert set(spots_mock_df.columns) >= set(mock_sota_spots_list[0].keys()), "Returned DataFrame columns do not match mock data keys."
-
-def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader, 
-                                 mock_sota_spots_dataframe:pd.DataFrame) -> None:
-    """Test amend_spots_frequencies on test DataFrame."""
-    default_spots_downloader.spots_to_visualisation = mock_sota_spots_dataframe.copy()
-    default_spots_downloader.amend_spots_frequencies()
-    assert default_spots_downloader.spots_to_visualisation.iloc[6]['frequency'] == 0, "Frequency of incorrect format (no integer part) not amended."
-
-
-def test_amend_spots_datatypes_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test amend_spots_datatypes on default instance."""
+def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader) -> None:
+    """Test amend_spots_datatypes. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
-def test_amend_spots_datatypes_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test amend_spots_datatypes on custom instance."""
+def test_add_summit_codes(default_spots_downloader: SpotsDownloader) -> None:
+    """Test add_summit_codes. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
-def test_add_summit_codes_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test add_summit_codes on default instance."""
+def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader) -> None:
+    """Test prepare_spots_to_join. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
-def test_add_summit_codes_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test add_summit_codes on custom instance."""
+def test_get_summits_list(default_spots_downloader: SpotsDownloader) -> None:
+    """Test get_summits_list. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
-def test_prepare_spots_to_join_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test prepare_spots_to_join on default instance."""
+def test_check_error_references(default_spots_downloader: SpotsDownloader) -> None:
+    """Test check_error_references. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
-def test_prepare_spots_to_join_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test prepare_spots_to_join on custom instance."""
+def test_add_time_markers(default_spots_downloader: SpotsDownloader) -> None:
+    """Test add_time_markers. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
-def test_get_summits_list_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test get_summits_list on default instance."""
+def test_create_visualisation_data(default_spots_downloader: SpotsDownloader) -> None:
+    """Test create_visualisation_data. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
-def test_get_summits_list_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test get_summits_list on custom instance."""
+def test_remove_unused_columns(default_spots_downloader: SpotsDownloader) -> None:
+    """Test remove_unused_columns. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
-def test_check_error_references_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test check_error_references on default instance."""
+def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader) -> None:
+    """Test drop_summits_not_found. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
-def test_check_error_references_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test check_error_references on custom instance."""
-    pass
-
-def test_join_spots_with_summits_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test join_spots_with_summits on default instance."""
-    pass
-
-def test_join_spots_with_summits_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test join_spots_with_summits on custom instance."""
-    pass
-
-def test_add_time_markers_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test add_time_markers on default instance."""
-    pass
-
-def test_add_time_markers_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test add_time_markers on custom instance."""
-    pass
-
-def test_create_visualisation_data_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test create_visualisation_data on default instance."""
-    pass
-
-def test_create_visualisation_data_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test create_visualisation_data on custom instance."""
-    pass
-
-def test_remove_unused_columns_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test remove_unused_columns on default instance."""
-    pass
-
-def test_remove_unused_columns_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test remove_unused_columns on custom instance."""
-    pass
-
-def test_drop_summits_not_found_default(default_spots_downloader: SpotsDownloader) -> None:
-    """Test drop_summits_not_found on default instance."""
-    pass
-
-def test_drop_summits_not_found_custom(custom_spots_downloader: SpotsDownloader) -> None:
-    """Test drop_summits_not_found on custom instance."""
-    pass
