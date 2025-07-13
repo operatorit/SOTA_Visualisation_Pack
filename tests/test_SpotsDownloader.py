@@ -3,6 +3,7 @@ import pandas as pd
 
 
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock
 
 from SpotsDownloader import SpotsDownloader
 import config
@@ -250,13 +251,33 @@ def test_process_spots_custom(custom_spots_downloader: SpotsDownloader) -> None:
     """Test process_spots on custom instance."""
     pass
 
-def test_get_spots_default(default_spots_downloader: SpotsDownloader) -> None:
+def test_get_spots_default(default_spots_downloader: SpotsDownloader, 
+                           mock_sota_spots_list, 
+                           monkeypatch) -> None:
     """Test get_spots on default instance."""
-    pass
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = mock_sota_spots_list
+    monkeypatch.setattr('requests.get', lambda *args, **kwargs: mock_resp)
 
-def test_get_spots_custom(custom_spots_downloader: SpotsDownloader) -> None:
+    spots_mock_df = default_spots_downloader.get_spots()
+    assert not spots_mock_df.empty, "DataFrame returned from mock is empty."
+    assert len(spots_mock_df) == len(mock_sota_spots_list), f"Returned DataFrame has {len(spots_mock_df)} rows, expected {len(mock_sota_spots_list)}."
+    assert set(spots_mock_df.columns) >= set(mock_sota_spots_list[0].keys()), "Returned DataFrame columns do not match mock data keys."
+
+def test_get_spots_custom(custom_spots_downloader: SpotsDownloader,
+                           mock_sota_spots_list, 
+                           monkeypatch) -> None:
     """Test get_spots on custom instance."""
-    pass
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = mock_sota_spots_list
+    monkeypatch.setattr('requests.get', lambda *args, **kwargs: mock_resp)
+
+    spots_mock_df = custom_spots_downloader.get_spots()
+    assert not spots_mock_df.empty, "DataFrame returned from mock is empty."
+    assert len(spots_mock_df) == len(mock_sota_spots_list), f"Returned DataFrame has {len(spots_mock_df)} rows, expected {len(mock_sota_spots_list)}."
+    assert set(spots_mock_df.columns) >= set(mock_sota_spots_list[0].keys()), "Returned DataFrame columns do not match mock data keys."
 
 def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader, 
                                  mock_sota_spots_dataframe:pd.DataFrame) -> None:
