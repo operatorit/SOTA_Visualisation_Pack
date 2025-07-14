@@ -106,7 +106,7 @@ def mock_sota_spots_list() -> list:
             'summitCode': 'CW-076',
             'activatorCallsign': 'AG7EDG',
             'activatorName': 'Bob',
-            'frequency': '433,500',
+            'frequency': '433.500',
             'mode': 'FM',
             'summitDetails': None,
             'highlightColor': None
@@ -262,14 +262,37 @@ def test_get_spots(default_spots_downloader: SpotsDownloader,
     assert set(spots_mock_df.columns) >= set(mock_sota_spots_list[0].keys()), "Returned DataFrame columns do not match mock data keys."
 
 @pytest.mark.skip(reason="test_shell")
-def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader) -> None:
+def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader,
+                                 mock_sota_spots_list,
+                                 ) -> None:
+    """Test amend_spots_frequencies. Tested on default instance only as the method do not depend on initialisation parameters."""
+    pass
+@pytest.mark.skip(reason="test_shell")
+def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
+                               mock_sota_spots_list
+                               ) -> None:
     """Test amend_spots_datatypes. Tested on default instance only as the method do not depend on initialisation parameters."""
+    # default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    # default_spots_downloader.amend_spots_datatypes()
+    # print(default_spots_downloader.dtypes)
     pass
 
-@pytest.mark.skip(reason="test_shell")
-def test_add_summit_codes(default_spots_downloader: SpotsDownloader) -> None:
+    # default_spots_downloader.spots_to_visualisation['activatorCallsign'] = default_spots_downloader.spots_to_visualisation['activatorCallsign'].astype('string')
+    # default_spots_downloader.spots_to_visualisation['associationCode'] = default_spots_downloader.spots_to_visualisation['associationCode'].astype('string')
+    # default_spots_downloader.spots_to_visualisation['summitCode'] = default_spots_downloader.spots_to_visualisation['summitCode'].astype('string')
+    # default_spots_downloader.spots_to_visualisation['mode'] = default_spots_downloader.spots_to_visualisation['mode'].astype('string')
+    # default_spots_downloader.spots_to_visualisation['frequency'] = default_spots_downloader.spots_to_visualisation['frequency'].astype('float')
+    # self.spots_to_visualisation['timeStamp'] = pd.to_datetime(self.spots_to_visualisation['timeStamp'], format="%Y-%m-%dT%H:%M:%S")
+
+def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
+                           mock_sota_spots_list
+                           ) -> None:
     """Test add_summit_codes. Tested on default instance only as the method do not depend on initialisation parameters."""
-    pass
+    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    default_spots_downloader.add_summit_codes()
+    assert 'summit_ref' in default_spots_downloader.spots_to_visualisation.columns, "Column summitCode not found in spots_to_visualisation DataFrame after adding summit codes."
+    assert default_spots_downloader.spots_to_visualisation['summit_ref'].notnull().all(), "Not all summit codes are filled in the DataFrame."
+    assert default_spots_downloader.spots_to_visualisation['summit_ref'].tolist() == ['W7O/CS-098', 'W8W/CW-076', 'SP/BZ-001', 'JA/GM-107', 'DL/EW-017', 'W8W/CW-076', 'W1/W1-001'], "Summits references not concatenated correctly."
 
 @pytest.mark.skip(reason="test_shell")
 def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader) -> None:
