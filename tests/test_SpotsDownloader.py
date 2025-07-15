@@ -261,23 +261,37 @@ def test_get_spots(default_spots_downloader: SpotsDownloader,
     assert len(spots_mock_df) == len(mock_sota_spots_list), f"Returned DataFrame has {len(spots_mock_df)} rows, expected {len(mock_sota_spots_list)}."
     assert set(spots_mock_df.columns) >= set(mock_sota_spots_list[0].keys()), "Returned DataFrame columns do not match mock data keys."
 
-@pytest.mark.skip(reason="test_shell")
 def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader,
                                  mock_sota_spots_list,
                                  ) -> None:
-    """Test amend_spots_frequencies. Tested on default instance only as the method do not depend on initialisation parameters."""
-    pass
+    """Test amend_spots_frequencies. Incorrect frequencies (not in nn.nnn format) should be set to 0. 
+    Tested on default instance only as the method do not depend on initialisation parameters."""
+    
+    incorrect_frequencies_references = {'fq1': {'id': 1007,
+                                                'userID': 2006,},}
+    
+    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    assert len(default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['frequency'] == 0]) == 0, "Non-zero frequencies found in initial test dataframe."
+
+    default_spots_downloader.amend_spots_frequencies()
+    for incorrect_frequency_reference in incorrect_frequencies_references.values():
+        assert default_spots_downloader.spots_to_visualisation.loc[(default_spots_downloader.spots_to_visualisation['id'] == incorrect_frequency_reference['id'])
+                                                                   & (default_spots_downloader.spots_to_visualisation['userID'] == incorrect_frequency_reference['userID']),
+                                                                   'frequency'].values[0] == 0, f"Frequency for id = {incorrect_frequency_reference['id']}, userID = {incorrect_frequency_reference['userID']} should be 0."
+                                                                     
+
 
 def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
                                mock_sota_spots_list
                                ) -> None:
-    """Test amend_spots_datatypes. Tested on default instance only as the method do not depend on initialisation parameters."""
+    """Test amend_spots_datatypes - if data types are as expected after method run. 
+    Tested on default instance only as the method do not depend on initialisation parameters."""
     expected_columns_dtypes = {'activatorCallsign': 'string',
                                'associationCode': 'string',
                                'summitCode': 'string',
                                'mode': 'string',
                                'frequency': 'float',
-                               'timeStamp': 'datetime64[ns]'
+                               'timeStamp': 'datetime64[ns]',
                                }
     default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
     default_spots_downloader.amend_spots_datatypes()
@@ -288,10 +302,11 @@ def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
 def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
                            mock_sota_spots_list
                            ) -> None:
-    """Test add_summit_codes. Tested on default instance only as the method do not depend on initialisation parameters."""
+    """Test add_summit_codes - if associationCode and summitCode are concatenated correctly ito summit_ref column.
+    Tested on default instance only as the method do not depend on initialisation parameters."""
     default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
     default_spots_downloader.add_summit_codes()
-    assert 'summit_ref' in default_spots_downloader.spots_to_visualisation.columns, "Column summitCode not found in spots_to_visualisation DataFrame after adding summit codes."
+    assert 'summit_ref' in default_spots_downloader.spots_to_visualisation.columns, "Column summit_ref not found in spots_to_visualisation DataFrame after adding summit codes."
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].notnull().all(), "Not all summit codes are filled in the DataFrame."
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].tolist() == ['W7O/CS-098', 'W8W/CW-076', 'SP/BZ-001', 'JA/GM-107', 'DL/EW-017', 'W8W/CW-076', 'W1/W1-001'], "Summits references not concatenated correctly."
 
