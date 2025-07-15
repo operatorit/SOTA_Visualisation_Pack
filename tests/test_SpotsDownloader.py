@@ -9,16 +9,16 @@ from SpotsDownloader import SpotsDownloader
 import config
 
 
-def generate_timestamps(n = 6):
+def generate_timestamps_as_strings(n = 6):
     """Generate a list of n timestamps for testing."""
     start_time = datetime.now()
-    return [(start_time - timedelta(minutes=5*i)).isoformat() for i in range(n)]
+    return [str((start_time - timedelta(minutes=5*i)).isoformat()).split('.')[0] for i in range(n)]
 
 @pytest.fixture(scope = "module")
 def mock_sota_spots_list() -> list:
     """Fixture: test data as a list of dicts (one dict per row)."""
 
-    test_timestamps = generate_timestamps(7)
+    test_timestamps = generate_timestamps_as_strings(7)
     
     data = [
         {
@@ -267,23 +267,24 @@ def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader,
                                  ) -> None:
     """Test amend_spots_frequencies. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
-@pytest.mark.skip(reason="test_shell")
+
 def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
                                mock_sota_spots_list
                                ) -> None:
     """Test amend_spots_datatypes. Tested on default instance only as the method do not depend on initialisation parameters."""
-    # default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
-    # default_spots_downloader.amend_spots_datatypes()
-    # print(default_spots_downloader.dtypes)
-    pass
-
-    # default_spots_downloader.spots_to_visualisation['activatorCallsign'] = default_spots_downloader.spots_to_visualisation['activatorCallsign'].astype('string')
-    # default_spots_downloader.spots_to_visualisation['associationCode'] = default_spots_downloader.spots_to_visualisation['associationCode'].astype('string')
-    # default_spots_downloader.spots_to_visualisation['summitCode'] = default_spots_downloader.spots_to_visualisation['summitCode'].astype('string')
-    # default_spots_downloader.spots_to_visualisation['mode'] = default_spots_downloader.spots_to_visualisation['mode'].astype('string')
-    # default_spots_downloader.spots_to_visualisation['frequency'] = default_spots_downloader.spots_to_visualisation['frequency'].astype('float')
-    # self.spots_to_visualisation['timeStamp'] = pd.to_datetime(self.spots_to_visualisation['timeStamp'], format="%Y-%m-%dT%H:%M:%S")
-
+    expected_columns_dtypes = {'activatorCallsign': 'string',
+                               'associationCode': 'string',
+                               'summitCode': 'string',
+                               'mode': 'string',
+                               'frequency': 'float',
+                               'timeStamp': 'datetime64[ns]'
+                               }
+    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    default_spots_downloader.amend_spots_datatypes()
+    
+    for column_name in expected_columns_dtypes.keys():
+        assert default_spots_downloader.spots_to_visualisation[column_name].dtype == expected_columns_dtypes[column_name], f"Incorrect datatype for column {column_name}: default_spots_downloader.spots_to_visualisation[column_name].dtype (expected: {expected_columns_dtypes[column_name]})."
+    
 def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
                            mock_sota_spots_list
                            ) -> None:
