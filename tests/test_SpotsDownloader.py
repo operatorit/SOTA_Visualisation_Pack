@@ -332,6 +332,10 @@ def test_get_summits_list(default_spots_downloader: SpotsDownloader) -> None:
     pass
 
 @pytest.mark.skip(reason="test_shell")
+def test_join_spots_with_summits():
+    pass
+
+@pytest.mark.skip(reason="test_shell")
 def test_check_error_references(default_spots_downloader: SpotsDownloader) -> None:
     """Test check_error_references. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
