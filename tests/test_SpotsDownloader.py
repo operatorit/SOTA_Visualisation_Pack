@@ -279,8 +279,6 @@ def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader,
                                                                    & (default_spots_downloader.spots_to_visualisation['userID'] == incorrect_frequency_reference['userID']),
                                                                    'frequency'].values[0] == 0, f"Frequency for id = {incorrect_frequency_reference['id']}, userID = {incorrect_frequency_reference['userID']} should be 0."
                                                                      
-
-
 def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
                                mock_sota_spots_list
                                ) -> None:
@@ -310,11 +308,24 @@ def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].notnull().all(), "Not all summit codes are filled in the DataFrame."
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].tolist() == ['W7O/CS-098', 'W8W/CW-076', 'SP/BZ-001', 'JA/GM-107', 'DL/EW-017', 'W8W/CW-076', 'W1/W1-001'], "Summits references not concatenated correctly."
 
-@pytest.mark.skip(reason="test_shell")
-def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader) -> None:
+# @pytest.mark.skip(reason="test_shell")
+def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,
+                               mock_sota_spots_list
+                               ) -> None:
     """Test prepare_spots_to_join. Tested on default instance only as the method do not depend on initialisation parameters."""
-    pass
+    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    default_spots_downloader.add_summit_codes()
+    length_no_duplicates = len(default_spots_downloader.spots_to_visualisation.groupby(['callsign', 'summit_ref']).first())
 
+    default_spots_downloader.prepare_spots_to_join()
+
+    assert len(default_spots_downloader.spots_to_visualisation) == length_no_duplicates, f"Incorrect spots dataframe length after duplicates removal. Expected; {length_no_duplicates}, got {len(default_spots_downloader.spots_to_visualisation)}."
+    assert default_spots_downloader.spots_to_visualisation[['callsign', 'summit_ref']].duplicated().sum() == 0, "Duplicated pairs callsign-summit_ref found on spots list after duplicates removal."
+    assert default_spots_downloader.spots_to_visualisation.loc[(default_spots_downloader.spots_to_visualisation['callsign'] == 'AG7EDG')
+                                                               & (default_spots_downloader.spots_to_visualisation['summit_ref'] == 'W8W/CW-076'), 
+                                                               'frequency'].item() == '145.550', f"Incorrect row deleted for AG7EDG, not the newest one left in the DataFrame."
+    assert list(default_spots_downloader.spots_to_visualisation.index) == list(range(0, length_no_duplicates)), f"Reindexing after duplicates removal failed. Index is {default_spots_downloader.spots_to_visualisation.index}, expected {range(0, length_no_duplicates)}."
+    
 @pytest.mark.skip(reason="test_shell")
 def test_get_summits_list(default_spots_downloader: SpotsDownloader) -> None:
     """Test get_summits_list. Tested on default instance only as the method do not depend on initialisation parameters."""

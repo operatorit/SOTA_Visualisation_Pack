@@ -73,7 +73,6 @@ class SpotsDownloader:
 
         return self.spots_to_visualisation
 
-
     def get_spots(self) -> pd.DataFrame:
         """Downloads spots aleted in defined timeframe or defined number of latests spots.
         If there are no spots sent in time provided, return latest 10 to make sure dictionary is not empty.
@@ -132,7 +131,7 @@ class SpotsDownloader:
         Finally, re-indexes dataframe with spots.
         """
         self.spots_to_visualisation.drop_duplicates(subset = ['activatorCallsign', 'summit_ref'],
-                                                    inplace = True, keep = 'last')
+                                                    inplace = True, keep = 'first')
         self.spots_to_visualisation.reset_index(drop = True, inplace = True)
         
     def get_summits_list(self) -> None:
