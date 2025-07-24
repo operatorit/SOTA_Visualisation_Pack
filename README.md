@@ -9,26 +9,46 @@ SOTA (Summits On The Air) is an activity designed for radio amateurs (called als
 
 You can find all information about SOTA programme at https://www.sota.org.uk/.
 
+# Project structure
+
+.
+├── docs
+    └── full_log.jpg├── __init__.py
+├── tests
+    ├── test_spotsdownloader_init.py
+    └── test_SpotsDownloader.py
+├── chaser_visualiser.ipynb
+├── chasers_visualiser.py
+├── config.py
+├── pyproject.toml
+├── pytest.in
+├── README.md -> **you are here**
+├── requirements.txt
+├── SOTAlog.adi
+├── spots_map.ipynb
+├── spots_visualiser_dashboard.py
+├── spots_visualiser.py
+├── SpotsDownloader.py
+├── summits_errors.txt
+└── summitslist.csv
+
+
 # Pack contents
 
 This pack is developed to visualise data relevant for SOTA chasers:
 
-- summits that are currently activated with SOTA Spots Map,
-- chaser's history records with SOTA Chasers Visualiser.
+- summits that are currently activated with SOTA Spots Map (`spots_visualiser.py`),
+- chaser's history records with SOTA Chasers Visualiser (`chasers_visualiser.py`).
 
-## Analysis logic
-
-Both scripts are available as ```.py``` files for quick deployment.
-
-If you want to see how the pack works step by step (with additional comments) you can open ```.ipynb``` files, for example in Jupyter Notebook or Google Colab. 
-
+Both scripts are available as `.py` files for quick deployment.
 
 ## SOTA Spots Map
 
+It's my main purpose to build this package.
+
 This functionality is provided in three files:
-- ```spots_visualiser.py``` - simple script generating map based on Folium map,
-- ```spots_map.ipnynb``` - analysis described step-by-step,
-- ```spots_visualiser_dashboard.py``` - interactive map based on Leaflet map.
+- `SpotsDownloader.py` - a class handling spots download and pre-processing,
+- `spots_visualiser.py` - script generating interactive spots map based on Leaflet map with callback filtering options.
 
 Script presents "live" tracker of SOTA activations according to spots send via SOTAWatch site (https://sotawatch.sota.org.uk/). Activations spotted in the given timeline are analysed and compares with SOTA Database (see above), then marked on a map. Each summit-activator pair is presented as a circle and visualisation provides following information:
 - summit's name, code, location and points value,
@@ -36,7 +56,7 @@ Script presents "live" tracker of SOTA activations according to spots send via S
 - activator's callsign,
 - time since spot.
 
-You can run the script and see latest activations or visit live dashboard, based on the same analytics algorithm,  I deployed at https://www.operator-paramedyk.pl/sota/.
+You can run the script and see latest activations or visit live dashboard, based on the same analytics algorithm,  I deployed at https://www.operatorit.pl/sota/.
 
 ## SOTA Chasers Visualiser
 
@@ -55,7 +75,7 @@ If you are not a radioamateur, but wanted to see this script in action, I attach
 
 At the day when I published first version of this script, my station's log counted 1060 QSOs and among them there were 353 SOTA chases. Below you can see visualisation of all of them with the use of this script.
 
-![](full_log.jpg)
+![](./docs/full_log.jpg)
 
 # APIs and dependencies used
 
