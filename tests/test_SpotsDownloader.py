@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-
+import types
 
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock
@@ -190,6 +190,126 @@ def custom_spots_downloader() -> SpotsDownloader:
     return SpotsDownloader(lookback_time = -3,
                            summits_filename = 'file_with_summits.csv',)
 
+@pytest.fixture(scope="module")
+def mock_summits_list():
+    """Fixture: mock SOTA summits data for get_summits_list test (all uppercase, real and synthetic)."""
+    return [
+        {
+            "SummitCode": "W7O/CS-098",
+            "AssociationName": "USA - OREGON",
+            "RegionName": "OR-CASCADES SOUTH",
+            "SummitName": "BIEBERSTEDT BUTTE",
+            "AltM": "1599",
+            "AltFt": "5246",
+            "GridRef1": "-122.4731",
+            "GridRef2": "42.4103",
+            "Longitude": "-122.47310",
+            "Latitude": "42.41030",
+            "Points": "4",
+            "BonusPoints": "3",
+            "ValidFrom": "01/07/2010",
+            "ValidTo": "31/12/2099",
+            "ActivationCount": "0",
+            "ActivationDate": "",
+            "ActivationCall": ""
+        },
+        {
+            "SummitCode": "W8W/CW-076",
+            "AssociationName": "USA - WEST VIRGINIA",
+            "RegionName": "CW REGION",
+            "SummitName": "AMABILIS MOUNTAIN",
+            "AltM": "1396",
+            "AltFt": "4580",
+            "GridRef1": "-80.1234",
+            "GridRef2": "38.5678",
+            "Longitude": "-80.12340",
+            "Latitude": "38.56780",
+            "Points": "4",
+            "BonusPoints": "0",
+            "ValidFrom": "01/01/2015",
+            "ValidTo": "31/12/2099",
+            "ActivationCount": "2",
+            "ActivationDate": "15/07/2022",
+            "ActivationCall": "W8W/TEST"
+        },
+        {
+            "SummitCode": "SP/BZ-001",
+            "AssociationName": "POLAND",
+            "RegionName": "BESKIDY ZACHODNIE",
+            "SummitName": "DIABLAK (BABIA GÓRA)",
+            "AltM": "1725",
+            "AltFt": "5659",
+            "GridRef1": "19.5296",
+            "GridRef2": "49.5732",
+            "Longitude": "19.52960",
+            "Latitude": "49.57320",
+            "Points": "10",
+            "BonusPoints": "3",
+            "ValidFrom": "01/04/2008",
+            "ValidTo": "31/12/2099",
+            "ActivationCount": "179",
+            "ActivationDate": "13/03/2022",
+            "ActivationCall": "SP9ML/P"
+        },
+        {
+            "SummitCode": "JA/GM-107",
+            "AssociationName": "JAPAN - HONSHU",
+            "RegionName": "GUNMA PREFECTURE",
+            "SummitName": "TAKAJYOKKI",
+            "AltM": "1237",
+            "AltFt": "4059",
+            "GridRef1": "138.6718",
+            "GridRef2": "36.5228",
+            "Longitude": "138.67180",
+            "Latitude": "36.52280",
+            "Points": "8",
+            "BonusPoints": "3",
+            "ValidFrom": "01/11/2021",
+            "ValidTo": "31/12/2099",
+            "ActivationCount": "1",
+            "ActivationDate": "09/12/2021",
+            "ActivationCall": "JJ1HWM/1"
+        },
+        {
+            "SummitCode": "DL/EW-017",
+            "AssociationName": "GERMANY (ALPINE)",
+            "RegionName": "ESTERGEBIRGE/WALCHENSEEBERGE",
+            "SummitName": "HIRSCHBERG",
+            "AltM": "1659",
+            "AltFt": "5443",
+            "GridRef1": "11.2414",
+            "GridRef2": "47.6008",
+            "Longitude": "11.24140",
+            "Latitude": "47.60080",
+            "Points": "6",
+            "BonusPoints": "3",
+            "ValidFrom": "01/03/2004",
+            "ValidTo": "31/12/2099",
+            "ActivationCount": "16",
+            "ActivationDate": "27/02/2022",
+            "ActivationCall": "DO2MPS/P"
+        },
+        {
+            "SummitCode": "W1/W1-001",
+            "AssociationName": "USA - NEW ENGLAND",
+            "RegionName": "W1 REGION",
+            "SummitName": "MOUNT WASHINGTON",
+            "AltM": "1917",
+            "AltFt": "6290",
+            "GridRef1": "-71.3036",
+            "GridRef2": "44.2706",
+            "Longitude": "-71.30360",
+            "Latitude": "44.27060",
+            "Points": "10",
+            "BonusPoints": "3",
+            "ValidFrom": "01/01/2000",
+            "ValidTo": "31/12/2099",
+            "ActivationCount": "100",
+            "ActivationDate": "01/08/2025",
+            "ActivationCall": "K1XYZ/P"
+        }
+    ]
+
 def test_init_default(default_spots_downloader: SpotsDownloader) -> None:
     """Default initialisation test for SpotsDownloader."""
     assert default_spots_downloader.lookback_time == -1, f"Default initiation failed, spots_downloader.lookback_time = {default_spots_downloader.lookback_time} (should be -1)"
@@ -308,7 +428,6 @@ def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].notnull().all(), "Not all summit codes are filled in the DataFrame."
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].tolist() == ['W7O/CS-098', 'W8W/CW-076', 'SP/BZ-001', 'JA/GM-107', 'DL/EW-017', 'W8W/CW-076', 'W1/W1-001'], "Summits references not concatenated correctly."
 
-# @pytest.mark.skip(reason="test_shell")
 def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,
                                mock_sota_spots_list
                                ) -> None:
@@ -326,10 +445,23 @@ def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,
                                                                'frequency'].item() == '145.550', f"Incorrect row deleted for AG7EDG, not the newest one left in the DataFrame."
     assert list(default_spots_downloader.spots_to_visualisation.index) == list(range(0, length_no_duplicates)), f"Reindexing after duplicates removal failed. Index is {default_spots_downloader.spots_to_visualisation.index}, expected {range(0, length_no_duplicates)}."
     
-@pytest.mark.skip(reason="test_shell")
-def test_get_summits_list(default_spots_downloader: SpotsDownloader) -> None:
-    """Test get_summits_list. Tested on default instance only as the method do not depend on initialisation parameters."""
-    pass
+def test_get_summits_list(default_spots_downloader: SpotsDownloader,
+                          mock_summits_list) -> None:
+    """Test get_summits_list using mock_summits_list fixture and default_spots_downloader (method do not depend on initialisation parameters)."""
+
+    default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
+
+    assert isinstance(default_spots_downloader.SOTA_summits_data, pd.DataFrame), "SOTA_summits_data is not a pandas DataFrame."
+    expected_codes = [s['SummitCode'] for s in mock_summits_list]
+    assert set(default_spots_downloader.SOTA_summits_data['SummitCode']) == set(expected_codes), f"Returned SummitCodes do not match expected: {expected_codes}"
+    # Sprawdź, czy wszystkie kolumny są obecne
+    required_columns = [
+        "SummitCode", "AssociationName", "RegionName", "SummitName", "AltM", "AltFt",
+        "GridRef1", "GridRef2", "Longitude", "Latitude", "Points", "BonusPoints",
+        "ValidFrom", "ValidTo", "ActivationCount", "ActivationDate", "ActivationCall"
+    ]
+    for col in required_columns:
+        assert col in default_spots_downloader.SOTA_summits_data.columns, f"Missing column: {col}"
 
 @pytest.mark.skip(reason="test_shell")
 def test_join_spots_with_summits():
