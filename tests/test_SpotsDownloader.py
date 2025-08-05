@@ -418,7 +418,7 @@ def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
         assert default_spots_downloader.spots_to_visualisation[column_name].dtype == expected_columns_dtypes[column_name], f"Incorrect datatype for column {column_name}: default_spots_downloader.spots_to_visualisation[column_name].dtype (expected: {expected_columns_dtypes[column_name]})."
     
 def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
-                           mock_sota_spots_list
+                           mock_sota_spots_list: list[dict]
                            ) -> None:
     """Test add_summit_codes - if associationCode and summitCode are concatenated correctly ito summit_ref column.
     Tested on default instance only as the method do not depend on initialisation parameters."""
@@ -445,9 +445,14 @@ def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,
                                                                'frequency'].item() == '145.550', f"Incorrect row deleted for AG7EDG, not the newest one left in the DataFrame."
     assert list(default_spots_downloader.spots_to_visualisation.index) == list(range(0, length_no_duplicates)), f"Reindexing after duplicates removal failed. Index is {default_spots_downloader.spots_to_visualisation.index}, expected {range(0, length_no_duplicates)}."
     
-def test_get_summits_list(default_spots_downloader: SpotsDownloader,
-                          mock_summits_list) -> None:
-    """Test get_summits_list using mock_summits_list fixture and default_spots_downloader (method do not depend on initialisation parameters)."""
+@pytest.mark.skip(reason="test_shell")
+def test_get_summits_list():
+    pass
+
+def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
+                          mock_summits_list: list[dict]) -> None:
+    """Test if mock_summits_list format is correct and it fits SOTA_summits_data object in SpotsDownloader instance.
+    Tested on default initialisation as do not depend on initialisation parameters."""
 
     default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
 
@@ -463,9 +468,46 @@ def test_get_summits_list(default_spots_downloader: SpotsDownloader,
     for col in required_columns:
         assert col in default_spots_downloader.SOTA_summits_data.columns, f"Missing column: {col}"
 
-@pytest.mark.skip(reason="test_shell")
-def test_join_spots_with_summits():
-    pass
+# @pytest.mark.skip(reason="test_shell")
+def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
+                                 mock_sota_spots_list: list[dict],
+                                 mock_summits_list: list[dict]) -> None:
+    """Tests join_spots_with_summits. Tested on default instance only as the method do not depend on initialisation parameters."""
+    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    default_spots_downloader.amend_spots_datatypes()
+    default_spots_downloader.add_summit_codes()
+    default_spots_downloader.prepare_spots_to_join()
+
+    initial_spots_df_len = len(default_spots_downloader.spots_to_visualisation)
+
+    default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
+
+    default_spots_downloader.join_spots_with_summits()
+    print(default_spots_downloader.spots_to_visualisation.columns)
+    assert len(default_spots_downloader.spots_to_visualisation) == initial_spots_df_len, f"Merging spots and summits DataFrames changed number of spots to visualisation by {len(default_spots_downloader.spots_to_visualisation) - initial_spots_df_len} rows."
+    for column_name in ['Longitude', 'Latitude', 'Points', 'SummitName']:
+        assert column_name not in default_spots_downloader.spots_to_visualisation.columns, f"Column {column_name} is still present in spots_to_visualisation DataFrame, while it should be renamed."
+    for column_name in ['longitude', 'latitude', 'points', 'summitName']:
+        assert column_name in default_spots_downloader.spots_to_visualisation.columns, f"Column {column_name} is missing from spots_to_visualisation DataFrame, while it should be present."
+    
+    for summit_reference in default_spots_downloader.spots_to_visualisation['summit_ref'].unique():
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'SummitCode'].item() == summit_reference, f"Summit reference {summit_reference} does not match SummitCode after merging spots with summits list."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'summitName'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'SummitName'].item(), f"Summit name for {summit_reference} does not match summits list after merging spots with summits list. Should be {default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'SummitName'].item()}, is {default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'summitName'].item()}, is {default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'summitName'].item()}."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'AssociationName'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'AssociationName'].item(), f"AssociationName for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'RegionName'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'RegionName'].item(), f"RegionName for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'AltM'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'AltM'].item(), f"AltM for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'AltFt'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'AltFt'].item(), f"AltFt for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'GridRef1'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'GridRef1'].item(), f"GridRef1 for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'GridRef2'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'GridRef2'].item(), f"GridRef2 for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'longitude'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'Longitude'].item(), f"longitude for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'latitude'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'Latitude'].item(), f"latitude for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'points'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'Points'].item(), f"points for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'BonusPoints'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'BonusPoints'].item(), f"BonusPoints for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'ValidFrom'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'ValidFrom'].item(), f"ValidFrom for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'ValidTo'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'ValidTo'].item(), f"ValidTo for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'ActivationCount'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'ActivationCount'].item(), f"ActivationCount for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'ActivationDate'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'ActivationDate'].item(), f"ActivationDate for {summit_reference} does not match after merging."
+        assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'ActivationCall'].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, 'ActivationCall'].item(), f"ActivationCall for {summit_reference} does not match after merging."
 
 @pytest.mark.skip(reason="test_shell")
 def test_check_error_references(default_spots_downloader: SpotsDownloader) -> None:
