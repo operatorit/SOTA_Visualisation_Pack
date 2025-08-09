@@ -111,7 +111,8 @@ def mock_sota_spots_list() -> list:
             'summitDetails': None,
             'highlightColor': None
         },
-        { # incorrect frequency format for amend_spots_frequencies test
+        {   # incorrect frequency format for amend_spots_frequencies test
+            # non-existing summmitCode for check_error_references test
             'id': 1007,
             'userID': 2006,
             'timeStamp': test_timestamps[6],
@@ -289,25 +290,6 @@ def mock_summits_list():
             "ActivationDate": "27/02/2022",
             "ActivationCall": "DO2MPS/P"
         },
-        {
-            "SummitCode": "W1/W1-001",
-            "AssociationName": "USA - NEW ENGLAND",
-            "RegionName": "W1 REGION",
-            "SummitName": "MOUNT WASHINGTON",
-            "AltM": "1917",
-            "AltFt": "6290",
-            "GridRef1": "-71.3036",
-            "GridRef2": "44.2706",
-            "Longitude": "-71.30360",
-            "Latitude": "44.27060",
-            "Points": "10",
-            "BonusPoints": "3",
-            "ValidFrom": "01/01/2000",
-            "ValidTo": "31/12/2099",
-            "ActivationCount": "100",
-            "ActivationDate": "01/08/2025",
-            "ActivationCall": "K1XYZ/P"
-        }
     ]
 
 def test_init_default(default_spots_downloader: SpotsDownloader) -> None:
@@ -445,7 +427,6 @@ def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,
                                                                'frequency'].item() == '145.550', f"Incorrect row deleted for AG7EDG, not the newest one left in the DataFrame."
     assert list(default_spots_downloader.spots_to_visualisation.index) == list(range(0, length_no_duplicates)), f"Reindexing after duplicates removal failed. Index is {default_spots_downloader.spots_to_visualisation.index}, expected {range(0, length_no_duplicates)}."
     
-# @pytest.mark.skip(reason="test_shell")
 def test_get_summits_list_file_not_found(custom_spots_downloader: SpotsDownloader,
                                          capsys):
     """Tests if get_summits_list raises FileNotfoundError if looking for non-existing file (like in custom initialisation for tests)."""
@@ -453,7 +434,7 @@ def test_get_summits_list_file_not_found(custom_spots_downloader: SpotsDownloade
         custom_spots_downloader.get_summits_list()
     except FileNotFoundError:
         pass 
-    
+
     assert capsys.readouterr().out == f"File {custom_spots_downloader.summits_filename} not found. Make sure it's saved in project's directory.\n", "No error message printed for missing file."
 
 def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
@@ -475,6 +456,26 @@ def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
     for col in required_columns:
         assert col in default_spots_downloader.SOTA_summits_data.columns, f"Missing column: {col}"
 
+# @pytest.mark.skip(reason="test_shell")
+def test_check_error_references(default_spots_downloader: SpotsDownloader,
+                                 mock_sota_spots_list: list[dict],
+                                 mock_summits_list: list[dict]) -> None:
+    """Test check_error_references. Tested on default instance only as the method do not depend on initialisation parameters."""
+    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    
+    default_spots_downloader.amend_spots_datatypes()
+    default_spots_downloader.add_summit_codes()
+    default_spots_downloader.prepare_spots_to_join()
+
+    default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
+
+    default_spots_downloader.check_error_references()
+
+    assert len(default_spots_downloader.summits_errors) == 1, f"There should be 1 summit error, got {len(default_spots_downloader.summits_errors)}."
+    assert default_spots_downloader.summits_errors == ['W1/W1-001'], f"Summit error should be 'W1/W1-001', got {default_spots_downloader.summits_errors}."
+    assert 'W1/W1-001' not in default_spots_downloader.spots_to_visualisation['summit_ref'].values, "Summit reference W1/W1-001 has been not removed from spots_to_visualisation in check_error_references."
+    assert len(default_spots_downloader.spots_to_visualisation) == 5, f"Spots to visualisation DataFrame should have 6 rows after removing errors, got {len(default_spots_downloader.spots_to_visualisation)}."
+
 def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
                                  mock_sota_spots_list: list[dict],
                                  mock_summits_list: list[dict]) -> None:
@@ -486,9 +487,10 @@ def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
     default_spots_downloader.add_summit_codes()
     default_spots_downloader.prepare_spots_to_join()
 
-    initial_spots_to_visualisation = default_spots_downloader.spots_to_visualisation.copy()
-
     default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
+
+    default_spots_downloader.check_error_references()
+    initial_spots_to_visualisation = default_spots_downloader.spots_to_visualisation.copy()
 
     default_spots_downloader.join_spots_with_summits()
     
@@ -514,11 +516,6 @@ def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
             else:
                 print(column_name)
                 assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, column_name].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, column_name].item(), f"{column_name} for {summit_reference} does not match after merging spots with summits list."
-
-@pytest.mark.skip(reason="test_shell")
-def test_check_error_references(default_spots_downloader: SpotsDownloader) -> None:
-    """Test check_error_references. Tested on default instance only as the method do not depend on initialisation parameters."""
-    pass
 
 @pytest.mark.skip(reason="test_shell")
 def test_add_time_markers(default_spots_downloader: SpotsDownloader) -> None:
