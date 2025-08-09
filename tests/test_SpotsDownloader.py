@@ -456,7 +456,6 @@ def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
     for col in required_columns:
         assert col in default_spots_downloader.SOTA_summits_data.columns, f"Missing column: {col}"
 
-# @pytest.mark.skip(reason="test_shell")
 def test_check_error_references(default_spots_downloader: SpotsDownloader,
                                  mock_sota_spots_list: list[dict],
                                  mock_summits_list: list[dict]) -> None:
@@ -517,7 +516,6 @@ def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
                 print(column_name)
                 assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, column_name].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, column_name].item(), f"{column_name} for {summit_reference} does not match after merging spots with summits list."
 
-# @pytest.mark.skip(reason="test_shell")
 def test_add_time_markers(default_spots_downloader: SpotsDownloader,
                           mock_sota_spots_list: list[dict],
                           mock_summits_list: list[dict]) -> None:
