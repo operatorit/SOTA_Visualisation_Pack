@@ -445,9 +445,16 @@ def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,
                                                                'frequency'].item() == '145.550', f"Incorrect row deleted for AG7EDG, not the newest one left in the DataFrame."
     assert list(default_spots_downloader.spots_to_visualisation.index) == list(range(0, length_no_duplicates)), f"Reindexing after duplicates removal failed. Index is {default_spots_downloader.spots_to_visualisation.index}, expected {range(0, length_no_duplicates)}."
     
-@pytest.mark.skip(reason="test_shell")
-def test_get_summits_list():
-    pass
+# @pytest.mark.skip(reason="test_shell")
+def test_get_summits_list_file_not_found(custom_spots_downloader: SpotsDownloader,
+                                         capsys):
+    """Tests if get_summits_list raises FileNotfoundError if looking for non-existing file (like in custom initialisation for tests)."""
+    try:
+        custom_spots_downloader.get_summits_list()
+    except FileNotFoundError:
+        pass 
+    
+    assert capsys.readouterr().out == f"File {custom_spots_downloader.summits_filename} not found. Make sure it's saved in project's directory.\n", "No error message printed for missing file."
 
 def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
                           mock_summits_list: list[dict]) -> None:
