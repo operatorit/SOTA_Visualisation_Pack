@@ -517,10 +517,34 @@ def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
                 print(column_name)
                 assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, column_name].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, column_name].item(), f"{column_name} for {summit_reference} does not match after merging spots with summits list."
 
-@pytest.mark.skip(reason="test_shell")
-def test_add_time_markers(default_spots_downloader: SpotsDownloader) -> None:
+# @pytest.mark.skip(reason="test_shell")
+def test_add_time_markers(default_spots_downloader: SpotsDownloader,
+                          mock_sota_spots_list: list[dict],
+                          mock_summits_list: list[dict]) -> None:
     """Test add_time_markers. Tested on default instance only as the method do not depend on initialisation parameters."""
-    pass
+    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
+
+    default_spots_downloader.amend_spots_frequencies()
+    default_spots_downloader.amend_spots_datatypes()
+    default_spots_downloader.add_summit_codes()
+    default_spots_downloader.prepare_spots_to_join()
+    default_spots_downloader.check_error_references()
+    default_spots_downloader.join_spots_with_summits()
+
+    assert 'time_since_spot' not in default_spots_downloader.spots_to_visualisation.columns, "Column 'time_since_spot' found in spots_to_visualisation DataFrame before adding time markers."
+    
+    default_spots_downloader.add_time_markers()
+
+    print(default_spots_downloader.spots_to_visualisation[['timeStamp', 'time_since_spot']])
+    
+    assert 'time_since_spot' in default_spots_downloader.spots_to_visualisation.columns, "Column 'time_since_spot' not found in spots_to_visualisation DataFrame after adding time markers."
+    assert default_spots_downloader.spots_to_visualisation['time_since_spot'].dtype == 'float64', f"Column 'time_since_spot' is not of type float64, but {default_spots_downloader.spots_to_visualisation['time_since_spot'].dtype}."
+    assert default_spots_downloader.spots_to_visualisation['time_since_spot'].notnull().all(), "Column 'time_since_spot' contains null values."
+    assert default_spots_downloader.spots_to_visualisation['time_since_spot'].max() <= 0, "Column 'time_since_spot' contains positive values, only negative ones are expected."
+    assert default_spots_downloader.spots_to_visualisation['time_since_spot'].min() >= -1, f"Value {default_spots_downloader.spots_to_visualisation['time_since_spot'].min()} found in 'time_since_spot' column, where expected range is [-1, 0]."
+    assert abs(default_spots_downloader.spots_to_visualisation['time_since_spot'].min() + 0.9999) < 1e-4, f"Column 'time_since_spot' min value differs from expected 0.9999 by more than 1e-4."
+    assert abs(default_spots_downloader.spots_to_visualisation['time_since_spot'].max() + 0.8333) < 1e-4, f"Column 'time_since_spot' max value differs from expected 0.8333 by more than 1e-4 ."
 
 @pytest.mark.skip(reason="test_shell")
 def test_create_visualisation_data(default_spots_downloader: SpotsDownloader) -> None:
