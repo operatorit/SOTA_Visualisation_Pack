@@ -8,7 +8,6 @@ from unittest.mock import MagicMock
 from SpotsDownloader import SpotsDownloader
 import config
 
-
 def generate_timestamps_as_strings(n = 6):
     """Generate a list of n timestamps for testing."""
     start_time = datetime.now()
@@ -18,6 +17,7 @@ def normalize_text(s: str) -> str:
     """Removes redundant whitespace and joins everything into a single string."""
     return ' '.join(s.split())
 
+#TODO: move test data to external file
 @pytest.fixture(scope = "module")
 def mock_sota_spots_list() -> list:
     """Fixture: test data as a list of dicts (one dict per row)."""
@@ -582,7 +582,6 @@ def test_create_visualisation_data(default_spots_downloader: SpotsDownloader,
                                                                f"on {spot['frequency']} - {spot['mode'].upper()}\n"
                                                                f"{round(spot['time_since_spot']*60)} minutes ago\n."
                                                                ), f"Popup text for spot row {spot_row} does not match expected format after create_visualisation_data."
-    
 
 def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
                                    mock_sota_spots_list: list[dict],
