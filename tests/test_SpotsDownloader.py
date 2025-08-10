@@ -533,8 +533,6 @@ def test_add_time_markers(default_spots_downloader: SpotsDownloader,
     assert 'time_since_spot' not in default_spots_downloader.spots_to_visualisation.columns, "Column 'time_since_spot' found in spots_to_visualisation DataFrame before adding time markers."
     
     default_spots_downloader.add_time_markers()
-
-    print(default_spots_downloader.spots_to_visualisation[['timeStamp', 'time_since_spot']])
     
     assert 'time_since_spot' in default_spots_downloader.spots_to_visualisation.columns, "Column 'time_since_spot' not found in spots_to_visualisation DataFrame after adding time markers."
     assert default_spots_downloader.spots_to_visualisation['time_since_spot'].dtype == 'float64', f"Column 'time_since_spot' is not of type float64, but {default_spots_downloader.spots_to_visualisation['time_since_spot'].dtype}."
@@ -545,17 +543,112 @@ def test_add_time_markers(default_spots_downloader: SpotsDownloader,
     assert abs(default_spots_downloader.spots_to_visualisation['time_since_spot'].max() + 0.8333) < 1e-4, f"Column 'time_since_spot' max value differs from expected 0.8333 by more than 1e-4 ."
 
 @pytest.mark.skip(reason="test_shell")
-def test_create_visualisation_data(default_spots_downloader: SpotsDownloader) -> None:
+def test_create_visualisation_data(default_spots_downloader: SpotsDownloader,
+                                   mock_sota_spots_list: list[dict],
+                                   mock_summits_list: list[dict]) -> None:
     """Test create_visualisation_data. Tested on default instance only as the method do not depend on initialisation parameters."""
-    pass
+    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
 
-@pytest.mark.skip(reason="test_shell")
-def test_remove_unused_columns(default_spots_downloader: SpotsDownloader) -> None:
+    default_spots_downloader.amend_spots_frequencies()
+    default_spots_downloader.amend_spots_datatypes()
+    default_spots_downloader.add_summit_codes()
+    default_spots_downloader.prepare_spots_to_join()
+    default_spots_downloader.check_error_references()
+    default_spots_downloader.join_spots_with_summits()
+
+    assert 'time_since_spot' not in default_spots_downloader.spots_to_visualisation.columns, "Column 'time_since_spot' found in spots_to_visualisation DataFrame before adding time markers."
+    
+    default_spots_downloader.add_time_markers()
+    default_spots_downloader.create_visualisation_data()
+    default_spots_downloader.remove_unused_columns()
+
+    expected_columns = ['timeStamp', 'comments', 'callsign', 'associationCode',
+                        'summitCode', 'activatorCallsign', 'activatorName', 'frequency', 'mode',
+                        'summitDetails', 'summit_ref', 'SummitCode',
+                        'AssociationName', 'RegionName', 'summitName', 'longitude', 'latitude', 'points',
+                        'BonusPoints', 'ActivationDate', 'ActivationCall', 'time_since_spot', 'popup',
+                        'band_color', 'band', 'mode_color'
+                        ]
+    print(default_spots_downloader.spots_to_visualisation.columns)
+    for column in default_spots_downloader.spots_to_visualisation.columns:
+        assert column in expected_columns, f"Column {column} not expected in spots_to_visualisation DataFrame after create_visualisation_data."
+
+
+# @pytest.mark.skip(reason="test_shell")
+def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
+                                   mock_sota_spots_list: list[dict],
+                                   mock_summits_list: list[dict]) -> None:
     """Test remove_unused_columns. Tested on default instance only as the method do not depend on initialisation parameters."""
-    pass
+    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
+
+    default_spots_downloader.amend_spots_frequencies()
+    default_spots_downloader.amend_spots_datatypes()
+    default_spots_downloader.add_summit_codes()
+    default_spots_downloader.prepare_spots_to_join()
+    default_spots_downloader.check_error_references()
+    default_spots_downloader.join_spots_with_summits()
+
+    assert 'time_since_spot' not in default_spots_downloader.spots_to_visualisation.columns, "Column 'time_since_spot' found in spots_to_visualisation DataFrame before adding time markers."
+    
+    default_spots_downloader.add_time_markers()
+    default_spots_downloader.create_visualisation_data()
+    default_spots_downloader.remove_unused_columns()
+
+    expected_columns = ['timeStamp', 'comments', 'callsign', 'associationCode',
+                        'summitCode', 'activatorCallsign', 'activatorName', 'frequency', 'mode',
+                        'summitDetails', 'summit_ref', 'SummitCode',
+                        'AssociationName', 'RegionName', 'summitName', 'longitude', 'latitude', 'points',
+                        'BonusPoints', 'ActivationDate', 'ActivationCall', 'time_since_spot', 'popup',
+                        'band_color', 'band', 'mode_color'
+                        ]
+    print(default_spots_downloader.spots_to_visualisation.columns)
+    for column in default_spots_downloader.spots_to_visualisation.columns:
+        assert column in expected_columns, f"Column {column} not expected in spots_to_visualisation DataFrame after create_visualisation_data."
 
 @pytest.mark.skip(reason="test_shell")
 def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader) -> None:
     """Test drop_summits_not_found. Tested on default instance only as the method do not depend on initialisation parameters."""
     pass
 
+    # def create_visualisation_data(self) -> None:
+    #     """Adds information regarding visualisation markers to spots_to_visualisation DataFrame.
+    #     """
+    #     self.spots_to_visualisation['popup'] = self.spots_to_visualisation.apply(lambda row: f"Summit {row['summitName'].title()} - {row['summit_ref']} \
+    #                                                                                             {row['points']} points\n \
+    #                                                                                             activated by {row['activatorCallsign'].upper()}\n\
+    #                                                                                             on {row['frequency']} \
+    #                                                                                             - {row['mode'].upper()}\n\
+    #                                                                                             {round(row['time_since_spot']*60)} minutes ago\n.", axis=1)
+
+    #     self.spots_to_visualisation['mode'] = self.spots_to_visualisation['mode'].str.upper()
+    #     self.spots_to_visualisation['band_color'], self.spots_to_visualisation['band'], self.spots_to_visualisation['mode_color'] = pd.NA, pd.NA, pd.NA
+    #     for band in self._BANDS.index: # assess band based on frequency spotted
+    #         self.spots_to_visualisation.loc[(self._BANDS['upper_freq'][band] >= self.spots_to_visualisation['frequency']) \
+    #                                              & (self.spots_to_visualisation['frequency']>= self._BANDS['lower_freq'][band]), 
+    #                                              'band'] = band
+    #         self.spots_to_visualisation.loc[(self._BANDS['upper_freq'][band] >= self.spots_to_visualisation['frequency']) \
+    #                                              & (self.spots_to_visualisation['frequency'] >= self._BANDS['lower_freq'][band]), 
+    #                                              'band_color'] = self._BANDS['color'][band]
+
+    #     for mode in self._MODES['mode'].unique():
+    #         self.spots_to_visualisation.loc[self.spots_to_visualisation['mode'] == mode, 'mode_color'] = self._MODES.loc[self._MODES['mode'] == mode, 'color'].item()
+
+    # def remove_unused_columns(self) -> None:
+    #     """Removes columns not used for visualisation from spots_to_visualisation DataFrame.
+    #     """
+    #     #TODO: check which columns are nmecessary
+    #     self.spots_to_visualisation = self.spots_to_visualisation[['timeStamp', 'comments', 'callsign', 'associationCode',
+    #    'summitCode', 'activatorCallsign', 'activatorName', 'frequency', 'mode',
+    #    'summitDetails', 'summit_ref', 'SummitCode',
+    #    'AssociationName', 'RegionName', 'summitName', 'longitude', 'latitude', 'points',
+    #    'BonusPoints',
+    #    'ActivationDate', 'ActivationCall', 'time_since_spot', 'popup',
+    #    'band_color', 'band', 'mode_color']]
+
+    # def drop_summits_not_found(self) -> None:
+    #     """Removes spots with references not found in SOTA summits list.
+    #     """
+    #     self.spots_to_visualisation.drop(self.spots_to_visualisation[self.spots_to_visualisation['longitude'].isna()].index, inplace = True)
+    #     self.spots_to_visualisation.reset_index(drop = True, inplace = True)
