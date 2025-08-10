@@ -202,12 +202,13 @@ class SpotsDownloader:
     def create_visualisation_data(self) -> None:
         """Adds information regarding visualisation markers to spots_to_visualisation DataFrame.
         """
-        self.spots_to_visualisation['popup'] = self.spots_to_visualisation.apply(lambda row: f"Summit {row['summitName'].title()} - {row['summit_ref']} \
-                                                                                                {row['points']} points\n \
-                                                                                                activated by {row['activatorCallsign'].upper()}\n\
-                                                                                                on {row['frequency']} \
-                                                                                                - {row['mode'].upper()}\n\
-                                                                                                {round(row['time_since_spot']*60)} minutes ago\n.", axis=1)
+        self.spots_to_visualisation['popup'] = self.spots_to_visualisation.apply(lambda row: (f"Summit {row['summitName'].title()} - {row['summit_ref']} "
+                                                                                              f"{row['points']} points\n"
+                                                                                              f"activated by {row['activatorCallsign'].upper()}\n"
+                                                                                              f"on {row['frequency']} - {row['mode'].upper()}\n"
+                                                                                              f"{round(row['time_since_spot']*60)} minutes ago\n."
+                                                                                              ),
+                                                                                              axis=1)
 
         self.spots_to_visualisation['mode'] = self.spots_to_visualisation['mode'].str.upper()
         self.spots_to_visualisation['band_color'], self.spots_to_visualisation['band'], self.spots_to_visualisation['mode_color'] = pd.NA, pd.NA, pd.NA
