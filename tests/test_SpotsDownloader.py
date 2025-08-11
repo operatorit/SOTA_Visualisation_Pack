@@ -296,6 +296,101 @@ def mock_summits_list():
         },
     ]
 
+@pytest.fixture(scope="module")
+def mock_visualisation_data_cleared_with_no_reference():
+    """Fixture: mock SOTA visualisation data for drop_summits_not_found method."""
+
+    test_timestamps = generate_timestamps_as_strings(7)
+
+    return pd.DataFrame([
+        {
+            'timeStamp': test_timestamps[0],
+            'comments': 'comment1',
+            'callsign': 'SP0ABC',
+            'associationCode': 'W7O',
+            'summitCode': 'CS-098',
+            'activatorCallsign': 'SP0ABC',
+            'activatorName': 'Amy',
+            'frequency': '14.0615',
+            'mode': 'CW',
+            'summitDetails': 'Bieberstedt Butte, 1599m, 4 points',
+            'summit_ref': "W7O/CS-098",
+            "SummitCode": "W7O/CS-098",
+            "AssociationName": "USA - OREGON",
+            "RegionName": "OR-CASCADES SOUTH",
+            "SummitName": "BIEBERSTEDT BUTTE",
+            "longitude": "-122.47310",
+            "latitude": "42.41030",
+            "Points": "4",
+            "BonusPoints": "3",
+            "ActivationDate": "",
+            "ActivationCall": "",
+            'time_since_spot': -0.9998,
+            'popup': 'SP0ABC (Amy) on W7O/CS-098',
+            'band_color': 'orange',
+            'band': '14 MHz',
+            'mode_color': 'red',
+
+        },
+        # to be removed
+        {
+            'timeStamp': test_timestamps[1],
+            'comments': 'comment2',
+            'callsign': 'AG7EDG',
+            'associationCode': 'W8W',
+            'summitCode': 'CW-076',
+            'activatorCallsign': 'AG7EDG',
+            'activatorName': 'Bob',
+            'frequency': '145.550',
+            'mode': 'FM',
+            'summitDetails': 'Amabilis Mountain, 1396m, 4 points',
+            'summit_ref': "W8W/CW-076",
+            "SummitCode": "W8W/CW-076",
+            "AssociationName": "USA - WEST VIRGINIA",
+            "RegionName": "CW REGION",
+            "SummitName": "AMABILIS MOUNTAIN",
+            "longitude": pd.NA,
+            "latitude": pd.NA,
+            "Points": "4",
+            "BonusPoints": "0",
+            "ActivationDate": "15/07/2022",
+            "ActivationCall": "W8W/TEST",
+            'time_since_spot': -0.9998,
+            'popup': 'SP0ABC (Amy) on W7O/CS-098',
+            'band_color': 'orange',
+            'band': '14 MHz',
+            'mode_color': 'red',
+        },
+        {   
+            'timeStamp': test_timestamps[3],
+            'comments': 'comment4',
+            'callsign': 'IK1LMN',
+            'associationCode': 'JA',
+            'summitCode': 'GM-107',
+            'activatorCallsign': 'IK1LMN',
+            'activatorName': 'David',
+            'frequency': '7.158',
+            'mode': 'SSB',
+            'summitDetails': 'Hirschberg, 1660m, 6 points',
+            'summit_ref': "JA/GM-107",
+            "SummitCode": "JA/GM-107",
+            "AssociationName": "JAPAN - HONSHU",
+            "RegionName": "GUNMA PREFECTURE",
+            "SummitName": "TAKAJYOKKI",
+            "longitude": "138.67180",
+            "latitude": "36.52280",
+            "Points": "8",
+            "BonusPoints": "3",
+            "ActivationDate": "09/12/2021",
+            "ActivationCall": "JJ1HWM/1",
+            'time_since_spot': -0.9998,
+            'popup': 'SP0ABC (Amy) on W7O/CS-098',
+            'band_color': 'orange',
+            'band': '14 MHz',
+            'mode_color': 'red',
+        },
+    ])
+
 def test_init_default(default_spots_downloader: SpotsDownloader) -> None:
     """Default initialisation test for SpotsDownloader."""
     assert default_spots_downloader.lookback_time == -1, f"Default initiation failed, spots_downloader.lookback_time = {default_spots_downloader.lookback_time} (should be -1)"
@@ -611,8 +706,13 @@ def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
     for column in default_spots_downloader.spots_to_visualisation.columns:
         assert column in expected_columns, f"Column {column} not expected in spots_to_visualisation DataFrame after create_visualisation_data."
 
-@pytest.mark.skip(reason="test_shell")
-def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader) -> None:
+def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader,
+                                mock_visualisation_data_cleared_with_no_reference: pd.DataFrame) -> None:
     """Test drop_summits_not_found. Tested on default instance only as the method do not depend on initialisation parameters."""
-    #TODO: add data with summit references without coordinates
-    pass
+    default_spots_downloader.spots_to_visualisation = mock_visualisation_data_cleared_with_no_reference
+    default_spots_downloader.drop_summits_not_found()
+
+    assert len(default_spots_downloader.spots_to_visualisation) == 2, f"DataFrame should have 2 rows after dropping summits not found, got {len(default_spots_downloader.spots_to_visualisation)}."
+    assert list(default_spots_downloader.spots_to_visualisation.index) == [0, 1], f"DataFrame index should be [0, 1] after dropping summits not found, got {default_spots_downloader.spots_to_visualisation.index}."
+    assert 'W8W/CW-076' not in default_spots_downloader.spots_to_visualisation['summit_ref'].values, "Summit reference 'W8W/CW-076' should be removed from spots_to_visualisation DataFrame after dropping summits not found."
+    assert default_spots_downloader.spots_to_visualisation['summit_ref'].tolist() == ['W7O/CS-098', 'JA/GM-107'], "Remaining summit references do not match expected values after dropping summits not found."
