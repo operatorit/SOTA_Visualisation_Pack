@@ -7,3 +7,4 @@ from unittest.mock import MagicMock
 from SpotsDownloader import SpotsDownloader
 import config
 
+
