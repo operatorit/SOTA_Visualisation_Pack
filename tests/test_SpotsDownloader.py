@@ -78,7 +78,7 @@ def test_update_request_parameters_default(default_spots_downloader: SpotsDownlo
 def test_update_request_parameters_custom(custom_spots_downloader: SpotsDownloader) -> None:
     """Test update_request_parameters method with custom parameters."""
     custom_spots_downloader.update_request_parameters()
-    assert custom_spots_downloader.lookback_time == -4, f"Updated custom lookback_time should be -2, got {custom_spots_downloader.lookback_time}"
+    assert custom_spots_downloader.lookback_time == -4, f"Updated custom lookback_time should be -4, got {custom_spots_downloader.lookback_time}"
     assert custom_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-4/all', "Incorrect APi URL generated when refreshed after updating self.lookback_time."
 
 @pytest.mark.skip(reason="test_shell")
