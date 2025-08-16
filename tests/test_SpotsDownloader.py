@@ -18,8 +18,6 @@ def normalize_text(s: str) -> str:
     """Removes redundant whitespace and joins everything into a single string."""
     return ' '.join(s.split())
 
-#TODO: move test data to external file
-
 @pytest.fixture(scope = "module")
 def default_spots_downloader() -> SpotsDownloader:
     """Fixture: SpotsDownloader instance with default parameters."""
@@ -34,15 +32,15 @@ def custom_spots_downloader() -> SpotsDownloader:
 def test_init_default(default_spots_downloader: SpotsDownloader) -> None:
     """Default initialisation test for SpotsDownloader."""
     assert default_spots_downloader.lookback_time == -1, f"Default initiation failed, spots_downloader.lookback_time = {default_spots_downloader.lookback_time} (should be -1)"
-    asserts_summits_filename_errors_list_are_correct(default_spots_downloader)
+    check_summits_filename_errors_list_are_correct(default_spots_downloader)
 
 def test_init_custom(custom_spots_downloader: SpotsDownloader) -> None:
     """Parametrised initialisation test for SpotsDownloader."""
     assert custom_spots_downloader.lookback_time == -3, f"Parametrized initiation failed, spots_downloader.lookback_time = {custom_spots_downloader.lookback_time} (should be -3)"
-    asserts_summits_filename_errors_list_are_correct(custom_spots_downloader, 
+    check_summits_filename_errors_list_are_correct(custom_spots_downloader, 
                                                      summits_filename = 'file_with_summits.csv')
 
-def asserts_summits_filename_errors_list_are_correct(initated_instance: SpotsDownloader,
+def check_summits_filename_errors_list_are_correct(initated_instance: SpotsDownloader,
                                                      summits_filename:str = config._SUMMITS_FILENAME,
                                                      errors_list:list = []) -> None:
     """Assert that summits_filename and errors_list are correct."""

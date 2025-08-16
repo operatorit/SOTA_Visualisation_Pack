@@ -12,7 +12,7 @@ def generate_timestamps_as_strings(n = 6):
     start_time = datetime.now()
     return [str((start_time - timedelta(minutes=5*i)).isoformat()).split('.')[0] for i in range(n)]
 
-@pytest.fixture(scope = "module")
+@pytest.fixture(scope = "module")   
 def mock_sota_spots_list() -> list:
     """Fixture: test data as a list of dicts (one dict per row)."""
 
