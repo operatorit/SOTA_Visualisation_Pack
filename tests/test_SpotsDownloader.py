@@ -53,7 +53,7 @@ def test_define_constants_default(default_spots_downloader: SpotsDownloader,
     """Test define_constants method with default parameters."""
     default_spots_downloader.define_constants()
     assert default_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-1/all', f"self._API_URL is {default_spots_downloader._API_URL}, should be 'https://api2.sota.org.uk/api/spots/-1/all."
-    assert_bands_and_modes_are_correct(default_spots_downloader, create_expected_bands_df, create_expected_modes_df)
+    check_bands_and_modes_are_correct(default_spots_downloader, create_expected_bands_df, create_expected_modes_df)
 
 def test_define_constants_custom(custom_spots_downloader: SpotsDownloader, 
                                  create_expected_bands_df: pd.DataFrame,
@@ -61,9 +61,9 @@ def test_define_constants_custom(custom_spots_downloader: SpotsDownloader,
     """Test define_constants method with custom parameters."""
     custom_spots_downloader.define_constants()
     assert custom_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-3/all', f"self._API_URL is {custom_spots_downloader._API_URL}, should be 'https://api2.sota.org.uk/api/spots/-3/all."
-    assert_bands_and_modes_are_correct(custom_spots_downloader, create_expected_bands_df, create_expected_modes_df)
+    check_bands_and_modes_are_correct(custom_spots_downloader, create_expected_bands_df, create_expected_modes_df)
 
-def assert_bands_and_modes_are_correct(initated_instance: SpotsDownloader, 
+def check_bands_and_modes_are_correct(initated_instance: SpotsDownloader, 
                                        expected_bands_df: pd.DataFrame, 
                                        expected_modes_df: pd.DataFrame) -> None:
     pd.testing.assert_frame_equal(initated_instance._BANDS, expected_bands_df)
