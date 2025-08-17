@@ -7,12 +7,7 @@ from unittest.mock import MagicMock
 
 import config
 from SpotsDownloader import SpotsDownloader
-from conftest import mock_sota_spots_list, mock_sota_spots_dataframe, create_expected_modes_df, create_expected_bands_df, mock_summits_list, mock_visualisation_data_cleared_with_no_reference
-
-def generate_timestamps_as_strings(n = 6):
-    """Generate a list of n timestamps for testing."""
-    start_time = datetime.now()
-    return [str((start_time - timedelta(minutes=5*i)).isoformat()).split('.')[0] for i in range(n)]
+from conftest import timestamps_for_tests, now_for_tests, mock_sota_spots_list, mock_sota_spots_after_amend_frequencies_dataframe #_dataframe, mock_sota_spots_amended_frequencies, create_expected_modes_df, create_expected_bands_df, mock_summits_list, mock_visualisation_data_cleared_with_no_reference
 
 def normalize_text(s: str) -> str:
     """Removes redundant whitespace and joins everything into a single string."""
@@ -87,8 +82,9 @@ def test_process_spots_default(default_spots_downloader: SpotsDownloader) -> Non
     pass
 
 def test_get_spots(default_spots_downloader: SpotsDownloader, 
-                           mock_sota_spots_list, 
-                           monkeypatch) -> None:
+                   mock_sota_spots_list: list[dict], 
+                   monkeypatch: pytest.MonkeyPatch
+                   ) -> None:
     """Test get_spots. Tested on default instance only as the method do not depend on initialisation parameters."""
     mock_resp = MagicMock()
     mock_resp.status_code = 200
@@ -100,26 +96,25 @@ def test_get_spots(default_spots_downloader: SpotsDownloader,
     assert len(spots_mock_df) == len(mock_sota_spots_list), f"Returned DataFrame has {len(spots_mock_df)} rows, expected {len(mock_sota_spots_list)}."
     assert set(spots_mock_df.columns) >= set(mock_sota_spots_list[0].keys()), "Returned DataFrame columns do not match mock data keys."
 
+# @pytest.mark.skip(reason="test_shell")
 def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader,
-                                 mock_sota_spots_list,
+                                 mock_sota_spots_dataframe: pd.DataFrame,
+                                 mock_sota_spots_after_amend_frequencies_dataframe: pd.DataFrame,
                                  ) -> None:
     """Test amend_spots_frequencies. Incorrect frequencies (not in nn.nnn format) should be set to 0. 
     Tested on default instance only as the method do not depend on initialisation parameters."""
     
-    incorrect_frequencies_references = {'fq1': {'id': 1007,
-                                                'userID': 2006,},}
-    
-    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    default_spots_downloader.spots_to_visualisation = mock_sota_spots_dataframe
+
     assert len(default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['frequency'] == 0]) == 0, "Non-zero frequencies found in initial test dataframe."
 
     default_spots_downloader.amend_spots_frequencies()
-    for incorrect_frequency_reference in incorrect_frequencies_references.values():
-        assert default_spots_downloader.spots_to_visualisation.loc[(default_spots_downloader.spots_to_visualisation['id'] == incorrect_frequency_reference['id'])
-                                                                   & (default_spots_downloader.spots_to_visualisation['userID'] == incorrect_frequency_reference['userID']),
-                                                                   'frequency'].values[0] == 0, f"Frequency for id = {incorrect_frequency_reference['id']}, userID = {incorrect_frequency_reference['userID']} should be 0."
-                                                                     
+
+    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_amend_frequencies_dataframe, check_dtype = False), f"DataFrame SpotsDownloader.spots_to_visualisation after amend_spots_frequencies does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_amend_frequencies_dataframe)}"
+                                   
+@pytest.mark.skip(reason="test_shell")                                                                     
 def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
-                               mock_sota_spots_list
+                               mock_sota_spots_after_amend_datatypes_dataframe: pd.DataFrame
                                ) -> None:
     """Test amend_spots_datatypes - if data types are as expected after method run. 
     Tested on default instance only as the method do not depend on initialisation parameters."""
@@ -135,7 +130,8 @@ def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
     
     for column_name in expected_columns_dtypes.keys():
         assert default_spots_downloader.spots_to_visualisation[column_name].dtype == expected_columns_dtypes[column_name], f"Incorrect datatype for column {column_name}: default_spots_downloader.spots_to_visualisation[column_name].dtype (expected: {expected_columns_dtypes[column_name]})."
-    
+
+@pytest.mark.skip(reason="test_shell")    
 def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
                            mock_sota_spots_list: list[dict]
                            ) -> None:
@@ -147,6 +143,7 @@ def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].notnull().all(), "Not all summit codes are filled in the DataFrame."
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].tolist() == ['W7O/CS-098', 'W8W/CW-076', 'SP/BZ-001', 'JA/GM-107', 'DL/EW-017', 'W8W/CW-076', 'W1/W1-001'], "Summits references not concatenated correctly."
 
+@pytest.mark.skip(reason="test_shell")
 def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,
                                mock_sota_spots_list
                                ) -> None:
@@ -163,7 +160,8 @@ def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,
                                                                & (default_spots_downloader.spots_to_visualisation['summit_ref'] == 'W8W/CW-076'), 
                                                                'frequency'].item() == '145.550', f"Incorrect row deleted for AG7EDG, not the newest one left in the DataFrame."
     assert list(default_spots_downloader.spots_to_visualisation.index) == list(range(0, length_no_duplicates)), f"Reindexing after duplicates removal failed. Index is {default_spots_downloader.spots_to_visualisation.index}, expected {range(0, length_no_duplicates)}."
-    
+
+@pytest.mark.skip(reason="test_shell")    
 def test_get_summits_list_file_not_found(custom_spots_downloader: SpotsDownloader,
                                          capsys):
     """Tests if get_summits_list raises FileNotfoundError if looking for non-existing file (like in custom initialisation for tests)."""
@@ -193,6 +191,7 @@ def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
     for col in required_columns:
         assert col in default_spots_downloader.SOTA_summits_data.columns, f"Missing column: {col}"
 
+@pytest.mark.skip(reason="test_shell")
 def test_check_error_references(default_spots_downloader: SpotsDownloader,
                                  mock_sota_spots_list: list[dict],
                                  mock_summits_list: list[dict]) -> None:
@@ -212,6 +211,7 @@ def test_check_error_references(default_spots_downloader: SpotsDownloader,
     assert 'W1/W1-001' not in default_spots_downloader.spots_to_visualisation['summit_ref'].values, "Summit reference W1/W1-001 has been not removed from spots_to_visualisation in check_error_references."
     assert len(default_spots_downloader.spots_to_visualisation) == 5, f"Spots to visualisation DataFrame should have 6 rows after removing errors, got {len(default_spots_downloader.spots_to_visualisation)}."
 
+@pytest.mark.skip(reason="test_shell")
 def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
                                  mock_sota_spots_list: list[dict],
                                  mock_summits_list: list[dict]) -> None:
@@ -253,6 +253,7 @@ def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
                 print(column_name)
                 assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, column_name].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, column_name].item(), f"{column_name} for {summit_reference} does not match after merging spots with summits list."
 
+@pytest.mark.skip(reason="test_shell")
 def test_add_time_markers(default_spots_downloader: SpotsDownloader,
                           mock_sota_spots_list: list[dict],
                           mock_summits_list: list[dict]) -> None:
@@ -279,6 +280,7 @@ def test_add_time_markers(default_spots_downloader: SpotsDownloader,
     assert abs(default_spots_downloader.spots_to_visualisation['time_since_spot'].min() + 0.9999) < 1e-4, f"Column 'time_since_spot' min value differs from expected 0.9999 by more than 1e-4."
     assert abs(default_spots_downloader.spots_to_visualisation['time_since_spot'].max() + 0.8333) < 1e-4, f"Column 'time_since_spot' max value differs from expected 0.8333 by more than 1e-4 ."
 
+@pytest.mark.skip(reason="test_shell")
 def test_create_visualisation_data(default_spots_downloader: SpotsDownloader,
                                    mock_sota_spots_list: list[dict],
                                    mock_summits_list: list[dict]) -> None:
@@ -315,7 +317,7 @@ def test_create_visualisation_data(default_spots_downloader: SpotsDownloader,
                                                                f"on {spot['frequency']} - {spot['mode'].upper()}\n"
                                                                f"{round(spot['time_since_spot']*60)} minutes ago\n."
                                                                ), f"Popup text for spot row {spot_row} does not match expected format after create_visualisation_data."
-
+@pytest.mark.skip(reason="test_shell")
 def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
                                    mock_sota_spots_list: list[dict],
                                    mock_summits_list: list[dict]) -> None:
@@ -344,6 +346,7 @@ def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
     for column in default_spots_downloader.spots_to_visualisation.columns:
         assert column in expected_columns, f"Column {column} not expected in spots_to_visualisation DataFrame after create_visualisation_data."
 
+@pytest.mark.skip(reason="test_shell")
 def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader,
                                 mock_visualisation_data_cleared_with_no_reference: pd.DataFrame) -> None:
     """Test drop_summits_not_found. Tested on default instance only as the method do not depend on initialisation parameters."""

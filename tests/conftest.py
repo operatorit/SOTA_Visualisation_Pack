@@ -7,17 +7,22 @@ from unittest.mock import MagicMock
 from SpotsDownloader import SpotsDownloader
 import config
 
-def generate_timestamps_as_strings(n = 6):
-    """Generate a list of n timestamps for testing."""
-    start_time = datetime.now()
-    return [str((start_time - timedelta(minutes=5*i)).isoformat()).split('.')[0] for i in range(n)]
+timestamps_for_tests = ['2025-07-16T20:50:00',
+                        '2025-07-16T20:45:00',
+                        '2025-07-16T20:40:00',
+                        '2025-07-16T20:35:00',
+                        '2025-07-16T20:30:00',
+                        '2025-07-16T20:25:00',
+                        '2025-07-16T20:20:00']
+
+now_for_tests = '2025-07-16T20:55:00'
+
+# zamieniłem dynamicznie generowane timestampuy na stałe wartości. Trzeba poprawić to, gdzie była funkcja używana
 
 @pytest.fixture(scope = "module")   
-def mock_sota_spots_list() -> list:
+def mock_sota_spots_list(test_timestamps: list = timestamps_for_tests) -> list[dict]:
     """Fixture: test data as a list of dicts (one dict per row)."""
 
-    test_timestamps = generate_timestamps_as_strings(7)
-    
     data = [
         {
             'id': 1001,
@@ -130,7 +135,7 @@ def mock_sota_spots_list() -> list:
     return data
 
 @pytest.fixture
-def create_expected_bands_df():
+def create_expected_bands_df() -> pd.DataFrame:
     """Fixture: expected DataFrame for self._BANDS, defined as a list of dicts (one per row)."""
     bands_data = [
         {'band': '1.8 MHz or below', 'lower_freq': 0,    'upper_freq': 2.5,    'color': 'saddlebrown'},
@@ -153,10 +158,10 @@ def create_expected_bands_df():
     bands_df = pd.DataFrame(bands_data)
     bands_df.set_index('band', drop=True, inplace=True)
     bands_df['color'] = bands_df['color'].astype('string')
-    return  bands_df
+    return bands_df
 
 @pytest.fixture
-def create_expected_modes_df():
+def create_expected_modes_df() -> pd.DataFrame:
     """Fixture: expected DataFrame for self._MODES, defined as a list of dicts (one per row)."""
     modes_data = [
         {'mode': 'AM',    'color': 'lime'},
@@ -178,6 +183,123 @@ def mock_sota_spots_dataframe(mock_sota_spots_list) -> pd.DataFrame:
     """Fixture: returns a DataFrame based on mock_sota_spots_list."""
     return pd.DataFrame(mock_sota_spots_list)
 
+@pytest.fixture(scope = "module")
+def mock_sota_spots_after_amend_frequencies_dataframe(mock_sota_spots_dataframe,
+                                                      test_timestamps: list = timestamps_for_tests
+                                                      ) -> pd.DataFrame:
+    """Test spots list after frequencies amendment."""
+    data = [
+        {
+            'id': 1001,
+            'userID': 2001,
+            'timeStamp': test_timestamps[0],
+            'comments': 'comment1',
+            'callsign': 'SP0ABC',
+            'associationCode': 'W7O',
+            'summitCode': 'CS-098',
+            'activatorCallsign': 'SP0ABC',
+            'activatorName': 'Amy',
+            'frequency': '14.0615',
+            'mode': 'CW',
+            'summitDetails': 'Bieberstedt Butte, 1599m, 4 points',
+            'highlightColor': None
+        },
+        {
+            'id': 1002,
+            'userID': 2002,
+            'timeStamp': test_timestamps[1],
+            'comments': 'comment2',
+            'callsign': 'AG7EDG',
+            'associationCode': 'W8W',
+            'summitCode': 'CW-076',
+            'activatorCallsign': 'AG7EDG',
+            'activatorName': 'Bob',
+            'frequency': '145.550',
+            'mode': 'FM',
+            'summitDetails': 'Amabilis Mountain, 1396m, 4 points',
+            'highlightColor': None
+        },
+        {
+            'id': 1003,
+            'userID': 2003,
+            'timeStamp': test_timestamps[2],
+            'comments': 'comment3',
+            'callsign': 'W6HIJ',
+            'associationCode': 'SP',
+            'summitCode': 'BZ-001',
+            'activatorCallsign': 'W6HIJ',
+            'activatorName': 'Charlie',
+            'frequency': '7.0615',
+            'mode': 'CW',
+            'summitDetails': 'Babia Góra, 1725m, 10 points',
+            'highlightColor': None
+        },
+        {
+            'id': 1004,
+            'userID': 2004,
+            'timeStamp': test_timestamps[3],
+            'comments': 'comment4',
+            'callsign': 'IK1LMN',
+            'associationCode': 'JA',
+            'summitCode': 'GM-107',
+            'activatorCallsign': 'IK1LMN',
+            'activatorName': 'David',
+            'frequency': '7.158',
+            'mode': 'SSB',
+            'summitDetails': 'Hirschberg, 1660m, 6 points',
+            'highlightColor': None
+        },
+        {
+            'id': 1005,
+            'userID': 2005,
+            'timeStamp': test_timestamps[4],
+            'comments': 'comment5',
+            'callsign': 'GB10OPR',
+            'associationCode': 'DL',
+            'summitCode': 'EW-017',
+            'activatorCallsign': 'GB10OPR',
+            'activatorName': 'Eve',
+            'frequency': '21.055',
+            'mode': 'CW',
+            'summitDetails': 'Amabilis Mountain, 1396m, 4 points',
+            'highlightColor': None
+        },
+        {
+            'id': 1006,
+            'userID': 2002,
+            'timeStamp': test_timestamps[5],
+            'comments': 'comment6',
+            'callsign': 'AG7EDG',
+            'associationCode': 'W8W',
+            'summitCode': 'CW-076',
+            'activatorCallsign': 'AG7EDG',
+            'activatorName': 'Bob',
+            'frequency': '433.500',
+            'mode': 'FM',
+            'summitDetails': None,
+            'highlightColor': None
+        },
+        {   # incorrect frequency format for amend_spots_frequencies test
+            # non-existing summmitCode for check_error_references test
+            'id': 1007,
+            'userID': 2006,
+            'timeStamp': test_timestamps[6],
+            'comments': 'comment7',
+            'callsign': 'K1XYZ',
+            'associationCode': 'W1',
+            'summitCode': 'W1-001',
+            'activatorCallsign': 'K1XYZ',
+            'activatorName': 'Alice',
+            'frequency': '0',
+            'mode': 'CW',
+            'summitDetails': None,
+            'highlightColor': None
+        }
+
+    ]
+
+    return pd.DataFrame(data)
+    
 @pytest.fixture(scope="module")
 def mock_summits_list():
     """Fixture: mock SOTA summits data for get_summits_list test (all uppercase, real and synthetic)."""

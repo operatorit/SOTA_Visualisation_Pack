@@ -1,7 +1,7 @@
 import requests # for communication with API
 import pandas as pd # for data analysis
 
-from datetime import datetime, timedelta # for time calculations
+from datetime import datetime, timedelta, UTC # for time calculations
 
 import config # script configuration
 
@@ -104,7 +104,7 @@ class SpotsDownloader:
         """Amend incorrect frequencies (defined as not matchng regular expression for
         digits-dot-digits) to 0 to avoid errors during visualisation.
         """
-        self.spots_to_visualisation.loc[~self.spots_to_visualisation['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = 0
+        self.spots_to_visualisation.loc[~self.spots_to_visualisation['frequency'].str.match(r'\d+(\.\d+)?'), 'frequency'] = '0'
 
     def amend_spots_datatypes(self) -> None:
         """Convert datatypes for relevant fields.
@@ -196,7 +196,7 @@ class SpotsDownloader:
     def add_time_markers(self)  -> None:
         """Adds information regarding time since spot to spots_to_visualisation DataFrame.
         """
-        self.spots_to_visualisation['time_since_spot'] = datetime.utcnow() - self.spots_to_visualisation['timeStamp']
+        self.spots_to_visualisation['time_since_spot'] = datetime.now(UTC) - self.spots_to_visualisation['timeStamp']
         self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours = -self.lookback_time)  
     
     def create_visualisation_data(self) -> None:
