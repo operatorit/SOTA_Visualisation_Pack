@@ -7,7 +7,8 @@ from unittest.mock import MagicMock
 
 import config
 from SpotsDownloader import SpotsDownloader
-from conftest import timestamps_for_tests, now_for_tests, mock_sota_spots_list, mock_sota_spots_after_amend_frequencies_dataframe #_dataframe, mock_sota_spots_amended_frequencies, create_expected_modes_df, create_expected_bands_df, mock_summits_list, mock_visualisation_data_cleared_with_no_reference
+from conftest import timestamps_for_tests, now_for_tests, mock_sota_spots_list, mock_sota_spots_after_amend_frequencies_dataframe, mock_sota_spots_after_amend_datatypes_dataframe
+ #_dataframe, mock_sota_spots_amended_frequencies, create_expected_modes_df, create_expected_bands_df, mock_summits_list, mock_visualisation_data_cleared_with_no_reference
 
 def normalize_text(s: str) -> str:
     """Removes redundant whitespace and joins everything into a single string."""
@@ -96,7 +97,6 @@ def test_get_spots(default_spots_downloader: SpotsDownloader,
     assert len(spots_mock_df) == len(mock_sota_spots_list), f"Returned DataFrame has {len(spots_mock_df)} rows, expected {len(mock_sota_spots_list)}."
     assert set(spots_mock_df.columns) >= set(mock_sota_spots_list[0].keys()), "Returned DataFrame columns do not match mock data keys."
 
-# @pytest.mark.skip(reason="test_shell")
 def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader,
                                  mock_sota_spots_dataframe: pd.DataFrame,
                                  mock_sota_spots_after_amend_frequencies_dataframe: pd.DataFrame,
@@ -110,11 +110,14 @@ def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader,
 
     default_spots_downloader.amend_spots_frequencies()
 
-    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_amend_frequencies_dataframe, check_dtype = False), f"DataFrame SpotsDownloader.spots_to_visualisation after amend_spots_frequencies does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_amend_frequencies_dataframe)}"
+    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, 
+                                  mock_sota_spots_after_amend_frequencies_dataframe, 
+                                  check_dtype = False), f"DataFrame SpotsDownloader.spots_to_visualisation after amend_spots_frequencies does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_amend_frequencies_dataframe)}"
                                    
-@pytest.mark.skip(reason="test_shell")                                                                     
+# @pytest.mark.skip(reason="test_shell")                                                                     
 def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
-                               mock_sota_spots_after_amend_datatypes_dataframe: pd.DataFrame
+                               mock_sota_spots_after_amend_frequencies_dataframe: pd.DataFrame,
+                               mock_sota_spots_after_amend_datatypes_dataframe: pd.DataFrame,
                                ) -> None:
     """Test amend_spots_datatypes - if data types are as expected after method run. 
     Tested on default instance only as the method do not depend on initialisation parameters."""
@@ -125,12 +128,16 @@ def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
                                'frequency': 'float',
                                'timeStamp': 'datetime64[ns]',
                                }
-    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    default_spots_downloader.spots_to_visualisation = mock_sota_spots_after_amend_frequencies_dataframe
     default_spots_downloader.amend_spots_datatypes()
     
     for column_name in expected_columns_dtypes.keys():
         assert default_spots_downloader.spots_to_visualisation[column_name].dtype == expected_columns_dtypes[column_name], f"Incorrect datatype for column {column_name}: default_spots_downloader.spots_to_visualisation[column_name].dtype (expected: {expected_columns_dtypes[column_name]})."
-
+    print(mock_sota_spots_after_amend_datatypes_dataframe.dtypes)
+    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation,
+                                  mock_sota_spots_after_amend_datatypes_dataframe,
+                                  check_dtype = True), f"DataFrame SpotsDownloader.spots_to_visualisation after amend_spots_datatypes does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_amend_datatypes_dataframe)}"
+                                  
 @pytest.mark.skip(reason="test_shell")    
 def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
                            mock_sota_spots_list: list[dict]
