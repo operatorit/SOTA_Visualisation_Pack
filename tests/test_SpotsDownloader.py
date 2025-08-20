@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 import config
 from SpotsDownloader import SpotsDownloader
-from conftest import timestamps_for_tests, now_for_tests, mock_sota_spots_list, mock_sota_spots_after_amend_frequencies_dataframe, mock_sota_spots_after_amend_datatypes_dataframe
+from conftest import timestamps_for_tests, now_for_tests, mock_sota_spots_list, mock_sota_spots_after_amend_frequencies_dataframe, mock_sota_spots_after_amend_datatypes_dataframe, mock_sota_spots_after_add_summit_codes_dataframe
  #_dataframe, mock_sota_spots_amended_frequencies, create_expected_modes_df, create_expected_bands_df, mock_summits_list, mock_visualisation_data_cleared_with_no_reference
 
 def normalize_text(s: str) -> str:
@@ -113,8 +113,7 @@ def test_amend_spots_frequencies(default_spots_downloader: SpotsDownloader,
     pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, 
                                   mock_sota_spots_after_amend_frequencies_dataframe, 
                                   check_dtype = False), f"DataFrame SpotsDownloader.spots_to_visualisation after amend_spots_frequencies does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_amend_frequencies_dataframe)}"
-                                   
-# @pytest.mark.skip(reason="test_shell")                                                                     
+                                                                                                     
 def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
                                mock_sota_spots_after_amend_frequencies_dataframe: pd.DataFrame,
                                mock_sota_spots_after_amend_datatypes_dataframe: pd.DataFrame,
@@ -138,17 +137,23 @@ def test_amend_spots_datatypes(default_spots_downloader: SpotsDownloader,
                                   mock_sota_spots_after_amend_datatypes_dataframe,
                                   check_dtype = True), f"DataFrame SpotsDownloader.spots_to_visualisation after amend_spots_datatypes does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_amend_datatypes_dataframe)}"
                                   
-@pytest.mark.skip(reason="test_shell")    
 def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
-                           mock_sota_spots_list: list[dict]
+                           mock_sota_spots_after_amend_datatypes_dataframe: pd.DataFrame,
+                           mock_sota_spots_after_add_summit_codes_dataframe: pd.DataFrame,
                            ) -> None:
     """Test add_summit_codes - if associationCode and summitCode are concatenated correctly ito summit_ref column.
     Tested on default instance only as the method do not depend on initialisation parameters."""
-    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
+    default_spots_downloader.spots_to_visualisation = mock_sota_spots_after_amend_datatypes_dataframe
     default_spots_downloader.add_summit_codes()
+
     assert 'summit_ref' in default_spots_downloader.spots_to_visualisation.columns, "Column summit_ref not found in spots_to_visualisation DataFrame after adding summit codes."
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].notnull().all(), "Not all summit codes are filled in the DataFrame."
+
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].tolist() == ['W7O/CS-098', 'W8W/CW-076', 'SP/BZ-001', 'JA/GM-107', 'DL/EW-017', 'W8W/CW-076', 'W1/W1-001'], "Summits references not concatenated correctly."
+
+    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation,
+                                  mock_sota_spots_after_add_summit_codes_dataframe,
+                                  check_dtype = True), f"DataFrame SpotsDownloader.spots_to_visualisation after add_summit_codes does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_add_summit_codes_dataframe)}"   
 
 @pytest.mark.skip(reason="test_shell")
 def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,

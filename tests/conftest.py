@@ -424,6 +424,15 @@ def mock_sota_spots_after_amend_datatypes_dataframe(test_timestamps: list = time
 
     return df
 
+@pytest.fixture(scope = "module")
+def mock_sota_spots_after_add_summit_codes_dataframe(mock_sota_spots_after_amend_datatypes_dataframe) -> pd.DataFrame:
+    """Test spots list after summit codes are added."""
+    df = mock_sota_spots_after_amend_datatypes_dataframe.copy()
+    df['summit_ref'] = ['W7O/CS-098', 'W8W/CW-076', 'SP/BZ-001', 'JA/GM-107', 'DL/EW-017', 'W8W/CW-076', 'W1/W1-001']
+    df['summit_ref'] = df['summit_ref'].astype('string')    
+
+    return df
+
 @pytest.fixture(scope="module")
 def mock_summits_list():
     """Fixture: mock SOTA summits data for get_summits_list test (all uppercase, real and synthetic)."""
@@ -583,12 +592,7 @@ def mock_visualisation_data_cleared_with_no_reference():
             "Points": "4",
             "BonusPoints": "0",
             "ActivationDate": "15/07/2022",
-            "ActivationCall": "W8W/TEST",
-            'time_since_spot': -0.9998,
-            'popup': 'SP0ABC (Amy) on W7O/CS-098',
-            'band_color': 'orange',
-            'band': '14 MHz',
-            'mode_color': 'red',
+            "ActivationCall": "W8W/TEST"
         },
         {   
             'timeStamp': test_timestamps[3],
@@ -611,11 +615,6 @@ def mock_visualisation_data_cleared_with_no_reference():
             "Points": "8",
             "BonusPoints": "3",
             "ActivationDate": "09/12/2021",
-            "ActivationCall": "JJ1HWM/1",
-            'time_since_spot': -0.9998,
-            'popup': 'SP0ABC (Amy) on W7O/CS-098',
-            'band_color': 'orange',
-            'band': '14 MHz',
-            'mode_color': 'red',
+            "ActivationCall": "JJ1HWM/1"
         },
     ])
