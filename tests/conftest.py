@@ -184,237 +184,23 @@ def mock_sota_spots_dataframe(mock_sota_spots_list) -> pd.DataFrame:
     return pd.DataFrame(mock_sota_spots_list)
 
 @pytest.fixture(scope = "module")
-def mock_sota_spots_after_amend_frequencies_dataframe(test_timestamps: list = timestamps_for_tests
+def mock_sota_spots_after_amend_frequencies_dataframe(mock_sota_spots_dataframe: pd.DataFrame,
                                                       ) -> pd.DataFrame:
     """Test spots list after frequencies amendment."""
-    data = [
-        {
-            'id': 1001,
-            'userID': 2001,
-            'timeStamp': test_timestamps[0],
-            'comments': 'comment1',
-            'callsign': 'SP0ABC',
-            'associationCode': 'W7O',
-            'summitCode': 'CS-098',
-            'activatorCallsign': 'SP0ABC',
-            'activatorName': 'Amy',
-            'frequency': '14.0615',
-            'mode': 'CW',
-            'summitDetails': 'Bieberstedt Butte, 1599m, 4 points',
-            'highlightColor': None
-        },
-        {
-            'id': 1002,
-            'userID': 2002,
-            'timeStamp': test_timestamps[1],
-            'comments': 'comment2',
-            'callsign': 'AG7EDG',
-            'associationCode': 'W8W',
-            'summitCode': 'CW-076',
-            'activatorCallsign': 'AG7EDG',
-            'activatorName': 'Bob',
-            'frequency': '145.550',
-            'mode': 'FM',
-            'summitDetails': 'Amabilis Mountain, 1396m, 4 points',
-            'highlightColor': None
-        },
-        {
-            'id': 1003,
-            'userID': 2003,
-            'timeStamp': test_timestamps[2],
-            'comments': 'comment3',
-            'callsign': 'W6HIJ',
-            'associationCode': 'SP',
-            'summitCode': 'BZ-001',
-            'activatorCallsign': 'W6HIJ',
-            'activatorName': 'Charlie',
-            'frequency': '7.0615',
-            'mode': 'CW',
-            'summitDetails': 'Babia Góra, 1725m, 10 points',
-            'highlightColor': None
-        },
-        {
-            'id': 1004,
-            'userID': 2004,
-            'timeStamp': test_timestamps[3],
-            'comments': 'comment4',
-            'callsign': 'IK1LMN',
-            'associationCode': 'JA',
-            'summitCode': 'GM-107',
-            'activatorCallsign': 'IK1LMN',
-            'activatorName': 'David',
-            'frequency': '7.158',
-            'mode': 'SSB',
-            'summitDetails': 'Hirschberg, 1660m, 6 points',
-            'highlightColor': None
-        },
-        {
-            'id': 1005,
-            'userID': 2005,
-            'timeStamp': test_timestamps[4],
-            'comments': 'comment5',
-            'callsign': 'GB10OPR',
-            'associationCode': 'DL',
-            'summitCode': 'EW-017',
-            'activatorCallsign': 'GB10OPR',
-            'activatorName': 'Eve',
-            'frequency': '21.055',
-            'mode': 'CW',
-            'summitDetails': 'Amabilis Mountain, 1396m, 4 points',
-            'highlightColor': None
-        },
-        {
-            'id': 1006,
-            'userID': 2002,
-            'timeStamp': test_timestamps[5],
-            'comments': 'comment6',
-            'callsign': 'AG7EDG',
-            'associationCode': 'W8W',
-            'summitCode': 'CW-076',
-            'activatorCallsign': 'AG7EDG',
-            'activatorName': 'Bob',
-            'frequency': '433.500',
-            'mode': 'FM',
-            'summitDetails': None,
-            'highlightColor': None
-        },
-        {   # incorrect frequency format for amend_spots_frequencies test
-            # non-existing summmitCode for check_error_references test
-            'id': 1007,
-            'userID': 2006,
-            'timeStamp': test_timestamps[6],
-            'comments': 'comment7',
-            'callsign': 'K1XYZ',
-            'associationCode': 'W1',
-            'summitCode': 'W1-001',
-            'activatorCallsign': 'K1XYZ',
-            'activatorName': 'Alice',
-            'frequency': '0',
-            'mode': 'CW',
-            'summitDetails': None,
-            'highlightColor': None
-        }
 
-    ]
+    data = mock_sota_spots_dataframe.copy()
 
-    return pd.DataFrame(data)
+    data.loc[data['id'] == 1007, 'frequency'] = '0'
     
+    return data
+
 @pytest.fixture(scope = "module")
-def mock_sota_spots_after_amend_datatypes_dataframe(test_timestamps: list = timestamps_for_tests
+def mock_sota_spots_after_amend_datatypes_dataframe(mock_sota_spots_after_amend_frequencies_dataframe: pd.DataFrame
                                                     ) -> pd.DataFrame:
     """Test spots list after data types amendment."""
-    data = [
-        {
-            'id': 1001,
-            'userID': 2001,
-            'timeStamp': test_timestamps[0],
-            'comments': 'comment1',
-            'callsign': 'SP0ABC',
-            'associationCode': 'W7O',
-            'summitCode': 'CS-098',
-            'activatorCallsign': 'SP0ABC',
-            'activatorName': 'Amy',
-            'frequency': '14.0615',
-            'mode': 'CW',
-            'summitDetails': 'Bieberstedt Butte, 1599m, 4 points',
-            'highlightColor': None
-        },
-        {
-            'id': 1002,
-            'userID': 2002,
-            'timeStamp': test_timestamps[1],
-            'comments': 'comment2',
-            'callsign': 'AG7EDG',
-            'associationCode': 'W8W',
-            'summitCode': 'CW-076',
-            'activatorCallsign': 'AG7EDG',
-            'activatorName': 'Bob',
-            'frequency': '145.550',
-            'mode': 'FM',
-            'summitDetails': 'Amabilis Mountain, 1396m, 4 points',
-            'highlightColor': None
-        },
-        {
-            'id': 1003,
-            'userID': 2003,
-            'timeStamp': test_timestamps[2],
-            'comments': 'comment3',
-            'callsign': 'W6HIJ',
-            'associationCode': 'SP',
-            'summitCode': 'BZ-001',
-            'activatorCallsign': 'W6HIJ',
-            'activatorName': 'Charlie',
-            'frequency': '7.0615',
-            'mode': 'CW',
-            'summitDetails': 'Babia Góra, 1725m, 10 points',
-            'highlightColor': None
-        },
-        {
-            'id': 1004,
-            'userID': 2004,
-            'timeStamp': test_timestamps[3],
-            'comments': 'comment4',
-            'callsign': 'IK1LMN',
-            'associationCode': 'JA',
-            'summitCode': 'GM-107',
-            'activatorCallsign': 'IK1LMN',
-            'activatorName': 'David',
-            'frequency': '7.158',
-            'mode': 'SSB',
-            'summitDetails': 'Hirschberg, 1660m, 6 points',
-            'highlightColor': None
-        },
-        {
-            'id': 1005,
-            'userID': 2005,
-            'timeStamp': test_timestamps[4],
-            'comments': 'comment5',
-            'callsign': 'GB10OPR',
-            'associationCode': 'DL',
-            'summitCode': 'EW-017',
-            'activatorCallsign': 'GB10OPR',
-            'activatorName': 'Eve',
-            'frequency': '21.055',
-            'mode': 'CW',
-            'summitDetails': 'Amabilis Mountain, 1396m, 4 points',
-            'highlightColor': None
-        },
-        {
-            'id': 1006,
-            'userID': 2002,
-            'timeStamp': test_timestamps[5],
-            'comments': 'comment6',
-            'callsign': 'AG7EDG',
-            'associationCode': 'W8W',
-            'summitCode': 'CW-076',
-            'activatorCallsign': 'AG7EDG',
-            'activatorName': 'Bob',
-            'frequency': '433.500',
-            'mode': 'FM',
-            'summitDetails': None,
-            'highlightColor': None
-        },
-        {   # incorrect frequency format for amend_spots_frequencies test
-            # non-existing summmitCode for check_error_references test
-            'id': 1007,
-            'userID': 2006,
-            'timeStamp': test_timestamps[6],
-            'comments': 'comment7',
-            'callsign': 'K1XYZ',
-            'associationCode': 'W1',
-            'summitCode': 'W1-001',
-            'activatorCallsign': 'K1XYZ',
-            'activatorName': 'Alice',
-            'frequency': '0',
-            'mode': 'CW',
-            'summitDetails': None,
-            'highlightColor': None
-        }
 
-    ]
+    df = mock_sota_spots_after_amend_frequencies_dataframe.copy()
 
-    df = pd.DataFrame(data)
-    
     df['activatorCallsign'] = df['activatorCallsign'].astype('string')
     df['associationCode'] = df['associationCode'].astype('string')
     df['summitCode'] = df['summitCode'].astype('string')
@@ -427,7 +213,9 @@ def mock_sota_spots_after_amend_datatypes_dataframe(test_timestamps: list = time
 @pytest.fixture(scope = "module")
 def mock_sota_spots_after_add_summit_codes_dataframe(mock_sota_spots_after_amend_datatypes_dataframe) -> pd.DataFrame:
     """Test spots list after summit codes are added."""
+
     df = mock_sota_spots_after_amend_datatypes_dataframe.copy()
+    
     df['summit_ref'] = ['W7O/CS-098', 'W8W/CW-076', 'SP/BZ-001', 'JA/GM-107', 'DL/EW-017', 'W8W/CW-076', 'W1/W1-001']
     df['summit_ref'] = df['summit_ref'].astype('string')    
 
