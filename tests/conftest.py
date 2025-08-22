@@ -134,7 +134,7 @@ def mock_sota_spots_list(test_timestamps: list = timestamps_for_tests) -> list[d
     ]
     return data
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def create_expected_bands_df() -> pd.DataFrame:
     """Fixture: expected DataFrame for self._BANDS, defined as a list of dicts (one per row)."""
     bands_data = [
@@ -160,7 +160,7 @@ def create_expected_bands_df() -> pd.DataFrame:
     bands_df['color'] = bands_df['color'].astype('string')
     return bands_df
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def create_expected_modes_df() -> pd.DataFrame:
     """Fixture: expected DataFrame for self._MODES, defined as a list of dicts (one per row)."""
     modes_data = [
@@ -186,7 +186,7 @@ def mock_sota_spots_dataframe(mock_sota_spots_list) -> pd.DataFrame:
 @pytest.fixture(scope = "module")
 def mock_sota_spots_after_amend_frequencies_dataframe(mock_sota_spots_dataframe: pd.DataFrame,
                                                       ) -> pd.DataFrame:
-    """Test spots list after frequencies amendment."""
+    """Test spots dataframe after frequencies amendment."""
 
     data = mock_sota_spots_dataframe.copy()
 
@@ -197,7 +197,7 @@ def mock_sota_spots_after_amend_frequencies_dataframe(mock_sota_spots_dataframe:
 @pytest.fixture(scope = "module")
 def mock_sota_spots_after_amend_datatypes_dataframe(mock_sota_spots_after_amend_frequencies_dataframe: pd.DataFrame
                                                     ) -> pd.DataFrame:
-    """Test spots list after data types amendment."""
+    """Test spots dataframe after data types amendment."""
 
     df = mock_sota_spots_after_amend_frequencies_dataframe.copy()
 
@@ -211,8 +211,9 @@ def mock_sota_spots_after_amend_datatypes_dataframe(mock_sota_spots_after_amend_
     return df
 
 @pytest.fixture(scope = "module")
-def mock_sota_spots_after_add_summit_codes_dataframe(mock_sota_spots_after_amend_datatypes_dataframe) -> pd.DataFrame:
-    """Test spots list after summit codes are added."""
+def mock_sota_spots_after_add_summit_codes_dataframe(mock_sota_spots_after_amend_datatypes_dataframe
+                                                     ) -> pd.DataFrame:
+    """Test spots dataframe after summit codes are added."""
 
     df = mock_sota_spots_after_amend_datatypes_dataframe.copy()
     
@@ -220,6 +221,26 @@ def mock_sota_spots_after_add_summit_codes_dataframe(mock_sota_spots_after_amend
     df['summit_ref'] = df['summit_ref'].astype('string')    
 
     return df
+
+@pytest.fixture(scope = "module")
+def mock_sota_spots_after_prepare_spots_to_join_dataframe(mock_sota_spots_after_add_summit_codes_dataframe: pd.DataFrame,
+                                                         ) -> pd.DataFrame:
+    """Test spots dataframe after prepare_spots_to_join method."""
+
+    df = mock_sota_spots_after_add_summit_codes_dataframe.copy()
+
+    df.drop(df[df['id'] == 1006].index, inplace = True)
+
+    # df['time_since_spot'] = (datetime.now() - df['timeStamp']).dt.total_seconds() / 3600
+    # df['popup'] = df.apply(lambda row: f"{row['activatorCallsign']} ({row['activatorName']}) on {row['summit_ref']}", axis=1)
+    
+    # # Add band and mode colors
+    # df['band_color'] = df['frequency'].apply(lambda x: create_expected_bands_df.loc[create_expected_bands_df['lower_freq'] <= x, 
+    #                                                                                 'color'].iloc[0])
+    # df['mode_color'] = df['mode'].apply(lambda x: create_expected_modes_df.loc[create_expected_modes_df['mode'] == x, 
+    #                                                                            'color'].iloc[0])
+
+    return df.reset_index(drop=True)
 
 @pytest.fixture(scope="module")
 def mock_summits_list():

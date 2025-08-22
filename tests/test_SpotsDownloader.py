@@ -7,7 +7,13 @@ from unittest.mock import MagicMock
 
 import config
 from SpotsDownloader import SpotsDownloader
-from conftest import timestamps_for_tests, now_for_tests, mock_sota_spots_list, mock_sota_spots_after_amend_frequencies_dataframe, mock_sota_spots_after_amend_datatypes_dataframe, mock_sota_spots_after_add_summit_codes_dataframe
+from conftest import (timestamps_for_tests, 
+                      now_for_tests, 
+                      mock_sota_spots_list, 
+                      mock_sota_spots_after_amend_frequencies_dataframe, 
+                      mock_sota_spots_after_amend_datatypes_dataframe, 
+                      mock_sota_spots_after_add_summit_codes_dataframe,
+                      mock_sota_spots_after_prepare_spots_to_join_dataframe,)
  #_dataframe, mock_sota_spots_amended_frequencies, create_expected_modes_df, create_expected_bands_df, mock_summits_list, mock_visualisation_data_cleared_with_no_reference
 
 def normalize_text(s: str) -> str:
@@ -155,23 +161,28 @@ def test_add_summit_codes(default_spots_downloader: SpotsDownloader,
                                   mock_sota_spots_after_add_summit_codes_dataframe,
                                   check_dtype = True), f"DataFrame SpotsDownloader.spots_to_visualisation after add_summit_codes does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_add_summit_codes_dataframe)}"   
 
-@pytest.mark.skip(reason="test_shell")
 def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,
-                               mock_sota_spots_list
+                               mock_sota_spots_after_add_summit_codes_dataframe: pd.DataFrame,
+                               mock_sota_spots_after_prepare_spots_to_join_dataframe: pd.DataFrame,
                                ) -> None:
     """Test prepare_spots_to_join. Tested on default instance only as the method do not depend on initialisation parameters."""
-    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
-    default_spots_downloader.add_summit_codes()
+
+    default_spots_downloader.spots_to_visualisation = mock_sota_spots_after_add_summit_codes_dataframe
+    
     length_no_duplicates = len(default_spots_downloader.spots_to_visualisation.groupby(['callsign', 'summit_ref']).first())
 
     default_spots_downloader.prepare_spots_to_join()
+    print(default_spots_downloader.spots_to_visualisation['frequency'])
+    print(mock_sota_spots_after_prepare_spots_to_join_dataframe['frequency'])
 
     assert len(default_spots_downloader.spots_to_visualisation) == length_no_duplicates, f"Incorrect spots dataframe length after duplicates removal. Expected; {length_no_duplicates}, got {len(default_spots_downloader.spots_to_visualisation)}."
     assert default_spots_downloader.spots_to_visualisation[['callsign', 'summit_ref']].duplicated().sum() == 0, "Duplicated pairs callsign-summit_ref found on spots list after duplicates removal."
     assert default_spots_downloader.spots_to_visualisation.loc[(default_spots_downloader.spots_to_visualisation['callsign'] == 'AG7EDG')
                                                                & (default_spots_downloader.spots_to_visualisation['summit_ref'] == 'W8W/CW-076'), 
-                                                               'frequency'].item() == '145.550', f"Incorrect row deleted for AG7EDG, not the newest one left in the DataFrame."
+                                                               'frequency'].item() == 145.550, f"Incorrect row deleted for AG7EDG, not the newest one left in the DataFrame."
     assert list(default_spots_downloader.spots_to_visualisation.index) == list(range(0, length_no_duplicates)), f"Reindexing after duplicates removal failed. Index is {default_spots_downloader.spots_to_visualisation.index}, expected {range(0, length_no_duplicates)}."
+
+    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_prepare_spots_to_join_dataframe), "DataFrame SpotsDownloader.spots_to_visualisation after prepare_spots_to_join does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_add_summit_codes_dataframe)}"   
 
 @pytest.mark.skip(reason="test_shell")    
 def test_get_summits_list_file_not_found(custom_spots_downloader: SpotsDownloader,
