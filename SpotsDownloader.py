@@ -175,7 +175,7 @@ class SpotsDownloader:
                 print(f"Summit {summit_reference} NOT FOUND.")
                 self.summits_errors.append(summit_reference)
                 self.spots_to_visualisation.drop(self.spots_to_visualisation.loc[self.spots_to_visualisation['summit_ref'] == summit_reference].index, inplace = True)
-                self.spots_to_visualisation.reset_index(drop = True, inplace = True)
+        self.spots_to_visualisation.reset_index(drop = True, inplace = True)
 
     def join_spots_with_summits(self) -> None:
         """Join spots dataframe with summits dataframe to get all the data required for visualisation.

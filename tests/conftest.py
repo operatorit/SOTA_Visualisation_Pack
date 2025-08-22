@@ -242,8 +242,18 @@ def mock_sota_spots_after_prepare_spots_to_join_dataframe(mock_sota_spots_after_
 
     return df.reset_index(drop=True)
 
+@pytest.fixture(scope = 'module')
+def mock_sota_spots_after_check_error_references_dataframe(mock_sota_spots_after_prepare_spots_to_join_dataframe: pd.DataFrame,
+                                                           ) -> pd.DataFrame:
+    """Test spots dataframe after check_error_references method."""
+    df = mock_sota_spots_after_prepare_spots_to_join_dataframe.copy()
+
+    df.drop(df[df['id'] == 1007].index, inplace = True)
+
+    return df.reset_index(drop = True)
+
 @pytest.fixture(scope="module")
-def mock_summits_list():
+def mock_summits_list() -> list[dict]:
     """Fixture: mock SOTA summits data for get_summits_list test (all uppercase, real and synthetic)."""
     return [
         {

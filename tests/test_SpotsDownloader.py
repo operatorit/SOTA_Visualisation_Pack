@@ -13,7 +13,9 @@ from conftest import (timestamps_for_tests,
                       mock_sota_spots_after_amend_frequencies_dataframe, 
                       mock_sota_spots_after_amend_datatypes_dataframe, 
                       mock_sota_spots_after_add_summit_codes_dataframe,
-                      mock_sota_spots_after_prepare_spots_to_join_dataframe,)
+                      mock_sota_spots_after_prepare_spots_to_join_dataframe,
+                      mock_sota_spots_after_check_error_references_dataframe,
+                      mock_summits_list)
  #_dataframe, mock_sota_spots_amended_frequencies, create_expected_modes_df, create_expected_bands_df, mock_summits_list, mock_visualisation_data_cleared_with_no_reference
 
 def normalize_text(s: str) -> str:
@@ -182,9 +184,8 @@ def test_prepare_spots_to_join(default_spots_downloader: SpotsDownloader,
                                                                'frequency'].item() == 145.550, f"Incorrect row deleted for AG7EDG, not the newest one left in the DataFrame."
     assert list(default_spots_downloader.spots_to_visualisation.index) == list(range(0, length_no_duplicates)), f"Reindexing after duplicates removal failed. Index is {default_spots_downloader.spots_to_visualisation.index}, expected {range(0, length_no_duplicates)}."
 
-    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_prepare_spots_to_join_dataframe), "DataFrame SpotsDownloader.spots_to_visualisation after prepare_spots_to_join does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_add_summit_codes_dataframe)}"   
+    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_prepare_spots_to_join_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after prepare_spots_to_join does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_add_summit_codes_dataframe)}"   
 
-@pytest.mark.skip(reason="test_shell")    
 def test_get_summits_list_file_not_found(custom_spots_downloader: SpotsDownloader,
                                          capsys):
     """Tests if get_summits_list raises FileNotfoundError if looking for non-existing file (like in custom initialisation for tests)."""
@@ -196,7 +197,8 @@ def test_get_summits_list_file_not_found(custom_spots_downloader: SpotsDownloade
     assert capsys.readouterr().out == f"File {custom_spots_downloader.summits_filename} not found. Make sure it's saved in project's directory.\n", "No error message printed for missing file."
 
 def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
-                          mock_summits_list: list[dict]) -> None:
+                               mock_summits_list: list[dict]
+                               ) -> None:
     """Test if mock_summits_list format is correct and it fits SOTA_summits_data object in SpotsDownloader instance.
     Tested on default initialisation as do not depend on initialisation parameters."""
 
@@ -205,7 +207,7 @@ def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
     assert isinstance(default_spots_downloader.SOTA_summits_data, pd.DataFrame), "SOTA_summits_data is not a pandas DataFrame."
     expected_codes = [s['SummitCode'] for s in mock_summits_list]
     assert set(default_spots_downloader.SOTA_summits_data['SummitCode']) == set(expected_codes), f"Returned SummitCodes do not match expected: {expected_codes}"
-    # Sprawdź, czy wszystkie kolumny są obecne
+    
     required_columns = [
         "SummitCode", "AssociationName", "RegionName", "SummitName", "AltM", "AltFt",
         "GridRef1", "GridRef2", "Longitude", "Latitude", "Points", "BonusPoints",
@@ -214,25 +216,23 @@ def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
     for col in required_columns:
         assert col in default_spots_downloader.SOTA_summits_data.columns, f"Missing column: {col}"
 
-@pytest.mark.skip(reason="test_shell")
 def test_check_error_references(default_spots_downloader: SpotsDownloader,
-                                 mock_sota_spots_list: list[dict],
-                                 mock_summits_list: list[dict]) -> None:
+                                mock_sota_spots_after_prepare_spots_to_join_dataframe: pd.DataFrame,
+                                mock_sota_spots_after_check_error_references_dataframe: pd.DataFrame,
+                                mock_summits_list: list[dict], 
+                                ) -> None:
     """Test check_error_references. Tested on default instance only as the method do not depend on initialisation parameters."""
-    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
-    
-    default_spots_downloader.amend_spots_datatypes()
-    default_spots_downloader.add_summit_codes()
-    default_spots_downloader.prepare_spots_to_join()
-
+    default_spots_downloader.spots_to_visualisation = mock_sota_spots_after_prepare_spots_to_join_dataframe
     default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
 
     default_spots_downloader.check_error_references()
-
+    
     assert len(default_spots_downloader.summits_errors) == 1, f"There should be 1 summit error, got {len(default_spots_downloader.summits_errors)}."
     assert default_spots_downloader.summits_errors == ['W1/W1-001'], f"Summit error should be 'W1/W1-001', got {default_spots_downloader.summits_errors}."
     assert 'W1/W1-001' not in default_spots_downloader.spots_to_visualisation['summit_ref'].values, "Summit reference W1/W1-001 has been not removed from spots_to_visualisation in check_error_references."
     assert len(default_spots_downloader.spots_to_visualisation) == 5, f"Spots to visualisation DataFrame should have 6 rows after removing errors, got {len(default_spots_downloader.spots_to_visualisation)}."
+
+    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_check_error_references_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after check_error_references does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_check_error_references_dataframe)}"
 
 @pytest.mark.skip(reason="test_shell")
 def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
