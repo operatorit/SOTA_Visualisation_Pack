@@ -227,6 +227,8 @@ def test_check_error_references(default_spots_downloader: SpotsDownloader,
 
     default_spots_downloader.check_error_references()
     
+    assert 'W1/W1-001' not in default_spots_downloader.SOTA_summits_data['SummitCode'].values, "Summit reference W1/W1-001 has been found in SOTA test summits list."
+
     assert len(default_spots_downloader.summits_errors) == 1, f"There should be 1 summit error, got {len(default_spots_downloader.summits_errors)}."
     assert default_spots_downloader.summits_errors == ['W1/W1-001'], f"Summit error should be 'W1/W1-001', got {default_spots_downloader.summits_errors}."
     assert 'W1/W1-001' not in default_spots_downloader.spots_to_visualisation['summit_ref'].values, "Summit reference W1/W1-001 has been not removed from spots_to_visualisation in check_error_references."
