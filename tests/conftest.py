@@ -352,6 +352,27 @@ def mock_summits_list() -> list[dict]:
             "ActivationCall": "DO2MPS/P"
         },
     ]
+@pytest.fixture(scope="module")
+def mock_sota_spots_after_join_with_summits_dataframe(mock_sota_spots_after_check_error_references_dataframe: pd.DataFrame,
+                                                      ) -> pd.DataFrame:
+    df = mock_sota_spots_after_check_error_references_dataframe.copy()
+
+    df['SummitCode'] = df['summit_ref']
+    df['AssociationName'] = ["USA - OREGON", "USA - WEST VIRGINIA", "POLAND", "JAPAN - HONSHU", "GERMANY (ALPINE)",]
+    df['RegionName'] = ["OR-CASCADES SOUTH", "CW REGION", "BESKIDY ZACHODNIE", "GUNMA PREFECTURE", "ESTERGEBIRGE/WALCHENSEEBERGE",]
+    df['summitName'] = ["BIEBERSTEDT BUTTE", "AMABILIS MOUNTAIN", "DIABLAK (BABIA GÓRA)", "TAKAJYOKKI", "HIRSCHBERG",]
+    df['AltM'] = [1599, 1396, 1725, 1237, 1659]
+    df['AltFt'] = [5246, 4580, 5659, 4059, 5443]
+    df['GridRef1'] = ["-122.4731", "-80.1234", "19.5296", "138.6718", "11.2414",]
+    df['GridRef2'] = ["42.4103", "38.5678", "49.5732", "36.5228", "47.6008",]
+    df['longitude'] = ["-122.47310", "-80.12340", "19.52960", "138.67180", "11.24140",]
+    df['latitude'] = ["42.41030", "38.56780", "49.57320", "36.52280", "47.60080",]
+    df['points'] = [4, 4, 10, 8, 6,]
+    df['BonusPoints'] = [3, 0, 3, 3, 3,]
+    df['ActivationCount'] = [0, 2, 179, 1, 16]
+    df['ActivationCall'] = ["", "W8W/TEST", "SP9ML/P", "JJ1HWM/1", "DO2MPS/P",]
+
+    return df
 
 @pytest.fixture(scope="module")
 def mock_visualisation_data_cleared_with_no_reference():

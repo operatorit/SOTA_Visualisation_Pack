@@ -15,7 +15,8 @@ from conftest import (timestamps_for_tests,
                       mock_sota_spots_after_add_summit_codes_dataframe,
                       mock_sota_spots_after_prepare_spots_to_join_dataframe,
                       mock_sota_spots_after_check_error_references_dataframe,
-                      mock_summits_list)
+                      mock_summits_list,
+                      mock_sota_spots_after_join_with_summits_dataframe)
  #_dataframe, mock_sota_spots_amended_frequencies, create_expected_modes_df, create_expected_bands_df, mock_summits_list, mock_visualisation_data_cleared_with_no_reference
 
 def normalize_text(s: str) -> str:
@@ -207,14 +208,15 @@ def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
     assert isinstance(default_spots_downloader.SOTA_summits_data, pd.DataFrame), "SOTA_summits_data is not a pandas DataFrame."
     expected_codes = [s['SummitCode'] for s in mock_summits_list]
     assert set(default_spots_downloader.SOTA_summits_data['SummitCode']) == set(expected_codes), f"Returned SummitCodes do not match expected: {expected_codes}"
-    
+
     required_columns = [
         "SummitCode", "AssociationName", "RegionName", "SummitName", "AltM", "AltFt",
-        "GridRef1", "GridRef2", "Longitude", "Latitude", "Points", "BonusPoints",
-        "ValidFrom", "ValidTo", "ActivationCount", "ActivationDate", "ActivationCall"
+        "GridRef1", "GridRef2", "Longitude", "Latitude", "Points", "BonusPoints", "ActivationCount", "ActivationCall",
     ]
     for col in required_columns:
         assert col in default_spots_downloader.SOTA_summits_data.columns, f"Missing column: {col}"
+    
+    default_spots_downloader.SOTA_summits_data = default_spots_downloader.SOTA_summits_data[required_columns]
 
 def test_check_error_references(default_spots_downloader: SpotsDownloader,
                                 mock_sota_spots_after_prepare_spots_to_join_dataframe: pd.DataFrame,
@@ -236,30 +238,38 @@ def test_check_error_references(default_spots_downloader: SpotsDownloader,
 
     pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_check_error_references_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after check_error_references does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_check_error_references_dataframe)}"
 
-@pytest.mark.skip(reason="test_shell")
+# @pytest.mark.skip(reason="test_shell")
 def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
-                                 mock_sota_spots_list: list[dict],
-                                 mock_summits_list: list[dict]) -> None:
+                                 mock_sota_spots_after_check_error_references_dataframe: pd.DataFrame,
+                                 mock_sota_spots_after_join_with_summits_dataframe: pd.DataFrame,
+                                 mock_summits_list: list[dict],
+                                 ) -> None:
     """Tests join_spots_with_summits. Tested on default instance only as the method do not depend on initialisation parameters."""
     
-    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
-    
-    default_spots_downloader.amend_spots_datatypes()
-    default_spots_downloader.add_summit_codes()
-    default_spots_downloader.prepare_spots_to_join()
-
+    default_spots_downloader.spots_to_visualisation = mock_sota_spots_after_check_error_references_dataframe
     default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
+    
+    col_types = {
+                "SummitCode": "string[python]",
+                "AltM": "int64",
+                "AltFt": "int64",
+                "Points": "int64",
+                "BonusPoints": "int64",
+                "ActivationCount": "int64",
+                 }
 
-    default_spots_downloader.check_error_references()
+    for col, dtype in col_types.items():
+        default_spots_downloader.SOTA_summits_data[col] = default_spots_downloader.SOTA_summits_data[col].astype(dtype)
+    
     initial_spots_to_visualisation = default_spots_downloader.spots_to_visualisation.copy()
 
     default_spots_downloader.join_spots_with_summits()
     
-    assert len(default_spots_downloader.spots_to_visualisation) == len(initial_spots_to_visualisation), f"Merging spots and summits DataFrames changed number of spots to visualisation by {len(default_spots_downloader.spots_to_visualisation) - len(initial_spots_to_visualisation)} rows."
+    assert len(default_spots_downloader.spots_to_visualisation) == len(mock_sota_spots_after_check_error_references_dataframe), f"Merging spots and summits DataFrames changed number of spots to visualisation by {len(default_spots_downloader.spots_to_visualisation) - len(initial_spots_to_visualisation)} rows."
     for column_name in ['Longitude', 'Latitude', 'Points', 'SummitName']:
         assert column_name not in default_spots_downloader.spots_to_visualisation.columns, f"Column {column_name} is still present in spots_to_visualisation DataFrame, while it should be renamed."
     for column_name in ['longitude', 'latitude', 'points', 'summitName']:
-        assert column_name in default_spots_downloader.spots_to_visualisation.columns, f"Column {column_name} is missing from spots_to_visualisation DataFrame, while it should be present."
+        assert column_name in default_spots_downloader.spots_to_visualisation.columns, f"Column {column_name} is missing from spots_to_visualisation DataFrame, while it should be present."  
     
     for summit_reference in default_spots_downloader.spots_to_visualisation['summit_ref'].unique():
         assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, 'summit_ref'].item() == summit_reference, f"Summit reference {summit_reference} does not match after merging spots with summits list."    
@@ -267,16 +277,15 @@ def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
         for column_name in default_spots_downloader.spots_to_visualisation:
             # columns originating from spots_to_visualisation
             if column_name in initial_spots_to_visualisation.columns:
-                print(column_name)
                 assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, column_name].item() == initial_spots_to_visualisation.loc[initial_spots_to_visualisation['summit_ref'] == summit_reference, column_name].item(), f"{column_name} for {summit_reference} does not match after merging spots with summits list."
             # columns originating from SOTA_summits_data with changed name
             elif column_name in ['summitName', 'latitude', 'longitude', 'points']:
-                print(column_name)
                 assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, column_name].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, column_name[0].capitalize()+column_name[1:]].item(), f"{column_name} for {summit_reference} does not match after merging spots with summits list."
             # columns originating from SOTA_summits_data without name change
             else:
-                print(column_name)
                 assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, column_name].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, column_name].item(), f"{column_name} for {summit_reference} does not match after merging spots with summits list."
+  
+    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_join_with_summits_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after join_spots_with_summits does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_join_with_summits_dataframe)}"
 
 @pytest.mark.skip(reason="test_shell")
 def test_add_time_markers(default_spots_downloader: SpotsDownloader,

@@ -154,13 +154,11 @@ class SpotsDownloader:
                                                         9: 'float',
                                                         10: 'int',
                                                         11: 'int',
-                                                    #    12: '', # not relevant
-                                                    #    13: '', # not relevant
                                                         14: 'int',
-                                                    #    15: '', # not relevant
                                                         16: 'string'
-                                                    },
-                                            )
+                                                    })
+                                                
+            self.SOTA_summits_data.drop(columns = ['ValidFrom', 'ValidTo', 'ActivationDate'], inplace = True)
         except FileNotFoundError:
             print(f"File {self.summits_filename} not found. Make sure it's saved in project's directory.")
 
@@ -191,7 +189,15 @@ class SpotsDownloader:
                                                       'Points': 'points',
                                                       'SummitName': 'summitName',
                                                       }, inplace = True)
+        
+        self.spots_to_visualisation["SummitCode"] = self.spots_to_visualisation["SummitCode"].astype("string[python]")
+        self.spots_to_visualisation["AltM"] = self.spots_to_visualisation["AltM"].astype("int64")
+        self.spots_to_visualisation["AltFt"] = self.spots_to_visualisation["AltFt"].astype("int64")
+        self.spots_to_visualisation["points"] = self.spots_to_visualisation["points"].astype("int64")
+        self.spots_to_visualisation["BonusPoints"] = self.spots_to_visualisation["BonusPoints"].astype("int64")
+        self.spots_to_visualisation["ActivationCount"] = self.spots_to_visualisation["ActivationCount"].astype("int64")
 
+        self.spots_to_visualisation.drop(columns = ["ActivationDate", "ValidFrom", "ValidTo"], inplace = True)
 
     def add_time_markers(self)  -> None:
         """Adds information regarding time since spot to spots_to_visualisation DataFrame.
