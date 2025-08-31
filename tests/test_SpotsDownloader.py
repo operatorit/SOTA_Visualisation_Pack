@@ -238,7 +238,6 @@ def test_check_error_references(default_spots_downloader: SpotsDownloader,
 
     pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_check_error_references_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after check_error_references does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_check_error_references_dataframe)}"
 
-# @pytest.mark.skip(reason="test_shell")
 def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
                                  mock_sota_spots_after_check_error_references_dataframe: pd.DataFrame,
                                  mock_sota_spots_after_join_with_summits_dataframe: pd.DataFrame,
@@ -247,9 +246,11 @@ def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
     """Tests join_spots_with_summits. Tested on default instance only as the method do not depend on initialisation parameters."""
     
     default_spots_downloader.spots_to_visualisation = mock_sota_spots_after_check_error_references_dataframe
+    initial_spots_to_visualisation = default_spots_downloader.spots_to_visualisation.copy()
+    
     default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
     
-    col_types = {
+    column_types = {
                 "SummitCode": "string[python]",
                 "AltM": "int64",
                 "AltFt": "int64",
@@ -258,10 +259,8 @@ def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
                 "ActivationCount": "int64",
                  }
 
-    for col, dtype in col_types.items():
-        default_spots_downloader.SOTA_summits_data[col] = default_spots_downloader.SOTA_summits_data[col].astype(dtype)
-    
-    initial_spots_to_visualisation = default_spots_downloader.spots_to_visualisation.copy()
+    for column_name, data_type in column_types.items():
+        default_spots_downloader.SOTA_summits_data[column_name] = default_spots_downloader.SOTA_summits_data[column_name].astype(data_type)
 
     default_spots_downloader.join_spots_with_summits()
     
