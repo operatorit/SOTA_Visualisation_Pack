@@ -58,6 +58,7 @@ class SpotsDownloader:
         """Flow for spots processing. Starts with downloading spots via SOTA API as a dictionary, 
         merging with SOTA summits list, and preparing dataframe for visualisation.
         """
+        self.get_now_time()
         self.spots_to_visualisation = self.get_spots()
         self.amend_spots_frequencies()
         self.amend_spots_datatypes()
@@ -72,6 +73,10 @@ class SpotsDownloader:
         self.drop_summits_not_found()
 
         return self.spots_to_visualisation
+
+    def get_now_time() -> None:
+        """Gets currrent time for UTC timezone."""
+        self.now_time = datetime.now(UTC)
 
     def get_spots(self) -> pd.DataFrame:
         """Downloads spots aleted in defined timeframe or defined number of latests spots.
@@ -202,9 +207,9 @@ class SpotsDownloader:
     def add_time_markers(self)  -> None:
         """Adds information regarding time since spot to spots_to_visualisation DataFrame.
         """
-        self.spots_to_visualisation['time_since_spot'] = datetime.now(UTC) - self.spots_to_visualisation['timeStamp']
-        self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours = -self.lookback_time)  
-    
+        self.spots_to_visualisation['time_since_spot'] = self.now_time - self.spots_to_visualisation['timeStamp']
+        self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours = -self.lookback_time)
+
     def create_visualisation_data(self) -> None:
         """Adds information regarding visualisation markers to spots_to_visualisation DataFrame.
         """

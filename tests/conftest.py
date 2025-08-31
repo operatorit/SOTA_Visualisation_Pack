@@ -231,15 +231,6 @@ def mock_sota_spots_after_prepare_spots_to_join_dataframe(mock_sota_spots_after_
 
     df.drop(df[df['id'] == 1006].index, inplace = True)
 
-    # df['time_since_spot'] = (datetime.now() - df['timeStamp']).dt.total_seconds() / 3600
-    # df['popup'] = df.apply(lambda row: f"{row['activatorCallsign']} ({row['activatorName']}) on {row['summit_ref']}", axis=1)
-    
-    # # Add band and mode colors
-    # df['band_color'] = df['frequency'].apply(lambda x: create_expected_bands_df.loc[create_expected_bands_df['lower_freq'] <= x, 
-    #                                                                                 'color'].iloc[0])
-    # df['mode_color'] = df['mode'].apply(lambda x: create_expected_modes_df.loc[create_expected_modes_df['mode'] == x, 
-    #                                                                            'color'].iloc[0])
-
     return df.reset_index(drop=True)
 
 @pytest.fixture(scope = 'module')
@@ -371,6 +362,16 @@ def mock_sota_spots_after_join_with_summits_dataframe(mock_sota_spots_after_chec
     df['BonusPoints'] = [3, 0, 3, 3, 3,]
     df['ActivationCount'] = [0, 2, 179, 1, 16]
     df['ActivationCall'] = ["", "W8W/TEST", "SP9ML/P", "JJ1HWM/1", "DO2MPS/P",]
+
+    return df
+
+@pytest.fixture(scope="module")
+def mock_sota_spots_after_add_time_markers_dataframe(mock_sota_spots_after_join_with_summits_dataframe: pd.DataFrame
+                                                     ) -> pd.DataFrame:
+    """Fixture mock SOTA spots DataFrame after adding time markers."""
+    df = mock_sota_spots_after_join_with_summits_dataframe.copy()
+
+    df['time_since_spot'] = [0.041667, 0.083333, 0.125000, 0.166667, 0.208333]
 
     return df
 
