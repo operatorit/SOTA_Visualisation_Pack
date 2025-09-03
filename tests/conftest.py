@@ -397,12 +397,10 @@ def mock_sota_spots_after_remove_unused_columns_dataframe(mock_sota_spots_after_
     """Fixture mock SOTA spots DataFrame after removing unused columns."""
     df = mock_sota_spots_after_create_visualisation_data_dataframe.copy()
 
-    return df[['timeStamp', 'comments', 'callsign', 'associationCode',
-               'summitCode', 'activatorCallsign', 'activatorName', 'frequency', 'mode',
-               'summitDetails', 'summit_ref', 'SummitCode',
-               'AssociationName', 'RegionName', 'summitName', 'longitude', 'latitude', 'points',
-               'BonusPoints', 'ActivationDate', 'ActivationCall', 'time_since_spot', 'popup',
-               'band_color', 'band', 'mode_color']]
+    return df[['timeStamp', 'associationCode', 'summitCode', 
+               'activatorCallsign', 'frequency', 'mode', 'summit_ref', 'SummitCode', 'summitName', 
+               'longitude', 'latitude', 'points', 'BonusPoints',
+               'time_since_spot', 'popup', 'band_color', 'band', 'mode_color']]
 
 @pytest.fixture(scope="module")
 def mock_visualisation_data_cleared_with_no_reference():

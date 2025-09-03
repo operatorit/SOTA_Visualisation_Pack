@@ -359,13 +359,10 @@ def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
 
     default_spots_downloader.remove_unused_columns()
 
-    expected_columns = ['timeStamp', 'callsign', 'associationCode',
-                        'summitCode', 'activatorCallsign', 'activatorName', 'frequency', 'mode',
-                        'summitDetails', 'summit_ref', 'SummitCode',
-                        'AssociationName', 'RegionName', 'summitName', 'longitude', 'latitude', 'points',
-                        'BonusPoints', 'ActivationDate', 'ActivationCall', 'time_since_spot', 'popup',
-                        'band_color', 'band', 'mode_color'
-                        ]
+    expected_columns = ['timeStamp', 'associationCode', 'summitCode', 'activatorCallsign', 
+                         'frequency', 'mode', 'summit_ref', 'SummitCode', 'summitName', 
+                         'longitude', 'latitude', 'points', 'BonusPoints',
+                         'time_since_spot', 'popup', 'band_color', 'band', 'mode_color']
     
     for column in default_spots_downloader.spots_to_visualisation.columns:
         assert column in expected_columns, f"Column {column} not expected in spots_to_visualisation DataFrame after create_visualisation_data."

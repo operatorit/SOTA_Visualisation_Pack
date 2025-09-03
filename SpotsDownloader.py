@@ -237,14 +237,10 @@ class SpotsDownloader:
     def remove_unused_columns(self) -> None:
         """Removes columns not used for visualisation from spots_to_visualisation DataFrame.
         """
-        #TODO: check which columns are nmecessary
-        self.spots_to_visualisation = self.spots_to_visualisation[['timeStamp', 'comments', 'callsign', 'associationCode',
-       'summitCode', 'activatorCallsign', 'activatorName', 'frequency', 'mode',
-       'summitDetails', 'summit_ref', 'SummitCode',
-       'AssociationName', 'RegionName', 'summitName', 'longitude', 'latitude', 'points',
-       'BonusPoints',
-       'ActivationDate', 'ActivationCall', 'time_since_spot', 'popup',
-       'band_color', 'band', 'mode_color']]
+        self.spots_to_visualisation = self.spots_to_visualisation[['timeStamp', 'associationCode',
+       'summitCode', 'activatorCallsign', 'frequency', 'mode', 'summit_ref', 'SummitCode', 'summitName', 
+       'longitude', 'latitude', 'points', 'BonusPoints',
+       'time_since_spot', 'popup', 'band_color', 'band', 'mode_color']]
 
     def drop_summits_not_found(self) -> None:
         """Removes spots with references not found in SOTA summits list.
