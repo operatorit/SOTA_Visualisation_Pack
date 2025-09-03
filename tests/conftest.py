@@ -391,6 +391,18 @@ def mock_sota_spots_after_create_visualisation_data_dataframe(mock_sota_spots_af
     df['mode_color'] = ['red', 'yellow', 'red', 'blue', 'red']
 
     return df
+@pytest.fixture(scope="module")
+def mock_sota_spots_after_remove_unused_columns_dataframe(mock_sota_spots_after_create_visualisation_data_dataframe: pd.DataFrame
+                                                          ) -> pd.DataFrame:
+    """Fixture mock SOTA spots DataFrame after removing unused columns."""
+    df = mock_sota_spots_after_create_visualisation_data_dataframe.copy()
+
+    return df[['timeStamp', 'comments', 'callsign', 'associationCode',
+               'summitCode', 'activatorCallsign', 'activatorName', 'frequency', 'mode',
+               'summitDetails', 'summit_ref', 'SummitCode',
+               'AssociationName', 'RegionName', 'summitName', 'longitude', 'latitude', 'points',
+               'BonusPoints', 'ActivationDate', 'ActivationCall', 'time_since_spot', 'popup',
+               'band_color', 'band', 'mode_color']]
 
 @pytest.fixture(scope="module")
 def mock_visualisation_data_cleared_with_no_reference():

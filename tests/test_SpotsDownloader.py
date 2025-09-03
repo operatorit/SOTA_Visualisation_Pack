@@ -19,6 +19,7 @@ from conftest import (timestamps_for_tests,
                       mock_sota_spots_after_join_with_summits_dataframe,
                       mock_sota_spots_after_add_time_markers_dataframe,
                       mock_sota_spots_after_create_visualisation_data_dataframe,
+                      mock_sota_spots_after_remove_unused_columns_dataframe,
                       )
  #_dataframe, mock_sota_spots_amended_frequencies, create_expected_modes_df, create_expected_bands_df, mock_summits_list, mock_visualisation_data_cleared_with_no_reference
 
@@ -348,27 +349,17 @@ def test_create_visualisation_data(default_spots_downloader: SpotsDownloader,
     
     
     pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_create_visualisation_data_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after create_visualisation_data does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_create_visualisation_data_dataframe)}"
-    #TODO: zrobić fixture po dodaniu referencji
 
-@pytest.mark.skip(reason="test_shell")
+# @pytest.mark.skip(reason="test_shell")
 def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
-                                   mock_sota_spots_list: list[dict],
-                                   mock_summits_list: list[dict]) -> None:
+                               mock_sota_spots_after_create_visualisation_data_dataframe: pd.DataFrame,
+                               mock_sota_spots_after_remove_unused_columns_dataframe: pd.DataFrame) -> None:
     """Test remove_unused_columns. Tested on default instance only as the method do not depend on initialisation parameters."""
-    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
-    default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
+    default_spots_downloader.spots_to_visualisation = mock_sota_spots_after_create_visualisation_data_dataframe
 
-    default_spots_downloader.amend_spots_frequencies()
-    default_spots_downloader.amend_spots_datatypes()
-    default_spots_downloader.add_summit_codes()
-    default_spots_downloader.prepare_spots_to_join()
-    default_spots_downloader.check_error_references()
-    default_spots_downloader.join_spots_with_summits()
-    default_spots_downloader.add_time_markers()
-    default_spots_downloader.create_visualisation_data()
     default_spots_downloader.remove_unused_columns()
 
-    expected_columns = ['timeStamp', 'comments', 'callsign', 'associationCode',
+    expected_columns = ['timeStamp', 'callsign', 'associationCode',
                         'summitCode', 'activatorCallsign', 'activatorName', 'frequency', 'mode',
                         'summitDetails', 'summit_ref', 'SummitCode',
                         'AssociationName', 'RegionName', 'summitName', 'longitude', 'latitude', 'points',
@@ -378,6 +369,8 @@ def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
     
     for column in default_spots_downloader.spots_to_visualisation.columns:
         assert column in expected_columns, f"Column {column} not expected in spots_to_visualisation DataFrame after create_visualisation_data."
+
+    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_remove_unused_columns_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after remove_unused_columns does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_remove_unused_columns_dataframe)}"
 
 @pytest.mark.skip(reason="test_shell")
 def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader,
