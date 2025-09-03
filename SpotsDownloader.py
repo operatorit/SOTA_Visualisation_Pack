@@ -217,7 +217,7 @@ class SpotsDownloader:
                                                                                               f"{row['points']} points\n"
                                                                                               f"activated by {row['activatorCallsign'].upper()}\n"
                                                                                               f"on {row['frequency']} - {row['mode'].upper()}\n"
-                                                                                              f"{round(row['time_since_spot']*60)} minutes ago\n."
+                                                                                              f"{round(row['time_since_spot']*60)} minutes ago."
                                                                                               ),
                                                                                               axis=1)
 

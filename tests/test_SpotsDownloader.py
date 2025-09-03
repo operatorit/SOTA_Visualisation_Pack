@@ -18,6 +18,7 @@ from conftest import (timestamps_for_tests,
                       mock_summits_list,
                       mock_sota_spots_after_join_with_summits_dataframe,
                       mock_sota_spots_after_add_time_markers_dataframe,
+                      mock_sota_spots_after_create_visualisation_data_dataframe,
                       )
  #_dataframe, mock_sota_spots_amended_frequencies, create_expected_modes_df, create_expected_bands_df, mock_summits_list, mock_visualisation_data_cleared_with_no_reference
 
@@ -315,34 +316,26 @@ def test_add_time_markers(default_spots_downloader: SpotsDownloader,
 
     pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_add_time_markers_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after add_time_markers does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_add_time_markers_dataframe)}"
 
-@pytest.mark.skip(reason="test_shell")
 def test_create_visualisation_data(default_spots_downloader: SpotsDownloader,
-                                   mock_sota_spots_list: list[dict],
-                                   mock_summits_list: list[dict]) -> None:
+                                   mock_sota_spots_after_add_time_markers_dataframe: pd.DataFrame,
+                                   mock_sota_spots_after_create_visualisation_data_dataframe: pd.DataFrame,
+                                   ) -> None:
     """Test create_visualisation_data. Tested on default instance only as the method do not depend on initialisation parameters."""
-    default_spots_downloader.spots_to_visualisation = pd.DataFrame(mock_sota_spots_list)
-    default_spots_downloader.SOTA_summits_data = pd.DataFrame(mock_summits_list)
+    default_spots_downloader.spots_to_visualisation = mock_sota_spots_after_add_time_markers_dataframe
 
-    default_spots_downloader.amend_spots_frequencies()
-    default_spots_downloader.amend_spots_datatypes()
-    default_spots_downloader.add_summit_codes()
-    default_spots_downloader.prepare_spots_to_join()
-    default_spots_downloader.check_error_references()
-    default_spots_downloader.join_spots_with_summits()
-    default_spots_downloader.add_time_markers()
     default_spots_downloader.create_visualisation_data()
 
     expected_values = {'band': ['14 MHz', '144 MHz', '7 MHz', '7 MHz', '21 MHz',],
                        'band_color': ['orange', 'blue', 'red', 'red', 'yellow',],
                        'mode_color': ['red', 'yellow', 'red', 'blue', 'red',],
                        }
-
-    for column_name in ['popup', 'band_color', 'band', 'mode_color']:
+    added_columns = ['popup', 'band_color', 'band', 'mode_color']
+    for column_name in added_columns:
         assert column_name in default_spots_downloader.spots_to_visualisation.columns, f"Column {column_name} not found in spots_to_visualisation DataFrame after create_visualisation_data."
         assert default_spots_downloader.spots_to_visualisation[column_name].notnull().all(), f"Column '{column_name}' contains null values."
         if column_name != 'popup':
             assert default_spots_downloader.spots_to_visualisation[column_name].tolist() == expected_values[column_name], f"Column '{column_name}' does not contain expected values after create_visualisation_data."
-
+    
     for spot_row in default_spots_downloader.spots_to_visualisation.index:
         spot = default_spots_downloader.spots_to_visualisation.loc[spot_row]
 
@@ -350,8 +343,13 @@ def test_create_visualisation_data(default_spots_downloader: SpotsDownloader,
                                                                f"{spot['points']} points\n"
                                                                f"activated by {spot['activatorCallsign'].upper()}\n"
                                                                f"on {spot['frequency']} - {spot['mode'].upper()}\n"
-                                                               f"{round(spot['time_since_spot']*60)} minutes ago\n."
+                                                               f"{round(spot['time_since_spot']*60)} minutes ago."
                                                                ), f"Popup text for spot row {spot_row} does not match expected format after create_visualisation_data."
+    
+    
+    pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_create_visualisation_data_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after create_visualisation_data does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_create_visualisation_data_dataframe)}"
+    #TODO: zrobić fixture po dodaniu referencji
+
 @pytest.mark.skip(reason="test_shell")
 def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
                                    mock_sota_spots_list: list[dict],

@@ -376,6 +376,23 @@ def mock_sota_spots_after_add_time_markers_dataframe(mock_sota_spots_after_join_
     return df
 
 @pytest.fixture(scope="module")
+def mock_sota_spots_after_create_visualisation_data_dataframe(mock_sota_spots_after_add_time_markers_dataframe: pd.DataFrame
+                                                              ) -> pd.DataFrame:
+    df = mock_sota_spots_after_add_time_markers_dataframe.copy()
+
+    df['popup'] = ["Summit Bieberstedt Butte - W7O/CS-098 4 points\nactivated by SP0ABC\non 14.0615 - CW\n3 minutes ago.",
+                   "Summit Amabilis Mountain - W8W/CW-076 4 points\nactivated by AG7EDG\non 145.55 - FM\n5 minutes ago.",
+                   "Summit Diablak (Babia Góra) - SP/BZ-001 10 points\nactivated by W6HIJ\non 7.0615 - CW\n8 minutes ago.",
+                   "Summit Takajyokki - JA/GM-107 8 points\nactivated by IK1LMN\non 7.158 - SSB\n10 minutes ago.",
+                   "Summit Hirschberg - DL/EW-017 6 points\nactivated by GB10OPR\non 21.055 - CW\n12 minutes ago.",                                                                         
+                   ]
+    df['band_color'] = ['orange', 'blue', 'red', 'red', 'yellow']
+    df['band'] = ['14 MHz', '144 MHz', '7 MHz', '7 MHz', '21 MHz']
+    df['mode_color'] = ['red', 'yellow', 'red', 'blue', 'red']
+
+    return df
+
+@pytest.fixture(scope="module")
 def mock_visualisation_data_cleared_with_no_reference():
     """Fixture: mock SOTA visualisation data for drop_summits_not_found method."""
 
