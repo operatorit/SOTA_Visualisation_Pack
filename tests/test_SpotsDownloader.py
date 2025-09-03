@@ -350,10 +350,10 @@ def test_create_visualisation_data(default_spots_downloader: SpotsDownloader,
     
     pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_create_visualisation_data_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after create_visualisation_data does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_create_visualisation_data_dataframe)}"
 
-# @pytest.mark.skip(reason="test_shell")
 def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
                                mock_sota_spots_after_create_visualisation_data_dataframe: pd.DataFrame,
-                               mock_sota_spots_after_remove_unused_columns_dataframe: pd.DataFrame) -> None:
+                               mock_sota_spots_after_remove_unused_columns_dataframe: pd.DataFrame
+                               ) -> None:
     """Test remove_unused_columns. Tested on default instance only as the method do not depend on initialisation parameters."""
     default_spots_downloader.spots_to_visualisation = mock_sota_spots_after_create_visualisation_data_dataframe
 
@@ -369,9 +369,10 @@ def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
 
     pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_remove_unused_columns_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after remove_unused_columns does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_remove_unused_columns_dataframe)}"
 
-@pytest.mark.skip(reason="test_shell")
+# @pytest.mark.skip(reason="test_shell")
 def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader,
-                                mock_visualisation_data_cleared_with_no_reference: pd.DataFrame) -> None:
+                                mock_visualisation_data_cleared_with_no_reference: pd.DataFrame
+                                ) -> None:
     """Test drop_summits_not_found. Tested on default instance only as the method do not depend on initialisation parameters."""
     default_spots_downloader.spots_to_visualisation = mock_visualisation_data_cleared_with_no_reference
     default_spots_downloader.drop_summits_not_found()

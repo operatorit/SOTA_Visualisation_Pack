@@ -20,7 +20,7 @@ now_for_tests = '2025-07-16T20:55:00'
 # zamieniłem dynamicznie generowane timestampuy na stałe wartości. Trzeba poprawić to, gdzie była funkcja używana
 
 @pytest.fixture(scope = "module")   
-def mock_sota_spots_list(test_timestamps: list = timestamps_for_tests) -> list[dict]:
+def mock_sota_spots_list(test_timestamps: list[str] = timestamps_for_tests) -> list[dict]:
     """Fixture: test data as a list of dicts (one dict per row)."""
 
     data = [
@@ -403,10 +403,8 @@ def mock_sota_spots_after_remove_unused_columns_dataframe(mock_sota_spots_after_
                'time_since_spot', 'popup', 'band_color', 'band', 'mode_color']]
 
 @pytest.fixture(scope="module")
-def mock_visualisation_data_cleared_with_no_reference():
+def mock_visualisation_data_cleared_with_no_reference(test_timestamps: list[str] = timestamps_for_tests[0:3]) -> pd.DataFrame:
     """Fixture: mock SOTA visualisation data for drop_summits_not_found method."""
-
-    test_timestamps = generate_timestamps_as_strings(7)
 
     return pd.DataFrame([
         {
@@ -438,7 +436,7 @@ def mock_visualisation_data_cleared_with_no_reference():
             'mode_color': 'red',
 
         },
-        # to be removed
+        # to be removed by drop_summits_not_found
         {
             'timeStamp': test_timestamps[1],
             'comments': 'comment2',
@@ -463,7 +461,7 @@ def mock_visualisation_data_cleared_with_no_reference():
             "ActivationCall": "W8W/TEST"
         },
         {   
-            'timeStamp': test_timestamps[3],
+            'timeStamp': test_timestamps[2],
             'comments': 'comment4',
             'callsign': 'IK1LMN',
             'associationCode': 'JA',
