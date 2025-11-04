@@ -90,10 +90,20 @@ def test_update_request_parameters_custom(custom_spots_downloader: SpotsDownload
     assert custom_spots_downloader.lookback_time == -4, f"Updated custom lookback_time should be -4, got {custom_spots_downloader.lookback_time}"
     assert custom_spots_downloader._API_URL == 'https://api2.sota.org.uk/api/spots/-4/all', "Incorrect APi URL generated when refreshed after updating self.lookback_time."
 
-@pytest.mark.skip(reason="test_shell")
-def test_process_spots_default(default_spots_downloader: SpotsDownloader) -> None:
+def test_process_spots_default(default_spots_downloader: SpotsDownloader, 
+                               mock_sota_spots_list: list[dict], 
+                               monkeypatch: pytest.MonkeyPatch
+                               ) -> None:
     """Test process_spots. Tested on default instance only as the method do not depend on initialisation parameters."""
-    pass
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = mock_sota_spots_list
+    monkeypatch.setattr('requests.get', lambda *args, **kwargs: mock_resp)
+
+    spots_mock_df = default_spots_downloader.process_spots()
+    print(spots_mock_df)
+    assert 1 == 2, "WTF"
+
 
 def test_get_spots(default_spots_downloader: SpotsDownloader, 
                    mock_sota_spots_list: list[dict], 
@@ -369,7 +379,6 @@ def test_remove_unused_columns(default_spots_downloader: SpotsDownloader,
 
     pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_remove_unused_columns_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after remove_unused_columns does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_remove_unused_columns_dataframe)}"
 
-# @pytest.mark.skip(reason="test_shell")
 def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader,
                                 mock_visualisation_data_cleared_with_no_reference: pd.DataFrame
                                 ) -> None:

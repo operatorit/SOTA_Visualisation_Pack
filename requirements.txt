@@ -13,3 +13,4 @@ ruff
 Bandit
 pre-commit
 Isort
+pytest
