@@ -3,6 +3,10 @@
 # gitignore
 .gitignore
 
+# Jupyter notebook
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
 ### venv ###
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
@@ -18,6 +22,7 @@ pyvenv.cfg
 pip-selfcheck.json
 SOTA_visualiser/*
 SOTA_visualiser/
+*_env/
 
 # configuration
 pyproject.toml
