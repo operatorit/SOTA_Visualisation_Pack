@@ -202,8 +202,6 @@ class SpotsDownloader:
         self.spots_to_visualisation["BonusPoints"] = self.spots_to_visualisation["BonusPoints"].astype("int64")
         self.spots_to_visualisation["ActivationCount"] = self.spots_to_visualisation["ActivationCount"].astype("int64")
 
-        self.spots_to_visualisation.drop(columns = ["ActivationDate", "ValidFrom", "ValidTo"], inplace = True)
-
     def add_time_markers(self)  -> None:
         """Adds information regarding time since spot to spots_to_visualisation DataFrame.
         """
