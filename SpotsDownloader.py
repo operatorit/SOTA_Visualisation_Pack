@@ -74,7 +74,7 @@ class SpotsDownloader:
 
         return self.spots_to_visualisation
 
-    def get_now_time() -> None:
+    def get_now_time(self) -> None:
         """Gets currrent time for UTC timezone."""
         self.now_time = datetime.now(UTC)
 
