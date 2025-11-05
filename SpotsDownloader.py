@@ -202,10 +202,12 @@ class SpotsDownloader:
         self.spots_to_visualisation["BonusPoints"] = self.spots_to_visualisation["BonusPoints"].astype("int64")
         self.spots_to_visualisation["ActivationCount"] = self.spots_to_visualisation["ActivationCount"].astype("int64")
 
+        #TODO: check if all columns are necessary after merge
+
     def add_time_markers(self)  -> None:
         """Adds information regarding time since spot to spots_to_visualisation DataFrame.
         """
-        self.spots_to_visualisation['time_since_spot'] = self.now_time - self.spots_to_visualisation['timeStamp']
+        self.spots_to_visualisation['time_since_spot'] = self.now_time - self.spots_to_visualisation['timeStamp'].dt.tz_localize('UTC')
         self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours = -self.lookback_time)
 
     def create_visualisation_data(self) -> None:
