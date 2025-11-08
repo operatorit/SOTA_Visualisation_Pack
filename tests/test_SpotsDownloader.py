@@ -294,7 +294,7 @@ def test_add_time_markers(default_spots_downloader: SpotsDownloader,
 
     assert 'time_since_spot' not in default_spots_downloader.spots_to_visualisation.columns, "Column 'time_since_spot' found in spots_to_visualisation DataFrame before adding time markers."
     
-    default_spots_downloader.now_time = pd.to_datetime(now_for_tests)
+    default_spots_downloader.now_time = pd.to_datetime(now_for_tests).tz_localize('UTC')
     default_spots_downloader.add_time_markers()
 
     # print(default_spots_downloader.spots_to_visualisation[['timeStamp', 'time_since_spot']])
