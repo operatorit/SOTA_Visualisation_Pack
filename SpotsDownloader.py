@@ -207,7 +207,8 @@ class SpotsDownloader:
         """Adds information regarding time since spot to spots_to_visualisation DataFrame.
         """
         self.spots_to_visualisation['time_since_spot'] = self.now_time - self.spots_to_visualisation['timeStamp'].dt.tz_localize('UTC')
-        self.spots_to_visualisation['time_since_spot'] = self.spots_to_visualisation['time_since_spot']/timedelta(hours = -self.lookback_time)
+        # rounding for avoiding float precision issues during visualisation and tests
+        self.spots_to_visualisation['time_since_spot'] = round(self.spots_to_visualisation['time_since_spot']/timedelta(hours = -self.lookback_time), 6)
 
     def create_visualisation_data(self) -> None:
         """Adds information regarding visualisation markers to spots_to_visualisation DataFrame.

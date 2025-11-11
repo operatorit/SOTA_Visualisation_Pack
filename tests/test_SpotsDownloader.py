@@ -372,8 +372,11 @@ def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader,
 # @pytest.mark.skip(reason="Test under development.")
 def test_process_spots_default(default_spots_downloader: SpotsDownloader, 
                                mock_sota_spots_list: list[dict], 
+                               mock_summits_list: list[dict],
+                               mock_sota_spots_after_remove_unused_columns_dataframe: pd.DataFrame,
                                monkeypatch: pytest.MonkeyPatch,
                                now_for_tests: str = now_for_tests,
+
                                ) -> None:
     """Test process_spots. Tested on default instance only as the method do not depend on initialisation parameters."""
 
@@ -390,5 +393,15 @@ def test_process_spots_default(default_spots_downloader: SpotsDownloader,
     mock_resp.json.return_value = mock_sota_spots_list
     monkeypatch.setattr('SpotsDownloader.requests.get', 
                         lambda *args, **kwargs: mock_resp)
-
+    # mocking summits list
+    monkeypatch.setattr(default_spots_downloader,
+                        'get_summits_list',
+                        lambda: setattr(default_spots_downloader, 
+                                        'SOTA_summits_data', 
+                                        pd.DataFrame(mock_summits_list))
+)
     spots_mock_df = default_spots_downloader.process_spots()
+
+    pd.testing.assert_frame_equal(spots_mock_df, 
+                                  mock_sota_spots_after_remove_unused_columns_dataframe, 
+                                  check_dtype=False), f"DataFrame returned from process_spots does not meet expected data. Differences: {spots_mock_df.compare(mock_sota_spots_after_remove_unused_columns_dataframe)}"
