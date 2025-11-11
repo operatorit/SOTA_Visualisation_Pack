@@ -194,14 +194,13 @@ class SpotsDownloader:
                                                       'Points': 'points',
                                                       'SummitName': 'summitName',
                                                       }, inplace = True)
-        
         self.spots_to_visualisation["SummitCode"] = self.spots_to_visualisation["SummitCode"].astype("string[python]")
         self.spots_to_visualisation["AltM"] = self.spots_to_visualisation["AltM"].astype("int64")
         self.spots_to_visualisation["AltFt"] = self.spots_to_visualisation["AltFt"].astype("int64")
         self.spots_to_visualisation["points"] = self.spots_to_visualisation["points"].astype("int64")
         self.spots_to_visualisation["BonusPoints"] = self.spots_to_visualisation["BonusPoints"].astype("int64")
         self.spots_to_visualisation["ActivationCount"] = self.spots_to_visualisation["ActivationCount"].astype("int64")
-        self.spots_to_visualisation.drop(columns = ['ValidFrom', 'ValidTo', 'ActivationDate'], inplace = True)
+        # self.spots_to_visualisation.drop(columns = ['ValidFrom', 'ValidTo', 'ActivationDate'], inplace = True)
         #TODO: check if all columns are necessary after merge
 
     def add_time_markers(self)  -> None:

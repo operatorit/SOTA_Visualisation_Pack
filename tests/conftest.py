@@ -260,10 +260,7 @@ def mock_summits_list() -> list[dict]:
             "Latitude": "42.41030",
             "Points": "4",
             "BonusPoints": "3",
-            "ValidFrom": "01/07/2010",
-            "ValidTo": "31/12/2099",
             "ActivationCount": "0",
-            "ActivationDate": "",
             "ActivationCall": ""
         },
         {
@@ -279,10 +276,7 @@ def mock_summits_list() -> list[dict]:
             "Latitude": "38.56780",
             "Points": "4",
             "BonusPoints": "0",
-            "ValidFrom": "01/01/2015",
-            "ValidTo": "31/12/2099",
             "ActivationCount": "2",
-            "ActivationDate": "15/07/2022",
             "ActivationCall": "W8W/TEST"
         },
         {
@@ -298,10 +292,7 @@ def mock_summits_list() -> list[dict]:
             "Latitude": "49.57320",
             "Points": "10",
             "BonusPoints": "3",
-            "ValidFrom": "01/04/2008",
-            "ValidTo": "31/12/2099",
             "ActivationCount": "179",
-            "ActivationDate": "13/03/2022",
             "ActivationCall": "SP9ML/P"
         },
         {
@@ -317,10 +308,7 @@ def mock_summits_list() -> list[dict]:
             "Latitude": "36.52280",
             "Points": "8",
             "BonusPoints": "3",
-            "ValidFrom": "01/11/2021",
-            "ValidTo": "31/12/2099",
             "ActivationCount": "1",
-            "ActivationDate": "09/12/2021",
             "ActivationCall": "JJ1HWM/1"
         },
         {
@@ -336,10 +324,7 @@ def mock_summits_list() -> list[dict]:
             "Latitude": "47.60080",
             "Points": "6",
             "BonusPoints": "3",
-            "ValidFrom": "01/03/2004",
-            "ValidTo": "31/12/2099",
             "ActivationCount": "16",
-            "ActivationDate": "27/02/2022",
             "ActivationCall": "DO2MPS/P"
         },
     ]

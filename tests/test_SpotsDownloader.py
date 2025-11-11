@@ -214,7 +214,6 @@ def test_get_summits_list_mock(default_spots_downloader: SpotsDownloader,
     ]
     for col in required_columns:
         assert col in default_spots_downloader.SOTA_summits_data.columns, f"Missing column: {col}"
-    
     default_spots_downloader.SOTA_summits_data = default_spots_downloader.SOTA_summits_data[required_columns]
 
 def test_check_error_references(default_spots_downloader: SpotsDownloader,
@@ -281,7 +280,6 @@ def test_join_spots_with_summits(default_spots_downloader: SpotsDownloader,
             # columns originating from SOTA_summits_data without name change
             else:
                 assert default_spots_downloader.spots_to_visualisation.loc[default_spots_downloader.spots_to_visualisation['summit_ref'] == summit_reference, column_name].item() == default_spots_downloader.SOTA_summits_data.loc[default_spots_downloader.SOTA_summits_data['SummitCode'] == summit_reference, column_name].item(), f"{column_name} for {summit_reference} does not match after merging spots with summits list."
-    
     pd.testing.assert_frame_equal(default_spots_downloader.spots_to_visualisation, mock_sota_spots_after_join_with_summits_dataframe), f"DataFrame SpotsDownloader.spots_to_visualisation after join_spots_with_summits does not meet expected data. Differences: {default_spots_downloader.spots_to_visualisation.compare(mock_sota_spots_after_join_with_summits_dataframe)}"
 
 def test_add_time_markers(default_spots_downloader: SpotsDownloader,
@@ -296,10 +294,6 @@ def test_add_time_markers(default_spots_downloader: SpotsDownloader,
     
     default_spots_downloader.now_time = pd.to_datetime(now_for_tests).tz_localize('UTC')
     default_spots_downloader.add_time_markers()
-
-    # print(default_spots_downloader.spots_to_visualisation[['timeStamp', 'time_since_spot']])
-    # print(default_spots_downloader.now_time)
-    # print(mock_sota_spots_after_add_time_markers_dataframe['timeStamp'])
 
     assert 'time_since_spot' in default_spots_downloader.spots_to_visualisation.columns, "Column 'time_since_spot' not found in spots_to_visualisation DataFrame after adding time markers."
     assert default_spots_downloader.spots_to_visualisation['time_since_spot'].dtype == 'float64', f"Column 'time_since_spot' is not of type float64, but {default_spots_downloader.spots_to_visualisation['time_since_spot'].dtype}."
@@ -375,17 +369,26 @@ def test_drop_summits_not_found(default_spots_downloader: SpotsDownloader,
     assert 'W8W/CW-076' not in default_spots_downloader.spots_to_visualisation['summit_ref'].values, "Summit reference 'W8W/CW-076' should be removed from spots_to_visualisation DataFrame after dropping summits not found."
     assert default_spots_downloader.spots_to_visualisation['summit_ref'].tolist() == ['W7O/CS-098', 'JA/GM-107'], "Remaining summit references do not match expected values after dropping summits not found."
 
-@pytest.mark.skip(reason="Test under development.")
+# @pytest.mark.skip(reason="Test under development.")
 def test_process_spots_default(default_spots_downloader: SpotsDownloader, 
                                mock_sota_spots_list: list[dict], 
-                               monkeypatch: pytest.MonkeyPatch
+                               monkeypatch: pytest.MonkeyPatch,
+                               now_for_tests: str = now_for_tests,
                                ) -> None:
     """Test process_spots. Tested on default instance only as the method do not depend on initialisation parameters."""
+
+    
+    # mocking now_time to have consistent test results
+    monkeypatch.setattr(default_spots_downloader, 
+                        'get_now_time', 
+                        lambda: setattr(default_spots_downloader, 
+                                        'now_time', 
+                                        pd.to_datetime(now_for_tests).tz_localize('UTC')))
+    # mocking list of spots
     mock_resp = MagicMock()
     mock_resp.status_code = 200
     mock_resp.json.return_value = mock_sota_spots_list
-    monkeypatch.setattr('requests.get', lambda *args, **kwargs: mock_resp)
+    monkeypatch.setattr('SpotsDownloader.requests.get', 
+                        lambda *args, **kwargs: mock_resp)
 
     spots_mock_df = default_spots_downloader.process_spots()
-    print(spots_mock_df)
-    assert 1 == 2, "WTF"
