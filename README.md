@@ -1,36 +1,39 @@
 # SOTA Visualisation Pack
 by [operatorIT.pl](operatorIT.pl) / SQ9NIL
 
-**Project is currently under major changes. Documentation will be updated accordingly.**
+**Project is currently under major changes. Documentation is under update.**
 
 # What SOTA is?
 
-SOTA (Summits On The Air) is an activity designed for radio amateurs (called also HAMs) who like hiking. It is about communication via ration between an activator - operator who climbed a designated summit (map available at https://sotl.as/map) - and chasers - all other operators. Call  (or QSO) may be done with the use of telegraphy (morse code), voice or data transmission on any band available for radio amateurs. To make a successfull call, both operators need to exchange reports, which say how they hear each other, and log it into a log. SOTA results are then uploaded into https://www.sotadata.org.uk/en/ webpage.
+SOTA (Summits On The Air) is an activity designed for radio amateurs (called also HAMs) who like hiking. It is about communication via radio between an activator - operator who climbed a designated summit (map available at https://sotl.as/map) - and chasers - all other operators. Call (or QSO) may be done with the use of telegraphy (morse code), voice or data transmission on any band available for radio amateurs. To make a successfull call, both operators need to exchange reports, which say how they hear each other, and log it into a log. SOTA results are then uploaded into https://www.sotadata.org.uk/en/ webpage.
 
 You can find all information about SOTA programme at https://www.sota.org.uk/.
+
+This project provides a live map of SOTA activations currently ongoing (understand by default as "spotted less than 1 hour ago") as a Dash Leaflet map. As a legacy module, also script to visualise chases from imported log is available in ./log_visualisation folder, but it is not further developed (so far).
 
 # Project structure
 
 .
-├── docs
-    └── full_log.jpg├── __init__.py
+├── docs # graphics for this documentaiton
+├── log_visualistion # legacy module for chasers visualisation based on log
+    ├── chaser_visualiser.ipynb
+    ├── chaser_visualiser.py
+    └── SOTAlog.adi # example log
 ├── tests
+    ├── conftest.py # mocks for tests
     ├── test_spotsdownloader_init.py
     └── test_SpotsDownloader.py
-├── chaser_visualiser.ipynb
-├── chasers_visualiser.py
-├── config.py
+├── __init__.py
+├── .gitignore
+├── config.py # script configuration
 ├── pyproject.toml
-├── pytest.in
+├── pytest.ini
 ├── README.md -> **you are here**
 ├── requirements.txt
-├── SOTAlog.adi
 ├── spots_map.ipynb
-├── spots_visualiser_dashboard.py
 ├── spots_visualiser.py
 ├── SpotsDownloader.py
-├── summits_errors.txt
-└── summitslist.csv
+└── summitslist.csv # list of SOTA summits - please update before running
 
 
 # Pack contents
@@ -74,8 +77,6 @@ To visualise your chases, you just need to modify ```filename``` variable name t
 If you are not a radioamateur, but wanted to see this script in action, I attached to the repository file ```SOTAlog.adi``` containing sample of 48 QSOs from my station's log file.
 
 At the day when I published first version of this script, my station's log counted 1060 QSOs and among them there were 353 SOTA chases. Below you can see visualisation of all of them with the use of this script.
-
-![](./docs/full_log.jpg)
 
 # APIs and dependencies used
 
