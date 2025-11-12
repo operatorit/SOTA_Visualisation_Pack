@@ -1,5 +1,5 @@
 # SOTA Visualisation Pack
-by www.operatorit.pl
+by [operatorIT.pl](operatorIT.pl) / SQ9NIL
 
 **Project is currently under major changes. Documentation will be updated accordingly.**
 
