@@ -38,12 +38,13 @@ This project provides a live map of SOTA activations currently ongoing (understa
 
 # Pack contents
 
-This pack is developed to visualise data relevant for SOTA chasers:
+This pack is developed to visualise data relevant for SOTA chasers.
 
-- summits that are currently activated with SOTA Spots Map (`spots_visualiser.py`),
-- chaser's history records with SOTA Chasers Visualiser (`chasers_visualiser.py`).
+The main functionality is to provide live map of SOTA activators - __SOTA Spots Map__(`spots_visualiser.py`) with interface (`SpotsDownloader.py`) downloading activation data from sota.org.uk API and preparing it for visualisation. SOTA Spots Map is based on `dash_leaflet` package for visualisation using OpenStreetMaps.
+Tests for SOTA Spots Map are available in `./test/` folder.
+Notebook `spots_map.ipynb` presents the logic of visualisation, however it is a part of development code and does not reflect actual use of SOTADownloader class.
 
-Both scripts are available as `.py` files for quick deployment.
+There is legacy code __SOTA Chasers Visualiser__ in `./log_visualisation/` for visualistaion of chased summits based on chaser's log. As I focused on SOTA Spots Map, __it has been not updated since it was my excercise to learn Python__, so it's not beautiful, but works.
 
 ## SOTA Spots Map
 
@@ -51,15 +52,15 @@ It's my main purpose to build this package.
 
 This functionality is provided in three files:
 - `SpotsDownloader.py` - a class handling spots download and pre-processing,
-- `spots_visualiser.py` - script generating interactive spots map based on Leaflet map with callback filtering options.
+- `spots_visualiser.py` - script generating interactive spots map based on Leaflet-dash map with callback filtering options.
 
-Script presents "live" tracker of SOTA activations according to spots send via SOTAWatch site (https://sotawatch.sota.org.uk/). Activations spotted in the given timeline are analysed and compares with SOTA Database (see above), then marked on a map. Each summit-activator pair is presented as a circle and visualisation provides following information:
+Script presents "live" tracker of SOTA activations according to spots send via SOTAWatch site (https://sotawatch.sota.org.uk/). Activations spotted in the given timeframe (1 hour by default) are analysed and compares with SOTA Database (see above), then marked on a map. Each summit-activator pair is presented as a circle and visualisation provides following information:
 - summit's name, code, location and points value,
 - activation's band, mode and frequency,
 - activator's callsign,
 - time since spot.
 
-You can run the script and see latest activations or visit live dashboard, based on the same analytics algorithm,  I deployed at https://www.operatorit.pl/sota/.
+You can run the script and see latest activations or visit live dashboard, based on the same analytics algorithm deployed at https://www.operatorit.pl/sota/.
 
 ## SOTA Chasers Visualiser
 
