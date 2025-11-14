@@ -35,7 +35,6 @@ This project provides a live map of SOTA activations currently ongoing (understa
 ├── SpotsDownloader.py
 └── summitslist.csv # list of SOTA summits - please update before running
 
-
 # Pack contents
 
 This pack is developed to visualise data relevant for SOTA chasers.
@@ -50,8 +49,47 @@ There is legacy code __SOTA Chasers Visualiser__ in `./log_visualisation/` for v
 
 It's my main purpose to build this package.
 
-This functionality is provided in three files:
+This functionality consist of three components:
 - `SpotsDownloader.py` - a class handling spots download and pre-processing,
+```mermaid
+classDiagram
+    class SpotsDownloader {
+        -int lookback_time
+        -str summits_filename
+        -list summits_errors
+        -str _API_URL
+        -DataFrame _BANDS
+        -DataFrame _MODES
+        -datetime now_time
+        -DataFrame spots_to_visualisation
+        -DataFrame SOTA_summits_data
+        
+        +__init__(lookback_time: int, summits_filename: str)
+        +define_constants() void
+        +update_request_parameters() void
+        
+        +process_spots() DataFrame
+        
+        +get_now_time() void
+        +get_spots() DataFrame
+        
+        +amend_spots_frequencies() void
+        +amend_spots_datatypes() void
+        +add_summit_codes() void
+        +prepare_spots_to_join() void
+        
+        +get_summits_list() void
+        +check_error_references() void
+        +join_spots_with_summits() void
+        
+        +add_time_markers() void
+        +create_visualisation_data() void
+        +remove_unused_columns() void
+        +drop_summits_not_found() void
+    }
+    
+```
+- tests for SpotsDownloader class in `./tests/` subfolder, including unit tests and integration ones,
 - `spots_visualiser.py` - script generating interactive spots map based on Leaflet-dash map with callback filtering options.
 
 Script presents "live" tracker of SOTA activations according to spots send via SOTAWatch site (https://sotawatch.sota.org.uk/). Activations spotted in the given timeframe (1 hour by default) are analysed and compares with SOTA Database (see above), then marked on a map. Each summit-activator pair is presented as a circle and visualisation provides following information:
@@ -59,6 +97,44 @@ Script presents "live" tracker of SOTA activations according to spots send via S
 - activation's band, mode and frequency,
 - activator's callsign,
 - time since spot.
+
+Processing logic:
+```mermaid
+graph TD
+    A["process_spots()"] -->|1. Time| B["get_now_time()"]
+    A -->|2. Extract| C["get_spots()"]
+    
+    C -->|while loop| D["API Request"]
+    D -->|empty?| E["update_request_parameters()"]
+    E -->|recursion| C
+    D -->|success| F["Parse JSON"]
+    
+    A -->|3. Validate| G["amend_spots_frequencies()"]
+    G -->|4. Convert| H["amend_spots_datatypes()"]
+    H -->|5. Enrich| I["add_summit_codes()"]
+    I -->|6. Cleanup| J["prepare_spots_to_join()"]
+    
+    J -->|7. Load| K["get_summits_list()"]
+    K -->|from CSV| L["pd.read_csv()"]
+    
+    J -->|8. Validate| M["check_error_references()"]
+    M -->|9. Merge| N["join_spots_with_summits()"]
+    
+    N -->|10. Enrich| O["add_time_markers()"]
+    O -->|11. Format| P["create_visualisation_data()"]
+    P -->|12. Cleanup| Q["remove_unused_columns()"]
+    Q -->|13. Final| R["drop_summits_not_found()"]
+    
+    R -->|return| S["DataFrame"]
+    
+    style A fill:#e1f5ff
+    style S fill:#c8e6c9
+    style C fill:#fff9c4
+    style K fill:#fff9c4
+    style P fill:#f8bbd0
+```
+
+Tests are written in `pytest`. To execute them, just run `pytests` in the main folder.
 
 You can run the script and see latest activations or visit live dashboard, based on the same analytics algorithm deployed at https://www.operatorit.pl/sota/.
 
@@ -85,3 +161,17 @@ Pack is scripted in Python. Beside the packages required, specified in ```requir
 
 - SOTA API, available at at https://api2.sota.org.uk/docs/index.html,
 - SOTA summits database, available at https://www.sotadata.org.uk/summitslist.csv (saved also locally in respository).
+
+# Use
+
+You can use this repository for any personal and non-commercial use. I'll be happy to hear from you if you integrate it with some system/solution.
+
+# Contributions
+
+Feel free to contribute to my project by raising issues or pulling your contributions/ideas.
+
+# Further development
+
+Sample ideas of project development (you can add your own ones!):
+- include another HAM radio programme: [Parks On The Air](https://parksontheair.com/index.html);
+- refactor log_visualisation;
