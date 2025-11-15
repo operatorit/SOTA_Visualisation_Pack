@@ -65,27 +65,27 @@ classDiagram
         -DataFrame SOTA_summits_data
         
         +__init__(lookback_time: int, summits_filename: str)
-        +define_constants() void
-        +update_request_parameters() void
+        +define_constants() None
+        +update_request_parameters() None
         
         +process_spots() DataFrame
         
-        +get_now_time() void
+        +get_now_time() None
         +get_spots() DataFrame
         
-        +amend_spots_frequencies() void
-        +amend_spots_datatypes() void
-        +add_summit_codes() void
-        +prepare_spots_to_join() void
+        +amend_spots_frequencies() None
+        +amend_spots_datatypes() None
+        +add_summit_codes() None
+        +prepare_spots_to_join() None
         
-        +get_summits_list() void
-        +check_error_references() void
-        +join_spots_with_summits() void
+        +get_summits_list() None
+        +check_error_references() None
+        +join_spots_with_summits() None
         
-        +add_time_markers() void
-        +create_visualisation_data() void
-        +remove_unused_columns() void
-        +drop_summits_not_found() void
+        +add_time_markers() None
+        +create_visualisation_data() None
+        +remove_unused_columns() None
+        +drop_summits_not_found() None
     }
     
 ```
