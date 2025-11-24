@@ -100,38 +100,27 @@ Script presents "live" tracker of SOTA activations according to spots send via S
 
 Processing logic:
 ```mermaid
-graph TD
-    A["process_spots()"] -->|1. Time| B["get_now_time()"]
-    A -->|2. Extract| C["get_spots()"]
-    
-    C -->|while loop| D["API Request"]
-    D -->|empty?| E["update_request_parameters()"]
-    E -->|recursion| C
-    D -->|success| F["Parse JSON"]
-    
-    A -->|3. Validate| G["amend_spots_frequencies()"]
-    G -->|4. Convert| H["amend_spots_datatypes()"]
-    H -->|5. Enrich| I["add_summit_codes()"]
-    I -->|6. Cleanup| J["prepare_spots_to_join()"]
-    
-    J -->|7. Load| K["get_summits_list()"]
-    K -->|from CSV| L["pd.read_csv()"]
-    
-    J -->|8. Validate| M["check_error_references()"]
-    M -->|9. Merge| N["join_spots_with_summits()"]
-    
-    N -->|10. Enrich| O["add_time_markers()"]
-    O -->|11. Format| P["create_visualisation_data()"]
-    P -->|12. Cleanup| Q["remove_unused_columns()"]
-    Q -->|13. Final| R["drop_summits_not_found()"]
-    
-    R -->|return| S["DataFrame"]
-    
-    style A fill:#e1f5ff
-    style S fill:#c8e6c9
-    style C fill:#fff9c4
-    style K fill:#fff9c4
-    style P fill:#f8bbd0
+graph TB
+    subgraph SpotsDownloader
+        B[get_spots] --> C[amend_frequencies <br> amend_datatypes] --> D[add_summits_codes]
+        D --> E[prepare_spots_to_join] --> F[get_summits_list]
+        F --> G[check_error_references] --> H[join_spots_with_summits]
+        H --> I[add_time_markers] --> J[create_visualisation_data] 
+        J --> K[remove_unused_columns] --> L[drop_summits_not_found]
+        
+    end
+    conf@{shape: lean-r, label: "config.py"} --> SpotsDownloader
+    conf --> visualisation
+    sota_api@{shape: lean-r, label: "SOTA API"} --> B
+    summits_db[(storage.sota.org.uk)] --> summits_file@{shape: doc, label: "summitslist.csv"} --> F
+    SpotsDownloader --> spots_to_visualise
+    spots_to_visualise --> spots
+    subgraph sota_spots_dashboard
+        spots[create_spots_markers] --> map[set_map_design]
+        callback[create_callback] --> filtering[filter_spots] --> spots
+    end
+
+    user@{shape: manual-input, label: "User filtering"} --> callback
 ```
 
 Tests are written in `pytest`. To execute them, just run `pytests` in the main folder.
