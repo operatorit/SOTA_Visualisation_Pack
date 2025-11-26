@@ -1,7 +1,6 @@
 # SOTA Visualisation Pack
 by [operatorIT.pl](operatorIT.pl) / SQ9NIL
 
-**Project is currently under major changes. Documentation is under update.**
 
 # What SOTA is?
 
@@ -10,6 +9,34 @@ SOTA (Summits On The Air) is an activity designed for radio amateurs (called als
 You can find all information about SOTA programme at https://www.sota.org.uk/.
 
 This project provides a live map of SOTA activations currently ongoing (understand by default as "spotted less than 1 hour ago") as a Dash Leaflet map. As a legacy module, also script to visualise chases from imported log is available in ./log_visualisation folder, but it is not further developed (so far).
+
+# How to use this pack?
+
+You can use this repository for any personal and non-commercial use. I'll be happy to hear from you if you integrate it with some system/solution.
+
+To prepare an environemnt, after downloading the repository you need to:
+1. [Create and activate a virtual environment](https://docs.python.org/3/library/venv.html). 
+2. Download [list of SOTA summits](https://storage.sota.org.uk/summitslist.csv) into the project's folder.
+3. Install project's requirements/dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+If you want to __visualise current SOTA spots__, after set up please:
+4. If required, modify `config.py` file or variables in the script.
+5. Run the dashboard:
+```bash
+python spots_visualiser.py
+```
+6. In terminal you'll see the link to the dashboard ((127.0.0.1:8080)[127.0.0.1:8080] with default setup) - you can open it in your browser.
+
+If you want to __visualise your log__, after set-up you have to:
+4. Upload your log to `./log_visualisation/` folder.
+5. In `./log_visualiser/chasers_visualiser.py` script change variable `filename` (line 10) to your log filename.
+6. Run the script:
+```bash
+python ./log_visualiser/chasers_visualiser.py`
+```
 
 # Project structure
 
@@ -150,10 +177,6 @@ Pack is scripted in Python. Beside the packages required, specified in ```requir
 
 - SOTA API, available at at https://api2.sota.org.uk/docs/index.html,
 - SOTA summits database, available at https://www.sotadata.org.uk/summitslist.csv (saved also locally in respository).
-
-# Use
-
-You can use this repository for any personal and non-commercial use. I'll be happy to hear from you if you integrate it with some system/solution.
 
 # Contributions
 
