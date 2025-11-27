@@ -1,16 +1,18 @@
-pandas
-adif-io
-requests
-plotly
-unidecode
-folium
-maidenhead
-dash
-dash-leaflet
-requests
-mypy
-ruff
-Bandit
-pre-commit
-Isort
-pytest
+# Production dependencies
+pandas>=2.0.0
+requests>=2.31.0
+dash>=2.14.0
+dash-leaflet>=1.0.14
+plotly>=5.17.0
+folium>=0.14.0
+unidecode>=1.3.0
+maidenhead>=1.6.0
+adif-io>=0.3.0
+
+# Development dependencies
+pytest>=7.4.0
+mypy>=1.5.0
+ruff>=0.0.292
+isort>=5.12.0
+bandit>=1.7.5
+pre-commit>=3.3.0

@@ -15,11 +15,27 @@ This project provides a live map of SOTA activations currently ongoing (understa
 You can use this repository for any personal and non-commercial use. I'll be happy to hear from you if you integrate it with some system/solution.
 
 To prepare an environemnt, after downloading the repository you need to:
-1. [Create and activate a virtual environment](https://docs.python.org/3/library/venv.html). 
+1. [Create and activate a virtual environment](https://docs.python.org/3/library/venv.html) with `__Python 3.21__` (currently newer versions are not working due to the `dash-leaflet` dependencies). 
 2. Download [list of SOTA summits](https://storage.sota.org.uk/summitslist.csv) into the project's folder.
 3. Install project's requirements/dependencies:
+- for __PROD__ environment:
 ```bash
 pip install -r requirements.txt
+# alternatively
+pip install .
+```
+
+- for __DEV__ environment:
+```bash
+pip install -e ".[dev]"
+# alterantively
+pip install -r requirements.txt
+pip install -e .
+```
+
+- for __DevTools only__:
+```bash
+pip install -e .[dev]
 ```
 
 If you want to __visualise current SOTA spots__, after set up please:
