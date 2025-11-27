@@ -24,9 +24,6 @@ SOTA_visualiser/*
 SOTA_visualiser/
 *_env/
 
-# configuration
-pyproject.toml
-
 # gitignore
 .gitignore
 
